@@ -1,0 +1,744 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKT SLIM GAME — Decisiones Q4 | Nexus Corp</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/theme-toggle.js"></script>
+    <style>
+        .decision-columns {
+            display: grid;
+            grid-template-columns: 220px 1fr 1fr;
+            gap: 0;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .dc-col-header {
+            padding: 16px 20px;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .dc-col-header:last-child {
+            border-right: none;
+        }
+
+        .dc-col-header:first-child {
+            background: transparent;
+        }
+
+        .dc-col-product-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .dc-col-product-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .dc-row {
+            display: contents;
+        }
+
+        .dc-label {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            background: var(--bg-surface);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .dc-label__cat {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-blue);
+            margin-bottom: 2px;
+        }
+
+        .dc-label__name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .dc-label__range {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .dc-input-cell {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .dc-input-cell:last-child {
+            border-right: none;
+        }
+
+        .dc-calc-cell {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            background: var(--bg-input);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .dc-calc-cell:last-child {
+            border-right: none;
+        }
+
+        .dc-section-divider {
+            grid-column: 1 / -1;
+            padding: 8px 20px;
+            background: rgba(16, 185, 129, 0.04);
+            border-top: 2px solid rgba(16, 185, 129, 0.15);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--accent-emerald);
+        }
+
+        .input-with-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .input-preview-val {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .form-input-compact {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-bright);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            padding: 7px 10px;
+            transition: border-color var(--transition), box-shadow var(--transition);
+            outline: none;
+        }
+
+        .form-input-compact:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+        }
+
+        .action-bar {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .action-bar__info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .action-bar__label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .action-bar__budget {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .action-bar__budget span {
+            color: var(--accent-amber);
+        }
+    </style>
+</head>
+
+<body class="app-shell">
+
+    <!-- TOP NAV -->
+    <nav class="topnav">
+        <div class="topnav__inner">
+            <a href="index.html" class="topnav__logo">
+                <span style="font-size:1.3rem">🚀</span>
+                <span class="topnav__wordmark">MKT SLIM GAME</span>
+            </a>
+            <div class="topnav__meta">
+                <span class="badge badge--lujo">💎 Mercado Lujo</span>
+                <span class="topnav__turn">DECISIONES Q4 2025</span>
+                <span class="timer animate-pulse" id="timer-display">⏱ 07:14:33</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="layout-sidebar">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar__label">Equipo</div>
+            <button class="sidebar__link" onclick="location.href='student-dashboard.html'">
+                <span class="icon">📊</span> Dashboard
+            </button>
+            <button class="sidebar__link active" onclick="location.href='student-decisions.html'">
+                <span class="icon">⚙️</span> Decisiones Q4
+            </button>
+            <button class="sidebar__link" onclick="location.href='student-results.html'">
+                <span class="icon">📋</span> Reporte Q3
+            </button>
+            <hr class="divider" style="margin:16px 0;">
+            <div style="padding:0 12px;">
+                <div
+                    style="font-size:0.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">
+                    Segmento</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);" id="seg-hint">
+                    En el segmento Lujo, <strong style="color:var(--accent-amber)">Calidad y Diseño</strong> ponderan
+                    más que el precio.
+                </div>
+            </div>
+            <hr class="divider" style="margin:16px 0;">
+            <div style="padding:0 12px;">
+                <div
+                    style="font-size:0.7rem;color:var(--text-dim);margin-bottom:8px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">
+                    Presupuesto Q4</div>
+                <div style="font-family:var(--font-mono);font-size:0.95rem;font-weight:700;color:var(--text-primary);"
+                    id="sb-spent">$0</div>
+                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">de <strong
+                        style="color:var(--text-secondary);">$30,000,000</strong> disponibles</div>
+                <div
+                    style="margin-top:8px;background:var(--bg-elevated);border-radius:99px;height:4px;overflow:hidden;">
+                    <div id="sb-budget-fill"
+                        style="height:100%;border-radius:99px;background:var(--accent-emerald);width:0%;transition:width 0.4s;">
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-content">
+
+            <div class="page-header animate-fade-up">
+                <div class="page-header__eyebrow">
+                    <span class="status-dot status-dot--amber animate-pulse"></span>
+                    Formulario de Decisiones · Q4 2025
+                </div>
+                <h1 class="page-header__title">Hoja de Decisiones 4Ps</h1>
+                <p class="page-header__subtitle">Completa las 8 decisiones para cada producto. Los valores calculados se
+                    actualizan en tiempo real.</p>
+            </div>
+
+            <!-- Segmento selector -->
+            <div class="card mb-lg"
+                style="padding:14px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                <span
+                    style="font-size:0.8rem; font-weight:600; color:var(--text-muted); letter-spacing:0.5px; text-transform:uppercase; white-space:nowrap;">Tu
+                    Segmento</span>
+                <select id="segmento-select" class="form-input" style="max-width:220px;">
+                    <option value="economico">🏷️ Mercado Económico</option>
+                    <option value="medio">⚡ Mercado Medio</option>
+                    <option value="lujo" selected>💎 Mercado Lujo</option>
+                </select>
+                <span style="font-size:0.78rem; color:var(--text-muted);" id="seg-tip">
+                    <strong style="color:var(--accent-amber);">Lujo:</strong> Calidad (40%) + Diseño (40%) + ABM (20%).
+                    El precio casi no importa.
+                </span>
+            </div>
+
+            <!-- BUDGET GAUGE -->
+            <div class="budget-gauge mb-lg animate-fade-up" id="budget-section">
+                <div class="budget-gauge__header">
+                    <span class="budget-gauge__title">💰 Presupuesto Total del Turno</span>
+                    <span class="budget-gauge__numbers">Gastado: <strong id="bg-spent">$0</strong> &nbsp;/&nbsp;
+                        Disponible: <strong style="color:var(--accent-emerald);">$30,000,000</strong></span>
+                </div>
+                <div class="budget-track">
+                    <div class="budget-fill" id="bg-fill" style="width:0%"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:6px;">
+                    <span id="bg-remaining" style="font-size:0.72rem; color:var(--text-muted);">Restante: <span
+                            id="bg-remaining-val" style="color:var(--accent-emerald);">$30,000,000</span></span>
+                    <span id="bg-pct"
+                        style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">0%</span>
+                </div>
+                <div id="bg-alert"
+                    style="display:none; margin-top:10px; padding:8px 12px; background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.25); border-radius:var(--radius-sm); font-size:0.8rem; color:var(--accent-rose);">
+                    ⚠️ Presupuesto excedido — reduce el gasto en ABM o canales antes de confirmar.
+                </div>
+            </div>
+
+            <!-- ══════════ DECISION SHEET ══════════ -->
+            <div class="decision-columns">
+
+                <!-- HEADERS -->
+                <div class="dc-col-header">
+                    <span
+                        style="font-size:0.7rem; color:var(--text-muted); font-weight:600; letter-spacing:1px; text-transform:uppercase;">Dimensión</span>
+                </div>
+                <div class="dc-col-header">
+                    <span class="dc-col-product-label">Producto A</span>
+                    <span class="dc-col-product-name">Aurora Pro</span>
+                </div>
+                <div class="dc-col-header">
+                    <span class="dc-col-product-label">Producto B</span>
+                    <span class="dc-col-product-name">Aurora Lite</span>
+                </div>
+
+                <!-- ─── PRODUCT ─── -->
+                <div class="dc-section-divider"
+                    style="grid-column:1/-1; background:rgba(59,130,246,0.04); border-top-color:rgba(59,130,246,0.18); color:var(--accent-blue);">
+                    📦 PRODUCT</div>
+
+                <!-- Quality -->
+                <div class="dc-label">
+                    <div class="dc-label__cat">Producto</div>
+                    <div class="dc-label__name">Nivel de Calidad</div>
+                    <div class="dc-label__range">Rango: 1 – 10</div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="slider-wrapper">
+                        <input type="range" id="a-quality" min="1" max="10" value="8" step="1">
+                        <span class="slider-value" id="a-quality-label">8</span>
+                    </div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="slider-wrapper">
+                        <input type="range" id="b-quality" min="1" max="10" value="6" step="1">
+                        <span class="slider-value" id="b-quality-label">6</span>
+                    </div>
+                </div>
+
+                <!-- Design -->
+                <div class="dc-label">
+                    <div class="dc-label__cat">Producto</div>
+                    <div class="dc-label__name">Nivel de Diseño</div>
+                    <div class="dc-label__range">Rango: 1 – 5</div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="slider-wrapper">
+                        <input type="range" id="a-design" min="1" max="5" value="4" step="1">
+                        <span class="slider-value" id="a-design-label">4</span>
+                    </div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="slider-wrapper">
+                        <input type="range" id="b-design" min="1" max="5" value="3" step="1">
+                        <span class="slider-value" id="b-design-label">3</span>
+                    </div>
+                </div>
+
+                <!-- ─── PRICE ─── -->
+                <div class="dc-section-divider"
+                    style="grid-column:1/-1; background:rgba(245,158,11,0.04); border-top-color:rgba(245,158,11,0.2); color:var(--accent-amber);">
+                    💰 PRICE</div>
+
+                <!-- Precio Retail -->
+                <div class="dc-label">
+                    <div class="dc-label__cat">Precio</div>
+                    <div class="dc-label__name">Precio de Lista B2B</div>
+                    <div class="dc-label__range">$1,000 – $6,000 USD</div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="input-with-preview">
+                        <input type="number" id="a-price" class="form-input-compact" min="1000" max="6000" step="50"
+                            value="5200">
+                        <span class="input-preview-val" id="a-price-preview">$5,200</span>
+                    </div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="input-with-preview">
+                        <input type="number" id="b-price" class="form-input-compact" min="1000" max="6000" step="50"
+                            value="3800">
+                        <span class="input-preview-val" id="b-price-preview">$3,800</span>
+                    </div>
+                </div>
+
+                <!-- Descuento -->
+                <div class="dc-label">
+                    <div class="dc-label__cat">Precio</div>
+                    <div class="dc-label__name">Descuento Corporativo</div>
+                    <div class="dc-label__range">0% – 50%</div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="slider-wrapper">
+                        <input type="range" id="a-discount" min="0" max="50" value="5" step="1">
+                        <span class="slider-value" id="a-discount-label" style="color:var(--accent-amber)">5%</span>
+                    </div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="slider-wrapper">
+                        <input type="range" id="b-discount" min="0" max="50" value="10" step="1">
+                        <span class="slider-value" id="b-discount-label" style="color:var(--accent-amber)">10%</span>
+                    </div>
+                </div>
+
+                <!-- ─── PLACE ─── -->
+                <div class="dc-section-divider"
+                    style="grid-column:1/-1; background:rgba(16,185,129,0.04); border-top-color:rgba(16,185,129,0.18); color:var(--accent-emerald);">
+                    🏪 PLACE</div>
+
+                <!-- Canales -->
+                <div class="dc-label">
+                    <div class="dc-label__cat">Distribución</div>
+                    <div class="dc-label__name">N° de Canales</div>
+                    <div class="dc-label__range">1=50% · 2=75% · 3=90% · 4=100%</div>
+                </div>
+                <div class="dc-input-cell">
+                    <select id="a-channels" class="form-input-compact">
+                        <option value="1">1 canal — 50% cobertura</option>
+                        <option value="2">2 canales — 75% cobertura</option>
+                        <option value="3" selected>3 canales — 90% cobertura</option>
+                        <option value="4">4 canales — 100% cobertura</option>
+                    </select>
+                    <span class="input-preview-val" id="a-channel-label">3 canales</span>
+                </div>
+                <div class="dc-input-cell">
+                    <select id="b-channels" class="form-input-compact">
+                        <option value="1">1 canal — 50% cobertura</option>
+                        <option value="2">2 canales — 75% cobertura</option>
+                        <option value="3" selected>3 canales — 90% cobertura</option>
+                        <option value="4">4 canales — 100% cobertura</option>
+                    </select>
+                    <span class="input-preview-val" id="b-channel-label">3 canales</span>
+                </div>
+
+                <!-- ─── PROMOTION ─── -->
+                <div class="dc-section-divider"
+                    style="grid-column:1/-1; background:rgba(139,92,246,0.04); border-top-color:rgba(139,92,246,0.18); color:var(--accent-violet);">
+                    📣 PROMOTION</div>
+
+                <!-- Publicidad -->
+                <div class="dc-label">
+                    <div class="dc-label__cat">Promoción</div>
+                    <div class="dc-label__name">ABM / Generación de Demanda</div>
+                    <div class="dc-label__range">$0 – $20,000,000</div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="input-with-preview">
+                        <input type="number" id="a-adspend" class="form-input-compact" min="0" max="20000000"
+                            step="500000" value="8000000">
+                        <span class="input-preview-val" id="a-adspend-preview">$8,000,000</span>
+                    </div>
+                </div>
+                <div class="dc-input-cell">
+                    <div class="input-with-preview">
+                        <input type="number" id="b-adspend" class="form-input-compact" min="0" max="20000000"
+                            step="500000" value="4000000">
+                        <span class="input-preview-val" id="b-adspend-preview">$4,000,000</span>
+                    </div>
+                </div>
+
+                <!-- ─── CALCULADOS ─── -->
+                <div class="dc-section-divider" style="grid-column:1/-1;">⚡ CALCULADO AUTOMÁTICAMENTE — No son
+                    decisiones</div>
+
+                <!-- Costo Unitario -->
+                <div class="dc-label">
+                    <div class="dc-label__name" style="color:var(--text-muted)">Costo Unitario</div>
+                    <div class="dc-label__range">(Calidad×$250)+(Diseño×$150)</div>
+                </div>
+                <div class="dc-calc-cell"><span class="calc-value calc-value--neutral"
+                        id="a-calc-unitcost">$2,600</span></div>
+                <div class="dc-calc-cell"><span class="calc-value calc-value--neutral"
+                        id="b-calc-unitcost">$1,950</span></div>
+
+                <!-- Precio con Descuento -->
+                <div class="dc-label">
+                    <div class="dc-label__name" style="color:var(--text-muted)">Precio con Descuento</div>
+                    <div class="dc-label__range">Retail × (1 - Descuento%)</div>
+                </div>
+                <div class="dc-calc-cell"><span class="calc-value calc-value--neutral"
+                        id="a-calc-discprice">$4,940</span></div>
+                <div class="dc-calc-cell"><span class="calc-value calc-value--neutral"
+                        id="b-calc-discprice">$3,420</span></div>
+
+                <!-- Margen Unitario -->
+                <div class="dc-label">
+                    <div class="dc-label__name" style="color:var(--text-muted)">Margen Unitario</div>
+                    <div class="dc-label__range">Precio Dscto. – Costo</div>
+                </div>
+                <div class="dc-calc-cell"><span class="calc-value" id="a-calc-margin">$2,340</span></div>
+                <div class="dc-calc-cell"><span class="calc-value" id="b-calc-margin">$1,470</span></div>
+
+                <!-- Costo Total Canales -->
+                <div class="dc-label">
+                    <div class="dc-label__name" style="color:var(--text-muted)">Costo Total Canales</div>
+                    <div class="dc-label__range">$2,000,000 × N° canales</div>
+                </div>
+                <div class="dc-calc-cell"><span class="calc-value calc-value--neutral"
+                        id="a-calc-channelcost">$6,000,000</span></div>
+                <div class="dc-calc-cell"><span class="calc-value calc-value--neutral"
+                        id="b-calc-channelcost">$6,000,000</span></div>
+
+                <!-- Cobertura -->
+                <div class="dc-label" style="border-bottom:none;">
+                    <div class="dc-label__name" style="color:var(--text-muted)">Cobertura de Mercado</div>
+                    <div class="dc-label__range">% alcanzable</div>
+                </div>
+                <div class="dc-calc-cell" style="border-bottom:none;"><span class="calc-value calc-value--neutral"
+                        id="a-calc-reach">90%</span></div>
+                <div class="dc-calc-cell" style="border-bottom:none;"><span class="calc-value calc-value--neutral"
+                        id="b-calc-reach">90%</span></div>
+
+            </div><!-- /decision-columns -->
+
+            <!-- MARKET FIT SCORES -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+                <div class="card">
+                    <div class="card__title">🎯 Market Fit Score — Producto A</div>
+                    <div class="mfs-bar-wrapper">
+                        <div class="mfs-bar-label">
+                            <span id="a-mfs-desc">Fuerte en Mercado Lujo</span>
+                            <span class="mfs-bar-score" id="a-mfs-score">78%</span>
+                        </div>
+                        <div class="mfs-bar-track">
+                            <div class="mfs-bar-fill mfs-bar-fill--high" id="a-mfs-fill" style="width:78%"></div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-muted mt-sm">Score basado en las ponderaciones del segmento Lujo: Calidad
+                        (40%) + Diseño (40%) + Publicidad (20%) − Precio.</p>
+                </div>
+                <div class="card">
+                    <div class="card__title">🎯 Market Fit Score — Producto B</div>
+                    <div class="mfs-bar-wrapper">
+                        <div class="mfs-bar-label">
+                            <span id="b-mfs-desc">Competitivo en Mercado Lujo</span>
+                            <span class="mfs-bar-score" id="b-mfs-score">55%</span>
+                        </div>
+                        <div class="mfs-bar-track">
+                            <div class="mfs-bar-fill mfs-bar-fill--mid" id="b-mfs-fill" style="width:55%"></div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-muted mt-sm">Un score < 35% indica que el producto necesita reposicionamiento
+                            estratégico para el segmento asignado.</p>
+                </div>
+            </div>
+
+            <!-- ACTION BAR -->
+            <div class="action-bar">
+                <div class="action-bar__info">
+                    <span class="action-bar__label">Presupuesto total comprometido</span>
+                    <span class="action-bar__budget">
+                        ABM: <span id="total-adspend">$12,000,000</span> &nbsp;|&nbsp;
+                        Canales: <span id="total-channels">$12,000,000</span> &nbsp;|&nbsp;
+                        <strong>Total: <span id="total-budget"
+                                style="color:var(--accent-emerald);">$24,000,000</span></strong>
+                    </span>
+                </div>
+                <div class="flex flex--gap-sm">
+                    <button class="btn btn--ghost" onclick="saveDraft()">💾 Guardar Borrador</button>
+                    <button class="btn btn--primary" onclick="submitTurn()">🚀 Confirmar Turno Q4</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/anticheat.js"></script>
+    <script src="js/calculator.js"></script>
+    <script>
+        // ── OVERRIDE de updateProductDisplay para manejar los IDs de esta pantalla ──
+        // En esta pantalla los IDs son a-quality, b-quality, etc.
+        // Redefinimos updateProductDisplay para el layout de columnas de esta pantalla
+
+        function updateAllCalcs() {
+            ['a', 'b'].forEach(p => {
+                const seg = document.getElementById('segmento-select')?.value ?? 'lujo';
+
+                const quality = parseFloat(document.getElementById(`${p}-quality`)?.value ?? 5);
+                const design = parseFloat(document.getElementById(`${p}-design`)?.value ?? 3);
+                const retailPrice = parseFloat(document.getElementById(`${p}-price`)?.value ?? 3000);
+                const channels = parseInt(document.getElementById(`${p}-channels`)?.value ?? 2);
+                const discountPct = parseFloat(document.getElementById(`${p}-discount`)?.value ?? 0);
+                const adSpend = parseFloat(document.getElementById(`${p}-adspend`)?.value ?? 0);
+
+                const inputs = { quality, design, retailPrice, channels, discountPct, adSpend };
+                const m = calcProductMetrics(inputs);
+                const mfs = calcMarketFitScore(inputs, seg);
+
+                const fmt_c = (v) => '$' + Math.round(v).toLocaleString('es-CL').replace(/\./g, ',');
+                const fmt_p = (v) => (v * 100).toFixed(0) + '%';
+
+                setText(`${p}-calc-unitcost`, fmt_c(m.unitCost));
+                setText(`${p}-calc-discprice`, fmt_c(m.discPrice));
+                setText(`${p}-calc-channelcost`, fmt_c(m.channelCost));
+                setText(`${p}-calc-reach`, fmt_p(m.reach));
+
+                const marginEl = document.getElementById(`${p}-calc-margin`);
+                if (marginEl) {
+                    marginEl.textContent = fmt_c(m.margin);
+                    marginEl.className = `calc-value ${m.margin >= 0 ? 'calc-value--positive' : 'calc-value--negative'}`;
+                }
+
+                // Slider labels
+                setText(`${p}-quality-label`, quality);
+                setText(`${p}-design-label`, design);
+                setText(`${p}-discount-label`, `${discountPct}%`);
+                setText(`${p}-price-preview`, fmt_c(retailPrice));
+                setText(`${p}-adspend-preview`, fmt_c(adSpend));
+
+                // MFS
+                const pct = Math.round(mfs * 100);
+                const barEl = document.getElementById(`${p}-mfs-fill`);
+                const scoreEl = document.getElementById(`${p}-mfs-score`);
+                const descEl = document.getElementById(`${p}-mfs-desc`);
+                const segLabel = { economico: 'Mercado Económico', medio: 'Mercado Medio', lujo: 'Mercado Lujo' }[seg];
+                if (barEl) { barEl.style.width = `${pct}%`; barEl.className = `mfs-bar-fill ${pct < 35 ? 'mfs-bar-fill--low' : pct < 65 ? 'mfs-bar-fill--mid' : 'mfs-bar-fill--high'}`; }
+                if (scoreEl) { scoreEl.textContent = `${pct}%`; scoreEl.style.color = pct < 35 ? 'var(--accent-rose)' : pct < 65 ? 'var(--accent-amber)' : 'var(--accent-emerald)'; }
+                if (descEl) descEl.textContent = pct < 35 ? `Débil para ${segLabel}` : pct < 65 ? `Competitivo en ${segLabel}` : `Fuerte en ${segLabel}`;
+            });
+
+            // ── Totales de presupuesto ─────────────────────────────
+            const ad_a = parseFloat(document.getElementById('a-adspend')?.value ?? 0);
+            const ad_b = parseFloat(document.getElementById('b-adspend')?.value ?? 0);
+            const ch_a = parseInt(document.getElementById('a-channels')?.value ?? 1);
+            const ch_b = parseInt(document.getElementById('b-channels')?.value ?? 1);
+            setText('total-adspend', '$' + (ad_a + ad_b).toLocaleString('es-CL').replace(/\./g, ','));
+            const chCost = (ch_a + ch_b) * 2_000_000;
+            setText('total-channels', '$' + chCost.toLocaleString('es-CL').replace(/\./g, ','));
+            const totalSpent = ad_a + ad_b + chCost;
+            setText('total-budget', '$' + totalSpent.toLocaleString('es-CL').replace(/\./g, ','));
+            updateBudgetGauge(totalSpent);
+        }
+
+        function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+        // Bind all inputs
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input, select').forEach(el => {
+                el.addEventListener('input', updateAllCalcs);
+                el.addEventListener('change', updateAllCalcs);
+            });
+            updateAllCalcs();
+        });
+
+        // Agrega la lectura de totales al comienzo de updateAllCalcs
+        const _origCalcs = updateAllCalcs;
+
+        // ── BUDGET GAUGE ──────────────────────────────────────────
+        const MAX_BUDGET = 30_000_000;
+        function updateBudgetGauge(spent) {
+            const pct = Math.min(spent / MAX_BUDGET * 100, 100);
+            const fill = document.getElementById('bg-fill');
+            const sbFill = document.getElementById('sb-budget-fill');
+            const alert = document.getElementById('bg-alert');
+            const remVal = document.getElementById('bg-remaining-val');
+            const bgPct = document.getElementById('bg-pct');
+            const bgSpent = document.getElementById('bg-spent');
+            const sbSpent = document.getElementById('sb-spent');
+
+            const fmt = v => '$' + Math.max(0, Math.round(v)).toLocaleString('es-CL').replace(/\./g, ',');
+
+            if (bgSpent) bgSpent.textContent = fmt(spent);
+            if (sbSpent) sbSpent.textContent = fmt(spent);
+            if (bgPct) bgPct.textContent = pct.toFixed(0) + '%';
+            if (remVal) {
+                const rem = MAX_BUDGET - spent;
+                remVal.textContent = fmt(rem);
+                remVal.style.color = rem < 0 ? 'var(--accent-rose)' : rem < MAX_BUDGET * 0.2 ? 'var(--accent-amber)' : 'var(--accent-emerald)';
+            }
+
+            const fillClass = pct > 100 ? 'budget-fill--crit' : pct > 80 ? 'budget-fill--warn' : '';
+            if (fill) { fill.style.width = Math.min(pct, 100) + '%'; fill.className = 'budget-fill ' + fillClass; }
+            if (sbFill) { sbFill.style.width = Math.min(pct, 100) + '%'; sbFill.style.background = pct > 100 ? 'var(--accent-rose)' : pct > 80 ? 'var(--accent-amber)' : 'var(--accent-emerald)'; }
+            if (alert) alert.style.display = spent > MAX_BUDGET ? 'block' : 'none';
+        }
+
+        // ── SEGMENT TIPS ──────────────────────────────────────────
+        const SEGMENT_TIPS = {
+            economico: '<strong style="color:var(--seg-economico);">Económico:</strong> Precio bajo (50%) + Canales (30%) + Calidad (20%). El diseño apenas mueve la aguja.',
+            medio: '<strong style="color:var(--seg-medio);">Medio:</strong> Calidad (35%) + Precio (25%) + Diseño (25%) + ABM (15%). Balance entre todas las 4Ps.',
+            lujo: '<strong style="color:var(--accent-amber);">Lujo:</strong> Calidad (40%) + Diseño (40%) + ABM (20%). El precio casi no importa.',
+        };
+        document.getElementById('segmento-select')?.addEventListener('change', e => {
+            const tipEl = document.getElementById('seg-tip');
+            const hintEl = document.getElementById('seg-hint');
+            const tips = SEGMENT_TIPS[e.target.value] || '';
+            if (tipEl) tipEl.innerHTML = tips;
+            if (hintEl) hintEl.innerHTML = tips;
+        });
+
+        function saveDraft() {
+            const btn = event.target;
+            // Guardar en localStorage
+            const data = {};
+            document.querySelectorAll('input, select').forEach(el => { if (el.id) data[el.id] = el.value; });
+            localStorage.setItem('ag_draft_q4', JSON.stringify(data));
+            btn.textContent = '✅ Borrador Guardado';
+            btn.style.color = 'var(--accent-emerald)';
+            setTimeout(() => { btn.textContent = '💾 Guardar Borrador'; btn.style.color = ''; }, 2500);
+        }
+
+        function submitTurn() {
+            // Verificar presupuesto
+            const ad_a = parseFloat(document.getElementById('a-adspend')?.value ?? 0);
+            const ad_b = parseFloat(document.getElementById('b-adspend')?.value ?? 0);
+            const ch_a = parseInt(document.getElementById('a-channels')?.value ?? 1);
+            const ch_b = parseInt(document.getElementById('b-channels')?.value ?? 1);
+            const totalSpent = ad_a + ad_b + (ch_a + ch_b) * 2_000_000;
+            if (totalSpent > MAX_BUDGET) {
+                alert('⚠️ No puedes confirmar: el presupuesto total supera los $30,000,000.\nReduce tu inversión en ABM o canales.');
+                return;
+            }
+            if (confirm('¿Confirmas tus decisiones para el Turno Q4? No podrás modificarlas después.')) {
+                // Marcar como enviado
+                localStorage.setItem('ag_submitted_q4', '1');
+                window.location.href = 'student-results.html';
+            }
+        }
+
+        // Timer compartido — sincronizado con dashboard via sessionStorage
+        const SHARED_START_SECS = 7 * 3600 + 14 * 60 + 33;
+        const sessionKey = 'ag_timer_start';
+        if (!sessionStorage.getItem(sessionKey)) sessionStorage.setItem(sessionKey, Date.now());
+        const timerEl = document.getElementById('timer-display');
+        const timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - parseInt(sessionStorage.getItem(sessionKey))) / 1000);
+            const remaining = Math.max(0, SHARED_START_SECS - elapsed);
+            const h = Math.floor(remaining / 3600), m = Math.floor((remaining % 3600) / 60), s = remaining % 60;
+            timerEl.textContent = `⏱ ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            if (h < 1) timerEl.classList.add('timer--urgent');
+            if (remaining <= 0) clearInterval(timerInterval);
+        }, 1000);
+    </script>
+</body>
+
+</html>

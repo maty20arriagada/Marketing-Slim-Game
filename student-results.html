@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKT SLIM GAME — Reporte Q3 | Nexus Corp</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/theme-toggle.js"></script>
+    <style>
+        .metrics-delta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .verdict-text {
+            font-size: 0.92rem;
+            line-height: 1.85;
+            color: var(--text-secondary);
+        }
+
+        .verdict-text strong {
+            color: var(--text-primary);
+        }
+
+        .quote-accent {
+            border-left: 3px solid var(--accent-blue);
+            padding-left: 16px;
+            margin: 16px 0;
+            font-style: italic;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+    </style>
+</head>
+
+<body class="app-shell">
+
+    <nav class="topnav">
+        <div class="topnav__inner">
+            <a href="index.html" class="topnav__logo">
+                <span style="font-size:1.3rem">🚀</span>
+                <span class="topnav__wordmark">MKT SLIM GAME</span>
+            </a>
+            <div class="topnav__meta">
+                <span class="badge badge--lujo" id="nav-segment">💎 Mercado Lujo</span>
+                <span class="topnav__turn" id="nav-turn">REPORTE Q3 2025</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="layout-sidebar">
+        <aside class="sidebar">
+            <div class="sidebar__label">Equipo</div>
+            <button class="sidebar__link" onclick="location.href='student-dashboard.html'">
+                <span class="icon">📊</span> Dashboard
+            </button>
+            <button class="sidebar__link" onclick="location.href='student-decisions.html'">
+                <span class="icon">⚙️</span> Decisiones Q4
+            </button>
+            <button class="sidebar__link active">
+                <span class="icon">📋</span> Reporte Q3
+            </button>
+            <hr class="divider" style="margin:16px 0;">
+            <div style="padding:0 12px; font-size:0.75rem; color:var(--text-muted);">
+                El reporte del Árbitro analiza tus decisiones contra el desempeño del mercado.
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="page-header animate-fade-up">
+                <div class="page-header__eyebrow">
+                    <span class="status-dot status-dot--green"></span>
+                    Informe del Árbitro · Turno Completado
+                </div>
+                <h1 class="page-header__title" id="hdr-title">📊 Reporte de Rendimiento: Q3 2025</h1>
+                <p class="page-header__subtitle" id="hdr-sub">Nexus Corp · Segmento Lujo · Evaluado por el Árbitro
+                    MKT SLIM GAME</p>
+            </div>
+
+            <!-- MÉTRICAS CON DELTA -->
+            <!-- Rendered by JS -->
+            <div class="metrics-delta-grid stagger" id="result-metrics"></div>
+
+            <!-- VEREDICTO DEL ÁRBITRO -->
+            <div class="arbiter-card animate-fade-up mb-lg">
+                <div class="arbiter-card__header">
+                    <span style="font-size:1.5rem">⚖️</span>
+                    <div>
+                        <div style="font-weight:700; font-size:1rem; color:var(--text-primary);">Veredicto del Árbitro
+                        </div>
+                        <div style="font-size:0.78rem; color:var(--text-muted);">Análisis estratégico basado en métricas
+                            B2B y condiciones del mercado</div>
+                    </div>
+                </div>
+                <div class="arbiter-card__verdict" id="verdict-body"></div>
+            </div>
+
+            <!-- EVENTO ENTRANTE -->
+            <div class="section-title" id="event-section-title">🌪️ Evento de Mercado Entrante — Q4</div>
+            <div class="event-card event-card--incoming mb-lg">
+                <div class="event-card__icon">🚨</div>
+                <div>
+                    <div class="event-card__title" id="ev-title">—</div>
+                    <div class="event-card__desc" id="ev-desc">—</div>
+                </div>
+            </div>
+
+            <!-- HISTORIAL -->
+            <div class="section-title">📈 Evolución Histórica de la Marca</div>
+            <div class="card mb-lg" style="padding:0; overflow:hidden;">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Turno</th>
+                            <th>ARR Total</th>
+                            <th>Cuota Mercado</th>
+                            <th>Margen Prom.</th>
+                            <th>CAC Prom.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody"></tbody>
+                </table>
+            </div>
+
+            <div class="action-bar">
+                <div class="action-bar__info">
+                    <span class="action-bar__label">Siguiente paso</span>
+                    <span style="font-size:0.9rem; color:var(--text-secondary);">Define tu estrategia Q4 considerando el
+                        evento de materiales premium.</span>
+                </div>
+                <button class="btn btn--primary" onclick="location.href='student-decisions.html'">
+                    ⚙️ Ir a Decisiones Q4 →
+                </button>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/anticheat.js"></script>
+    <script src="js/mock-data.js"></script>
+    <script>
+        const fmtM = v => '$' + (v / 1_000_000).toFixed(2) + 'M';
+        const fmtK = v => '$' + Math.round(v).toLocaleString('es-CL');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const D = window.MOCK;
+            if (!D) return;
+            const rpt = D.arbiterReport;
+
+            // Nav
+            document.getElementById('nav-segment').textContent = D.team.segmentoLabel;
+            document.getElementById('nav-turn').textContent = 'REPORTE ' + rpt.turn;
+            document.getElementById('hdr-title').textContent = '📊 Reporte de Rendimiento: ' + rpt.turn;
+            document.getElementById('hdr-sub').textContent = `${D.team.name} · ${D.team.segmentoLabel} · Evaluado por el Árbitro MKT SLIM GAME`;
+
+            // Metrics
+            const m = rpt.metrics;
+            const tiles = [
+                { accent: 'var(--accent-emerald)', glow: ' card--glow-blue', label: 'ARR Total', value: fmtM(m.arr.value), delta: `▲ ${m.arr.deltaPct} vs turno anterior`, dir: m.arr.deltaDir },
+                { accent: 'var(--accent-blue)', glow: '', label: 'Cuota de Mercado', value: m.marketShare.value + '%', delta: `▲ ${m.marketShare.deltaPct} vs turno anterior`, dir: m.marketShare.deltaDir },
+                { accent: 'var(--accent-rose)', glow: '', label: 'Margen Prom. Unitario', value: fmtK(m.avgMargin.value), delta: `▼ ${m.avgMargin.deltaPct} vs turno anterior`, dir: m.avgMargin.deltaDir },
+                { accent: 'var(--accent-violet)', glow: '', label: 'CAC Promedio', value: D.history.length > 2 ? fmtK(D.history[D.history.length - 2].cac) : '—', delta: '▼ -10.1% vs turno anterior ✓', dir: 'up' },
+            ];
+            document.getElementById('result-metrics').innerHTML = tiles.map(t => `
+                <div class="metric-tile${t.glow}">
+                    <div class="metric-tile__accent" style="background:${t.accent}"></div>
+                    <div class="metric-tile__label">${t.label}</div>
+                    <div class="metric-tile__value">${t.value}</div>
+                    <div class="metric-tile__delta metric-tile__delta--${t.dir}">${t.delta}</div>
+                </div>
+            `).join('');
+
+            // Verdict
+            const paragraphs = rpt.verdict.split('\n').filter(p => p.trim());
+            const verdictHtml = paragraphs.map(p => {
+                // Bold product names and key values
+                let html = p.replace(/"([^"]+)"/g, '<strong>"$1"</strong>');
+                return `<p class="verdict-text mt-sm">${html}</p>`;
+            }).join('');
+            document.getElementById('verdict-body').innerHTML = verdictHtml + `
+                <div class="quote-accent">En B2B de alto valor, el descuento no acelera el cierre — erosiona la percepción de valor y compromete el LTV del cliente a largo plazo.</div>`;
+
+            // Event
+            const ev = rpt.incomingEvent;
+            document.getElementById('event-section-title').innerHTML = `🌪️ Evento de Mercado Entrante — ${D.currentTurnLabel}`;
+            document.getElementById('ev-title').textContent = ev.title;
+            document.getElementById('ev-desc').textContent = ev.description;
+
+            // History table
+            const tbody = document.getElementById('history-tbody');
+            const reportTurnIdx = D.history.findIndex(h => h.turn === rpt.turn.split(' ')[0]);
+            tbody.innerHTML = D.history.map((h, i) => {
+                const isReported = i === reportTurnIdx;
+                const isFuture = i > reportTurnIdx;
+                const prevH = D.history[i - 1];
+                const arrArrow = prevH && h.arr > prevH.arr ? ' <span style="color:var(--accent-emerald);font-size:0.75rem">▲</span>' : '';
+                const shareArrow = prevH && h.marketShare > prevH.marketShare ? ' <span style="color:var(--accent-emerald);font-size:0.75rem">▲</span>' : '';
+                const cacArrow = prevH && h.cac < prevH.cac ? ' <span style="color:var(--accent-emerald);font-size:0.75rem">▼</span>' : '';
+                const marginStyle = prevH && h.avgMargin < prevH.avgMargin ? 'color:var(--accent-rose)' : '';
+                const marginArrow = prevH && h.avgMargin < prevH.avgMargin ? ' ▼' : '';
+
+                if (isFuture) {
+                    return `<tr style="opacity:0.5"><td class="table__mono">${h.turn} 2025</td><td class="table__mono text-muted">En curso...</td><td class="table__mono text-muted">—</td><td class="table__mono text-muted">—</td><td class="table__mono text-muted">—</td></tr>`;
+                }
+                const rowStyle = isReported ? ' style="background:rgba(59,130,246,0.04)"' : '';
+                const turnLabel = isReported ? `${h.turn} 2025 <span class="badge badge--success" style="margin-left:8px">Evaluado</span>` : `${h.turn} 2025`;
+                return `<tr${rowStyle}>
+                    <td class="table__mono">${turnLabel}</td>
+                    <td class="table__mono">${fmtM(h.arr)}${arrArrow}</td>
+                    <td class="table__mono">${h.marketShare}%${shareArrow}</td>
+                    <td class="table__mono" style="${marginStyle}">${fmtK(h.avgMargin)}${marginArrow}</td>
+                    <td class="table__mono" style="${prevH && h.cac < prevH.cac ? 'color:var(--accent-emerald)' : ''}">${fmtK(h.cac)}${cacArrow}</td>
+                </tr>`;
+            }).join('');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,665 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKT SLIM GAME — Registro de Empresa</title>
+    <meta name="description" content="Crea tu empresa y tus productos para el Simulador MKT SLIM GAME B2B.">
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/theme-toggle.js"></script>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .onboard-container {
+            max-width: 640px;
+            width: 100%;
+            padding: 40px 24px;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .onboard-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .onboard-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            border-radius: 20px;
+            font-size: 2rem;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.35);
+        }
+
+        .onboard-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .onboard-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Steps */
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .step-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 32px 28px;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-bright);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .step-dot.done {
+            background: var(--accent-emerald);
+            border-color: var(--accent-emerald);
+        }
+
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .step-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-bright);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: var(--font-ui);
+            font-size: 0.95rem;
+            padding: 11px 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .form-input--mono {
+            font-family: var(--font-mono);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 70px;
+            line-height: 1.5;
+        }
+
+        .form-hint {
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .segment-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .segment-option {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .segment-option:hover {
+            border-color: var(--border-bright);
+            transform: translateY(-2px);
+        }
+
+        .segment-option.selected {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.08);
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.15);
+        }
+
+        .segment-option.selected[data-seg="economico"] {
+            border-color: var(--seg-economico);
+            background: rgba(100, 116, 139, 0.08);
+        }
+
+        .segment-option.selected[data-seg="lujo"] {
+            border-color: var(--seg-lujo);
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .seg-icon {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .seg-name {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .seg-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        /* Products */
+        .product-setup {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .product-setup__label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-blue);
+            margin-bottom: 14px;
+        }
+
+        /* Nav buttons */
+        .step-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+        }
+
+        .btn-step {
+            padding: 12px 28px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-step--next {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+
+        .btn-step--next:hover {
+            background: #1D4ED8;
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-step--back {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-bright);
+        }
+
+        .btn-step--back:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .btn-step--launch {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #fff;
+            width: 100%;
+            padding: 16px;
+            font-size: 1rem;
+        }
+
+        .btn-step--launch:hover {
+            box-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
+            transform: translateY(-1px);
+        }
+
+        /* Summary */
+        .summary-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.85rem;
+        }
+
+        .summary-row__label {
+            color: var(--text-muted);
+        }
+
+        .summary-row__value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .form-error {
+            display: none;
+            padding: 8px 12px;
+            background: rgba(244, 63, 94, 0.08);
+            border: 1px solid rgba(244, 63, 94, 0.25);
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            color: var(--accent-rose);
+            margin-bottom: 12px;
+        }
+
+        .form-error.visible {
+            display: block;
+        }
+
+        /* Background */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(59, 130, 246, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(59, 130, 246, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .onboard-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+
+    <div class="onboard-container">
+        <div class="onboard-header">
+            <div class="onboard-icon">🏢</div>
+            <h1 class="onboard-title">Crea tu Empresa</h1>
+            <p class="onboard-subtitle">Configura tu marca y productos para competir en el simulador</p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator" id="step-indicator">
+            <div class="step-dot active" id="dot-1"></div>
+            <div class="step-line"></div>
+            <div class="step-dot" id="dot-2"></div>
+            <div class="step-line"></div>
+            <div class="step-dot" id="dot-3"></div>
+        </div>
+
+        <!-- ════════════ STEP 1: Empresa ════════════ -->
+        <div class="step active" id="step-1">
+            <div class="step-card">
+                <div class="step-label">Paso 1 de 3</div>
+                <div class="step-title">Identidad de tu Empresa</div>
+
+                <div class="form-error" id="err-1"></div>
+
+                <div class="form-group">
+                    <label class="form-label" for="company-name">Nombre de tu Empresa</label>
+                    <input type="text" id="company-name" class="form-input"
+                        placeholder="Ej: Nexus Corp, Prism Tech, Vox Industries" maxlength="40" required>
+                    <div class="form-hint">Máximo 40 caracteres. Este nombre te identificará en la tabla de posiciones.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="team-password">🔒 Contraseña del Equipo</label>
+                    <input type="password" id="team-password" class="form-input" placeholder="Mínimo 4 caracteres"
+                        maxlength="30" required style="font-family: var(--font-mono);">
+                    <div class="form-hint">Esta contraseña será compartida entre los miembros del equipo para acceder al
+                        simulador.</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="team-password-confirm">🔒 Confirmar Contraseña</label>
+                    <input type="password" id="team-password-confirm" class="form-input"
+                        placeholder="Repite la contraseña" maxlength="30" required
+                        style="font-family: var(--font-mono);">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Segmento de Mercado</label>
+                    <div class="segment-cards">
+                        <div class="segment-option" data-seg="economico" onclick="selectSegment(this)">
+                            <span class="seg-icon">🏷️</span>
+                            <div class="seg-name">Económico</div>
+                            <div class="seg-desc">Precio bajo y volumen. Calidad base suficiente.</div>
+                        </div>
+                        <div class="segment-option selected" data-seg="medio" onclick="selectSegment(this)">
+                            <span class="seg-icon">⚡</span>
+                            <div class="seg-name">Medio</div>
+                            <div class="seg-desc">Balance precio-valor. Todas las 4Ps importan.</div>
+                        </div>
+                        <div class="segment-option" data-seg="lujo" onclick="selectSegment(this)">
+                            <span class="seg-icon">💎</span>
+                            <div class="seg-name">Lujo</div>
+                            <div class="seg-desc">Diferenciación por calidad y diseño. Precio secundario.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-nav">
+                    <a href="index.html" class="btn-step btn-step--back">← Cancelar</a>
+                    <button class="btn-step btn-step--next" onclick="goToStep(2)">Continuar →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════ STEP 2: Productos ════════════ -->
+        <div class="step" id="step-2">
+            <div class="step-card">
+                <div class="step-label">Paso 2 de 3</div>
+                <div class="step-title">Define tus Productos</div>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:20px;">
+                    Tu empresa tendrá 2 productos. Dale un nombre y una breve descripción a cada uno.
+                    Podrás ajustar sus atributos (calidad, precio, etc.) en la Hoja de Decisiones.
+                </p>
+
+                <div class="form-error" id="err-2"></div>
+
+                <div class="product-setup">
+                    <div class="product-setup__label">📦 Producto A — Tu producto principal</div>
+                    <div class="form-group">
+                        <label class="form-label" for="prod-a-name">Nombre del Producto A</label>
+                        <input type="text" id="prod-a-name" class="form-input" placeholder="Ej: Aurora Pro, Helix Core"
+                            maxlength="30">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="prod-a-desc">Descripción breve</label>
+                        <textarea id="prod-a-desc" class="form-input" placeholder="¿Qué hace? ¿A quién va dirigido?"
+                            maxlength="150"></textarea>
+                        <div class="form-hint">Máximo 150 caracteres. Opcional pero recomendada.</div>
+                    </div>
+                </div>
+
+                <div class="product-setup">
+                    <div class="product-setup__label">📦 Producto B — Tu producto secundario</div>
+                    <div class="form-group">
+                        <label class="form-label" for="prod-b-name">Nombre del Producto B</label>
+                        <input type="text" id="prod-b-name" class="form-input" placeholder="Ej: Aurora Lite, Helix Mini"
+                            maxlength="30">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="prod-b-desc">Descripción breve</label>
+                        <textarea id="prod-b-desc" class="form-input" placeholder="¿Qué hace? ¿A quién va dirigido?"
+                            maxlength="150"></textarea>
+                        <div class="form-hint">Máximo 150 caracteres. Opcional pero recomendada.</div>
+                    </div>
+                </div>
+
+                <div class="step-nav">
+                    <button class="btn-step btn-step--back" onclick="goToStep(1)">← Volver</button>
+                    <button class="btn-step btn-step--next" onclick="goToStep(3)">Revisar →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════ STEP 3: Confirmación ════════════ -->
+        <div class="step" id="step-3">
+            <div class="step-card">
+                <div class="step-label">Paso 3 de 3</div>
+                <div class="step-title">Confirma tu Registro</div>
+                <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:20px;">
+                    Revisa que todo esté correcto. El profesor puede modificar estos datos después desde su panel.
+                </p>
+
+                <div class="summary-card">
+                    <div
+                        style="font-size:0.68rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent-blue); margin-bottom:10px;">
+                        🏢 Tu Empresa</div>
+                    <div class="summary-row">
+                        <span class="summary-row__label">Nombre</span>
+                        <span class="summary-row__value" id="sum-name">—</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-row__label">Segmento</span>
+                        <span class="summary-row__value" id="sum-segment">—</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-row__label">ID de Equipo</span>
+                        <span class="summary-row__value" id="sum-id" style="font-family:var(--font-mono);">—</span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div
+                        style="font-size:0.68rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent-emerald); margin-bottom:10px;">
+                        📦 Tus Productos</div>
+                    <div class="summary-row">
+                        <span class="summary-row__label">Producto A</span>
+                        <span class="summary-row__value" id="sum-prod-a">—</span>
+                    </div>
+                    <div class="summary-row" style="padding-left:16px;">
+                        <span class="summary-row__label" style="font-style:italic;" id="sum-desc-a">Sin
+                            descripción</span>
+                    </div>
+                    <div class="summary-row" style="margin-top:6px;">
+                        <span class="summary-row__label">Producto B</span>
+                        <span class="summary-row__value" id="sum-prod-b">—</span>
+                    </div>
+                    <div class="summary-row" style="padding-left:16px;">
+                        <span class="summary-row__label" style="font-style:italic;" id="sum-desc-b">Sin
+                            descripción</span>
+                    </div>
+                </div>
+
+                <div class="step-nav" style="flex-direction:column; gap:12px;">
+                    <button class="btn-step btn-step--launch" onclick="registerTeam()">🚀 Registrar Empresa e
+                        Ingresar</button>
+                    <button class="btn-step btn-step--back" style="width:100%; text-align:center;"
+                        onclick="goToStep(2)">← Corregir datos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data-store.js"></script>
+    <script>
+        let selectedSegment = "medio";
+
+        function selectSegment(el) {
+            document.querySelectorAll(".segment-option").forEach(s => s.classList.remove("selected"));
+            el.classList.add("selected");
+            selectedSegment = el.dataset.seg;
+        }
+
+        function showError(stepNum, msg) {
+            const el = document.getElementById(`err-${stepNum}`);
+            if (el) { el.textContent = "⚠️ " + msg; el.classList.add("visible"); }
+        }
+
+        function hideErrors() {
+            document.querySelectorAll(".form-error").forEach(el => el.classList.remove("visible"));
+        }
+
+        const SEG_LABELS = { economico: "🏷️ Económico", medio: "⚡ Medio", lujo: "💎 Lujo" };
+
+        function goToStep(num) {
+            hideErrors();
+
+            // Validate current step
+            if (num === 2) {
+                const name = document.getElementById("company-name").value.trim();
+                const pw = document.getElementById("team-password").value;
+                const pw2 = document.getElementById("team-password-confirm").value;
+
+                if (!name) { showError(1, "Debes ingresar un nombre para tu empresa."); return; }
+                if (name.length < 3) { showError(1, "El nombre debe tener al menos 3 caracteres."); return; }
+                if (!pw || pw.length < 4) { showError(1, "La contrase\u00f1a debe tener al menos 4 caracteres."); return; }
+                if (pw !== pw2) { showError(1, "Las contrase\u00f1as no coinciden."); return; }
+
+                // Check for duplicates
+                const existing = DataStore.getTeams();
+                if (existing.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+                    showError(1, "Ya existe una empresa con ese nombre. Elige otro."); return;
+                }
+            }
+
+            if (num === 3) {
+                const prodA = document.getElementById("prod-a-name").value.trim();
+                const prodB = document.getElementById("prod-b-name").value.trim();
+                if (!prodA) { showError(2, "Dale un nombre a tu Producto A."); return; }
+                if (!prodB) { showError(2, "Dale un nombre a tu Producto B."); return; }
+                if (prodA.toLowerCase() === prodB.toLowerCase()) { showError(2, "Los productos deben tener nombres distintos."); return; }
+
+                // Populate summary
+                const compName = document.getElementById("company-name").value.trim();
+                document.getElementById("sum-name").textContent = compName;
+                document.getElementById("sum-segment").textContent = SEG_LABELS[selectedSegment];
+                document.getElementById("sum-id").textContent = DataStore.generateId();
+                document.getElementById("sum-prod-a").textContent = prodA;
+                document.getElementById("sum-prod-b").textContent = prodB;
+                document.getElementById("sum-desc-a").textContent = document.getElementById("prod-a-desc").value.trim() || "Sin descripción";
+                document.getElementById("sum-desc-b").textContent = document.getElementById("prod-b-desc").value.trim() || "Sin descripción";
+            }
+
+            // Switch step
+            document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+            document.getElementById(`step-${num}`).classList.add("active");
+
+            // Update dots
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                dot.classList.remove("active", "done");
+                if (i < num) dot.classList.add("done");
+                if (i === num) dot.classList.add("active");
+            }
+        }
+
+        function registerTeam() {
+            const name = document.getElementById("company-name").value.trim();
+            const prodAName = document.getElementById("prod-a-name").value.trim();
+            const prodADesc = document.getElementById("prod-a-desc").value.trim();
+            const prodBName = document.getElementById("prod-b-name").value.trim();
+            const prodBDesc = document.getElementById("prod-b-desc").value.trim();
+
+            const team = DataStore.createTeam(name, selectedSegment,
+                document.getElementById("team-password").value,
+                { name: prodAName, description: prodADesc },
+                { name: prodBName, description: prodBDesc }
+            );
+
+            DataStore.setCurrentTeam(team.id);
+
+            // Redirect to dashboard
+            window.location.href = "student-dashboard.html";
+        }
+
+        // Check if registration is open and auto-focus
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!DataStore.isRegistrationOpen()) {
+                document.body.innerHTML = `
+                    <div class="bg-grid"></div>
+                    <div class="onboard-container" style="text-align:center;">
+                        <div class="onboard-icon" style="background:linear-gradient(135deg,#F43F5E,#E11D48);">🔒</div>
+                        <h1 class="onboard-title">Registro Cerrado</h1>
+                        <p class="onboard-subtitle" style="margin-bottom:24px;">El profesor ha cerrado el registro de nuevas empresas.</p>
+                        <a href="student-login.html" class="btn-step btn-step--next">Ir al Login →</a>
+                    </div>`;
+                return;
+            }
+            document.getElementById("company-name").focus();
+        });
+    </script>
+</body>
+
+</html>

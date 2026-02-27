@@ -1,0 +1,1229 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKT SLIM GAME — Panel del Profesor</title>
+    <link rel="stylesheet" href="css/design-system.css">
+    <script src="js/data-store.js"></script>
+    <script src="js/theme-toggle.js"></script>
+    <style>
+        .status-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .team-table-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .event-form-area {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .ai-thinking {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: rgba(139, 92, 246, 0.06);
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            color: var(--accent-violet);
+            margin-top: 12px;
+        }
+
+        .ai-thinking.visible {
+            display: flex;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-top-color: var(--accent-violet);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        .leaderboard-segments {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .seg-leaderboard-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .seg-leaderboard-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .seg-leaderboard-header--economico {
+            background: rgba(100, 116, 139, 0.08);
+            border-bottom-color: rgba(100, 116, 139, 0.2);
+        }
+
+        .seg-leaderboard-header--medio {
+            background: rgba(59, 130, 246, 0.06);
+            border-bottom-color: rgba(59, 130, 246, 0.15);
+        }
+
+        .seg-leaderboard-header--lujo {
+            background: rgba(245, 158, 11, 0.06);
+            border-bottom-color: rgba(245, 158, 11, 0.15);
+        }
+
+        .run-turn-bar {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.08));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .progress-bar-wrapper {
+            flex: 1;
+            margin: 0 24px;
+        }
+
+        .progress-bar-track {
+            height: 6px;
+            background: var(--bg-elevated);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-violet));
+            border-radius: 99px;
+            width: 77.7%;
+            /* 14/18 */
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+
+<body class="app-shell">
+
+    <nav class="topnav">
+        <div class="topnav__inner">
+            <a href="index.html" class="topnav__logo">
+                <span style="font-size:1.3rem">🚀</span>
+                <span class="topnav__wordmark">MKT SLIM GAME</span>
+            </a>
+            <div class="topnav__meta">
+                <span class="badge badge--warning">🎛️ Modo Profesor</span>
+                <span class="topnav__turn">TURNO Q4 2025</span>
+                <button onclick="logoutProfessor()" class="btn btn--danger btn--sm">🔒 Cerrar Sesión</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="layout-sidebar">
+
+        <aside class="sidebar">
+            <div class="sidebar__label">Panel</div>
+            <button class="sidebar__link active" onclick="switchTab('equipos', this)">
+                <span class="icon">👥</span> Equipos
+            </button>
+            <button class="sidebar__link" onclick="switchTab('eventos', this)">
+                <span class="icon">🌪️</span> Eventos
+            </button>
+            <button class="sidebar__link" onclick="switchTab('leaderboard', this)">
+                <span class="icon">🏆</span> Leaderboard Global
+            </button>
+
+            <div class="sidebar__label" style="margin-top:12px;">Administración</div>
+            <button class="sidebar__link" onclick="switchTab('admin', this)">
+                <span class="icon">⚙️</span> Admin Equipos
+            </button>
+            <button class="sidebar__link" onclick="switchTab('params', this)">
+                <span class="icon">🔧</span> Parámetros
+            </button>
+            <button class="sidebar__link" onclick="switchTab('danger', this)">
+                <span class="icon">🔴</span> Zona Peligrosa
+            </button>
+
+            <hr class="divider" style="margin:16px 0;">
+            <div style="padding:0 12px;">
+                <div
+                    style="font-size:0.7rem; color:var(--text-dim); margin-bottom:8px; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
+                    Simulación</div>
+                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">Turno Actual: <strong>Q4
+                        2025</strong></div>
+                <div style="font-size:0.85rem; color:var(--text-secondary);">Equipos: <strong>18</strong></div>
+                <div style="font-size:0.85rem; color:var(--text-secondary);">Enviaron: <strong
+                        style="color:var(--accent-emerald)">14 / 18</strong></div>
+                <div class="mt-sm" style="font-size:0.75rem; color:var(--text-muted);">Pendientes: T-03, T-09, T-12,
+                    T-16</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <!-- ═══════════════ TAB: EQUIPOS ═══════════════ -->
+            <div id="tab-equipos" class="tab-panel active animate-fade-up">
+
+                <div class="page-header">
+                    <div class="page-header__eyebrow">Panel Profesor</div>
+                    <h1 class="page-header__title">Estado de Equipos — Q4</h1>
+                </div>
+
+                <!-- Run Turn Bar -->
+                <div class="run-turn-bar">
+                    <div>
+                        <div
+                            style="font-size:0.72rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">
+                            Envíos Recibidos</div>
+                        <div
+                            style="font-family:var(--font-mono); font-size:1.1rem; font-weight:700; color:var(--text-primary);">
+                            14 <span style="color:var(--text-muted); font-size:0.85rem;">de 18 equipos</span></div>
+                    </div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill"></div>
+                        </div>
+                        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px; text-align:right;">77.7%
+                            completo</div>
+                    </div>
+                    <button class="btn btn--primary btn--lg" onclick="runTurn()">
+                        ▶ Iniciar Turno Q4
+                    </button>
+                </div>
+
+                <!-- Equipos Summary -->
+                <div class="status-summary stagger">
+                    <div class="metric-tile">
+                        <div class="metric-tile__accent" style="background:var(--accent-blue)"></div>
+                        <div class="metric-tile__label">Total Equipos</div>
+                        <div class="metric-tile__value">18</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="metric-tile__accent" style="background:var(--accent-emerald)"></div>
+                        <div class="metric-tile__label">Enviaron Decisiones</div>
+                        <div class="metric-tile__value" style="color:var(--accent-emerald)">14</div>
+                        <div class="metric-tile__delta metric-tile__delta--up">✓ A tiempo</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="metric-tile__accent" style="background:var(--accent-rose)"></div>
+                        <div class="metric-tile__label">Pendientes</div>
+                        <div class="metric-tile__value" style="color:var(--accent-rose)">4</div>
+                        <div class="metric-tile__delta metric-tile__delta--down">⚠ Sin enviar</div>
+                    </div>
+                    <div class="metric-tile">
+                        <div class="metric-tile__accent" style="background:var(--accent-amber)"></div>
+                        <div class="metric-tile__label">Eventos Programados</div>
+                        <div class="metric-tile__value">3</div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Equipos -->
+                <div class="section-title">👥 Registro de Equipos</div>
+                <div class="card" style="padding:0; overflow:hidden;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre de Marca</th>
+                                <th>Segmento</th>
+                                <th>Producto A</th>
+                                <th>Producto B</th>
+                                <th>Estado Q4</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="table__mono text-muted">T-01</td>
+                                <td style="font-weight:600">Vox Industries</td>
+                                <td><span class="badge badge--economico">🏷️ Económico</span></td>
+                                <td class="text-muted text-sm">VoxBase X</td>
+                                <td class="text-muted text-sm">VoxLite</td>
+                                <td><span class="team-table-status"><span
+                                            class="status-dot status-dot--green"></span>Enviado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="table__mono text-muted">T-02</td>
+                                <td style="font-weight:600">Prism Tech</td>
+                                <td><span class="badge badge--medio">⚡ Medio</span></td>
+                                <td class="text-muted text-sm">Prism One</td>
+                                <td class="text-muted text-sm">Prism Go</td>
+                                <td><span class="team-table-status"><span
+                                            class="status-dot status-dot--green"></span>Enviado</span></td>
+                            </tr>
+                            <tr style="background:rgba(244,63,94,0.03)">
+                                <td class="table__mono text-muted">T-03</td>
+                                <td style="font-weight:600">Vanguard</td>
+                                <td><span class="badge badge--medio">⚡ Medio</span></td>
+                                <td class="text-muted text-sm">—</td>
+                                <td class="text-muted text-sm">—</td>
+                                <td><span class="team-table-status"><span
+                                            class="status-dot status-dot--red"></span><span
+                                            style="color:var(--accent-rose)">Pendiente</span></span></td>
+                            </tr>
+                            <tr>
+                                <td class="table__mono text-muted">T-04</td>
+                                <td style="font-weight:600">Helix Group</td>
+                                <td><span class="badge badge--economico">🏷️ Económico</span></td>
+                                <td class="text-muted text-sm">Helix Core</td>
+                                <td class="text-muted text-sm">Helix Mini</td>
+                                <td><span class="team-table-status"><span
+                                            class="status-dot status-dot--green"></span>Enviado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="table__mono text-muted">T-05</td>
+                                <td style="font-weight:600">Zenith Co.</td>
+                                <td><span class="badge badge--lujo">💎 Lujo</span></td>
+                                <td class="text-muted text-sm">Zenith Pro</td>
+                                <td class="text-muted text-sm">Zenith S</td>
+                                <td><span class="team-table-status"><span
+                                            class="status-dot status-dot--green"></span>Enviado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="table__mono text-muted">T-06</td>
+                                <td style="font-weight:600">Cobalt Studio</td>
+                                <td><span class="badge badge--lujo">💎 Lujo</span></td>
+                                <td class="text-muted text-sm">Cobalt One</td>
+                                <td class="text-muted text-sm">Cobalt Lite</td>
+                                <td><span class="team-table-status"><span
+                                            class="status-dot status-dot--green"></span>Enviado</span></td>
+                            </tr>
+                            <tr>
+                                <td class="table__mono text-muted">T-07</td>
+                                <td style="font-weight:600; color:var(--accent-blue)">Nexus Corp</td>
+                                <td><span class="badge badge--lujo">💎 Lujo</span></td>
+                                <td class="text-muted text-sm">Aurora Pro</td>
+                                <td class="text-muted text-sm">Aurora Lite</td>
+                                <td><span class="team-table-status"><span
+                                            class="status-dot status-dot--green"></span>Enviado</span></td>
+                            </tr>
+                            <tr style="background:rgba(244,63,94,0.03)">
+                                <td class="table__mono text-muted">T-09</td>
+                                <td style="font-weight:600">Orion Labs</td>
+                                <td><span class="badge badge--economico">🏷️ Económico</span></td>
+                                <td class="text-muted text-sm">—</td>
+                                <td class="text-muted text-sm">—</td>
+                                <td><span class="team-table-status"><span
+                                            class="status-dot status-dot--red"></span><span
+                                            style="color:var(--accent-rose)">Pendiente</span></span></td>
+                            </tr>
+                            <tr style="background:var(--bg-input); opacity:0.6">
+                                <td class="table__mono text-muted" colspan="6"
+                                    style="text-align:center; font-size:0.75rem; color:var(--text-dim); padding:10px;">
+                                    +10 equipos más · T-08, T-10 – T-18
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div><!-- /tab-equipos -->
+
+            <!-- ═══════════════ TAB: EVENTOS ═══════════════ -->
+            <div id="tab-eventos" class="tab-panel">
+
+                <div class="page-header">
+                    <div class="page-header__eyebrow">Panel Profesor</div>
+                    <h1 class="page-header__title">Gestión de Eventos</h1>
+                    <p class="page-header__subtitle">Programa eventos de mercado. La IA sugerirá los coeficientes
+                        afectados; tú tienes la última palabra.</p>
+                </div>
+
+                <!-- Formulario de nuevo evento -->
+                <div class="event-form-area">
+                    <div class="section-title mb-md">✨ Crear Nuevo Evento</div>
+
+                    <div style="display:grid; grid-template-columns:1fr 200px; gap:16px; margin-bottom:16px;">
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label">Descripción del Evento (lenguaje natural)</label>
+                            <input type="text" id="event-input" class="form-input"
+                                placeholder='Ej: "Sube el costo de materiales premium en el segmento lujo"'>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label">Segmento Afectado</label>
+                            <select id="event-segment" class="form-input">
+                                <option value="todos">Todos los segmentos</option>
+                                <option value="economico">🏷️ Económico</option>
+                                <option value="medio">⚡ Medio</option>
+                                <option value="lujo" selected>💎 Lujo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <div class="form-group" style="margin-bottom:0; flex:1;">
+                            <label class="form-label">Turno de Activación</label>
+                            <select id="event-turn" class="form-input">
+                                <option value="Q4" selected>Q4 2025 (actual)</option>
+                                <option value="Q5">Q5 2025</option>
+                                <option value="Q6">Q6 2025</option>
+                            </select>
+                        </div>
+                        <div style="padding-top:20px;">
+                            <button class="btn btn--primary" onclick="suggestEvent()">✨ Sugerir con IA →</button>
+                        </div>
+                    </div>
+
+                    <!-- AI Thinking Indicator -->
+                    <div class="ai-thinking" id="ai-thinking">
+                        <div class="spinner"></div>
+                        Analizando el evento con el modelo de mercado...
+                    </div>
+
+                    <!-- AI Suggestion -->
+                    <div class="ai-suggest-box" id="ai-suggest-box" style="display:none;">
+                        <div class="ai-suggest-box__header">
+                            <span>✨</span> Sugerencia del Asistente IA
+                        </div>
+                        <div class="ai-suggest-box__json" id="ai-suggest-json"></div>
+                        <div class="ai-suggest-box__actions">
+                            <button class="btn btn--primary btn--sm" onclick="approveEvent()">✅ Aprobar y
+                                Programar</button>
+                            <button class="btn btn--ghost btn--sm" onclick="editDelta()">✏️ Ajustar Delta</button>
+                            <button class="btn btn--danger btn--sm" onclick="rejectEvent()">❌ Rechazar</button>
+                        </div>
+                    </div>
+
+                </div><!-- /event-form-area -->
+
+                <!-- Lista de eventos programados -->
+                <div class="section-title">📋 Eventos Programados</div>
+                <div class="card" style="padding:0; overflow:hidden;" id="events-list">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Turno</th>
+                                <th>Segmento</th>
+                                <th>Nombre</th>
+                                <th>Coeficiente Afectado</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-tbody">
+                            <tr>
+                                <td class="table__mono">Q4</td>
+                                <td><span class="badge badge--lujo">💎 Lujo</span></td>
+                                <td style="font-weight:600">Alza Materiales Premium</td>
+                                <td><code
+                                        style="font-family:var(--font-mono); font-size:0.78rem; background:var(--bg-elevated); padding:2px 8px; border-radius:4px;">design_cost +20%</code>
+                                </td>
+                                <td><span class="badge badge--success">✅ Activo</span></td>
+                            </tr>
+                            <tr>
+                                <td class="table__mono">Q5</td>
+                                <td><span class="badge badge--economico">🏷️ Económico</span></td>
+                                <td style="font-weight:600">Entrada rival asiático</td>
+                                <td><code
+                                        style="font-family:var(--font-mono); font-size:0.78rem; background:var(--bg-elevated); padding:2px 8px; border-radius:4px;">+1 competidor ficticio</code>
+                                </td>
+                                <td><span class="badge badge--warning">⏳ Pendiente</span></td>
+                            </tr>
+                            <tr>
+                                <td class="table__mono">Q5</td>
+                                <td><span class="badge badge--medio">⚡ Medio</span></td>
+                                <td style="font-weight:600">Nueva regulación de etiquetado</td>
+                                <td><code
+                                        style="font-family:var(--font-mono); font-size:0.78rem; background:var(--bg-elevated); padding:2px 8px; border-radius:4px;">unit_cost +$50</code>
+                                </td>
+                                <td><span class="badge badge--warning">⏳ Pendiente</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div><!-- /tab-eventos -->
+
+            <!-- ═══════════════ TAB: LEADERBOARD ═══════════════ -->
+            <div id="tab-leaderboard" class="tab-panel">
+
+                <div class="page-header">
+                    <div class="page-header__eyebrow">Panel Profesor</div>
+                    <h1 class="page-header__title">🏆 Leaderboard Global</h1>
+                    <p class="page-header__subtitle">Ranking por segmento tras el turno Q3. El profesor ve nombres; los
+                        alumnos solo ven rivales anónimos.</p>
+                </div>
+
+                <div class="leaderboard-segments stagger">
+
+                    <!-- Económico -->
+                    <div class="seg-leaderboard-card">
+                        <div class="seg-leaderboard-header seg-leaderboard-header--economico">
+                            <span style="font-weight:700; color:var(--seg-economico)">🏷️ Mercado Económico</span>
+                            <span class="badge badge--economico">5 equipos</span>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Marca</th>
+                                    <th>ARR</th>
+                                    <th>Cuota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="table__rank table__rank--1">1</span></td>
+                                    <td style="font-weight:600">Vox Industries</td>
+                                    <td class="table__mono">$3.20M</td>
+                                    <td class="table__mono">28.4%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank table__rank--2">2</span></td>
+                                    <td>Rival #2</td>
+                                    <td class="table__mono">$2.80M</td>
+                                    <td class="table__mono">24.9%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank table__rank--3">3</span></td>
+                                    <td>Rival #3</td>
+                                    <td class="table__mono">$2.10M</td>
+                                    <td class="table__mono">18.6%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank" style="color:var(--text-dim)">4</span></td>
+                                    <td>Rival #4</td>
+                                    <td class="table__mono">$1.80M</td>
+                                    <td class="table__mono">16.0%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank" style="color:var(--text-dim)">5</span></td>
+                                    <td>Rival #5</td>
+                                    <td class="table__mono">$1.35M</td>
+                                    <td class="table__mono">12.1%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Medio -->
+                    <div class="seg-leaderboard-card">
+                        <div class="seg-leaderboard-header seg-leaderboard-header--medio">
+                            <span style="font-weight:700; color:var(--seg-medio)">⚡ Mercado Medio</span>
+                            <span class="badge badge--medio">6 equipos</span>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Marca</th>
+                                    <th>ARR</th>
+                                    <th>Cuota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="table__rank table__rank--1">1</span></td>
+                                    <td style="font-weight:600">Prism Tech</td>
+                                    <td class="table__mono">$5.10M</td>
+                                    <td class="table__mono">26.3%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank table__rank--2">2</span></td>
+                                    <td>Rival #2</td>
+                                    <td class="table__mono">$4.40M</td>
+                                    <td class="table__mono">22.7%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank table__rank--3">3</span></td>
+                                    <td>Rival #3</td>
+                                    <td class="table__mono">$3.70M</td>
+                                    <td class="table__mono">19.1%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank" style="color:var(--text-dim)">4</span></td>
+                                    <td>Rival #4</td>
+                                    <td class="table__mono">$3.10M</td>
+                                    <td class="table__mono">16.0%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank" style="color:var(--text-dim)">5</span></td>
+                                    <td>Rival #5</td>
+                                    <td class="table__mono">$3.05M</td>
+                                    <td class="table__mono">15.7%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank" style="color:var(--text-dim)">6</span></td>
+                                    <td style="color:var(--accent-rose)">Vanguard ⚠</td>
+                                    <td class="table__mono" style="color:var(--accent-rose)">$0.23M</td>
+                                    <td class="table__mono" style="color:var(--accent-rose)">0.1%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Lujo -->
+                    <div class="seg-leaderboard-card">
+                        <div class="seg-leaderboard-header seg-leaderboard-header--lujo">
+                            <span style="font-weight:700; color:var(--seg-lujo)">💎 Mercado Lujo</span>
+                            <span class="badge badge--lujo">6 equipos</span>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Marca</th>
+                                    <th>ARR</th>
+                                    <th>Cuota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="table__rank table__rank--1">1</span></td>
+                                    <td style="font-weight:600; color:var(--accent-blue)">Nexus Corp</td>
+                                    <td class="table__mono">$4.82M</td>
+                                    <td class="table__mono">22.4%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank table__rank--2">2</span></td>
+                                    <td>Rival #2</td>
+                                    <td class="table__mono">$4.10M</td>
+                                    <td class="table__mono">19.1%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank table__rank--3">3</span></td>
+                                    <td>Rival #3</td>
+                                    <td class="table__mono">$3.90M</td>
+                                    <td class="table__mono">18.2%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank" style="color:var(--text-dim)">4</span></td>
+                                    <td>Rival #4</td>
+                                    <td class="table__mono">$3.10M</td>
+                                    <td class="table__mono">14.4%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank" style="color:var(--text-dim)">5</span></td>
+                                    <td>Rival #5</td>
+                                    <td class="table__mono">$2.90M</td>
+                                    <td class="table__mono">13.8%</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="table__rank" style="color:var(--text-dim)">6</span></td>
+                                    <td>Rival #6</td>
+                                    <td class="table__mono">$2.60M</td>
+                                    <td class="table__mono">12.1%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div><!-- /leaderboard-segments -->
+
+            </div><!-- /tab-leaderboard -->
+
+            <!-- ═══════════════ TAB: ADMIN EQUIPOS ═══════════════ -->
+            <div id="tab-admin" class="tab-panel">
+                <div class="page-header">
+                    <div class="page-header__eyebrow">Administración</div>
+                    <h1 class="page-header__title">⚙️ Gestión de Equipos</h1>
+                    <p class="page-header__subtitle">Edita nombres, productos y segmentos de cualquier equipo
+                        registrado.</p>
+                </div>
+
+                <div id="admin-teams-list"></div>
+
+                <div class="card" style="padding:20px; text-align:center; color:var(--text-muted); font-size:0.85rem;"
+                    id="admin-empty">
+                    <p>No hay equipos registrados aún. Los alumnos pueden crear sus equipos desde la página de inicio.
+                    </p>
+                </div>
+            </div><!-- /tab-admin -->
+
+            <!-- ═══════════════ TAB: PARAMS ═══════════════ -->
+            <div id="tab-params" class="tab-panel">
+                <div class="page-header">
+                    <div class="page-header__eyebrow">Administración</div>
+                    <h1 class="page-header__title">🔧 Parámetros del Simulador</h1>
+                    <p class="page-header__subtitle">Modifica costos, rangos y configuraciones de la simulación en
+                        tiempo real.</p>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                    <div class="card">
+                        <div class="card__title">💰 Costos Base</div>
+                        <div class="form-group">
+                            <label class="form-label">Costo por nivel de Calidad ($)</label>
+                            <input type="number" id="param-quality-cost" class="form-input"
+                                style="font-family:var(--font-mono);">
+                            <div style="font-size:0.7rem;color:var(--text-dim);margin-top:3px;">Default: $250</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Costo por nivel de Diseño ($)</label>
+                            <input type="number" id="param-design-cost" class="form-input"
+                                style="font-family:var(--font-mono);">
+                            <div style="font-size:0.7rem;color:var(--text-dim);margin-top:3px;">Default: $150</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Costo por Canal ($)</label>
+                            <input type="number" id="param-channel-cost" class="form-input"
+                                style="font-family:var(--font-mono);">
+                            <div style="font-size:0.7rem;color:var(--text-dim);margin-top:3px;">Default: $2,000,000
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Presupuesto Máximo por Turno ($)</label>
+                            <input type="number" id="param-max-budget" class="form-input"
+                                style="font-family:var(--font-mono);">
+                            <div style="font-size:0.7rem;color:var(--text-dim);margin-top:3px;">Default: $30,000,000
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card__title">📊 Rangos de Decisiones</div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <div class="form-group">
+                                <label class="form-label">Calidad Min</label>
+                                <input type="number" id="param-quality-min" class="form-input"
+                                    style="font-family:var(--font-mono);">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Calidad Max</label>
+                                <input type="number" id="param-quality-max" class="form-input"
+                                    style="font-family:var(--font-mono);">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Diseño Min</label>
+                                <input type="number" id="param-design-min" class="form-input"
+                                    style="font-family:var(--font-mono);">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Diseño Max</label>
+                                <input type="number" id="param-design-max" class="form-input"
+                                    style="font-family:var(--font-mono);">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Precio Min ($)</label>
+                                <input type="number" id="param-price-min" class="form-input"
+                                    style="font-family:var(--font-mono);">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Precio Max ($)</label>
+                                <input type="number" id="param-price-max" class="form-input"
+                                    style="font-family:var(--font-mono);">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ABM Max ($)</label>
+                                <input type="number" id="param-adspend-max" class="form-input"
+                                    style="font-family:var(--font-mono);">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Canales Max</label>
+                                <input type="number" id="param-channels-max" class="form-input"
+                                    style="font-family:var(--font-mono);">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:20px;">
+                    <div class="card__title">📝 Control de Registro</div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0;">
+                        <div>
+                            <div style="font-size:0.88rem; color:var(--text-primary); font-weight:600;">Registro abierto
+                                para alumnos</div>
+                            <div style="font-size:0.75rem; color:var(--text-dim); margin-top:2px;">Si
+                                está desactivado, los alumnos no podrán crear nuevas empresas.</div>
+                        </div>
+                        <label style="position:relative;display:inline-block;width:52px;height:28px;cursor:pointer;">
+                            <input type="checkbox" id="param-reg-open" onchange="toggleRegistration(this.checked)"
+                                style="opacity:0;width:0;height:0;">
+                            <span
+                                style="position:absolute;inset:0;background:var(--bg-elevated);border:1px solid var(--border-bright);border-radius:14px;transition:all 0.3s;"></span>
+                            <span id="reg-toggle-knob"
+                                style="position:absolute;top:3px;left:3px;width:22px;height:22px;background:#94A3B8;border-radius:50%;transition:all 0.3s;"></span>
+                        </label>
+                    </div>
+                    <div id="reg-status" style="margin-top:8px;font-size:0.78rem;"></div>
+                </div>
+
+                <div style="display:flex; gap:12px; margin-top:20px;">
+                    <button class="btn btn--primary" onclick="saveParams()">💾 Guardar Parámetros</button>
+                    <button class="btn btn--ghost" onclick="resetParams()">↩️ Restaurar Defaults</button>
+                </div>
+            </div><!-- /tab-params -->
+
+            <!-- ═══════════════ TAB: DANGER ZONE ═══════════════ -->
+            <div id="tab-danger" class="tab-panel">
+                <div class="page-header">
+                    <div class="page-header__eyebrow" style="color:var(--accent-rose);">⚠️ Zona Peligrosa</div>
+                    <h1 class="page-header__title">🔴 Acciones Irreversibles</h1>
+                    <p class="page-header__subtitle">Estas acciones afectan a TODOS los equipos y no se pueden deshacer.
+                        Se requiere confirmación con contraseña.</p>
+                </div>
+
+                <div class="card" style="border-color:rgba(244,63,94,0.3); margin-bottom:20px;">
+                    <div class="card__title" style="color:var(--accent-amber);">🔄 Reiniciar Ronda</div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.6;">
+                        Resetea todas las decisiones, métricas e historial de TODOS los equipos al estado inicial.
+                        <strong style="color:var(--text-secondary);">Los nombres de empresa y productos se
+                            mantienen.</strong>
+                        El turno vuelve a Q1.
+                    </p>
+                    <button class="btn btn--ghost" style="border-color:var(--accent-amber); color:var(--accent-amber);"
+                        onclick="confirmAction('reset-round')">🔄 Reiniciar Ronda</button>
+                </div>
+
+                <div class="card" style="border-color:rgba(244,63,94,0.5);">
+                    <div class="card__title" style="color:var(--accent-rose);">🗑️ Borrar Todo</div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.6;">
+                        Elimina TODOS los equipos, configuraciones y datos del simulador.
+                        <strong style="color:var(--accent-rose);">Esta acción es completamente irreversible.</strong>
+                    </p>
+                    <button class="btn btn--danger" onclick="confirmAction('full-reset')">🗑️ Borrar Todo el
+                        Simulador</button>
+                </div>
+            </div><!-- /tab-danger -->
+
+            <!-- ═══ CONFIRM MODAL ═══ -->
+            <div id="confirm-modal"
+                style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(10,12,20,0.9); align-items:center; justify-content:center;">
+                <div
+                    style="max-width:420px; width:100%; background:#131720; border:2px solid rgba(244,63,94,0.4); border-radius:22px; padding:32px; text-align:center; box-shadow:0 0 60px rgba(244,63,94,0.15);">
+                    <div style="font-size:2.5rem; margin-bottom:12px;" id="modal-icon">🔄</div>
+                    <h3 style="font-size:1.1rem; color:var(--text-primary); margin-bottom:8px;" id="modal-title">
+                        Confirmar Acción</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;"
+                        id="modal-desc">¿Estás seguro?</p>
+                    <div class="form-group">
+                        <label class="form-label" style="text-align:left;">Contraseña de Profesor</label>
+                        <input type="password" id="modal-password" class="form-input"
+                            placeholder="Ingresa la contraseña" style="font-family:var(--font-mono);">
+                    </div>
+                    <div id="modal-error"
+                        style="display:none; padding:8px 12px; background:rgba(244,63,94,0.08); border:1px solid rgba(244,63,94,0.25); border-radius:8px; font-size:0.8rem; color:var(--accent-rose); margin-bottom:12px;">
+                    </div>
+                    <div style="display:flex; gap:12px;">
+                        <button class="btn btn--ghost" style="flex:1;" onclick="closeModal()">Cancelar</button>
+                        <button class="btn btn--danger" style="flex:1;" id="modal-confirm-btn"
+                            onclick="executeAction()">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div><!-- /layout-sidebar -->
+
+    <script>
+        // ── TABS ──────────────────────────────────────────────────
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sidebar__link').forEach(l => l.classList.remove('active'));
+            document.getElementById(`tab-${name}`)?.classList.add('active');
+            if (btn) btn.classList.add('active');
+        }
+
+        // ── EVENT IA MOCK ─────────────────────────────────────────
+        const AI_RESPONSES = {
+            default: {
+                coeficiente: "unit_cost_design_multiplier",
+                delta: "+20%",
+                segmento: "lujo",
+                turno: "Q4",
+                justificacion: "El alza en materiales premium encarece el costo del componente Design Level. Fórmula afectada: costo_unitario_design = Design × 150 × 1.20",
+                impacto_esperado: "Incremento de ~$60-$120 en costo unitario para productos con Design ≥ 3 en segmento Lujo."
+            }
+        };
+
+        function suggestEvent() {
+            const text = document.getElementById('event-input').value.trim();
+            if (!text) { alert('Por favor describe el evento antes de sugerir.'); return; }
+
+            const thinking = document.getElementById('ai-thinking');
+            const box = document.getElementById('ai-suggest-box');
+            box.style.display = 'none';
+            thinking.classList.add('visible');
+
+            setTimeout(() => {
+                thinking.classList.remove('visible');
+                const resp = AI_RESPONSES.default;
+                document.getElementById('ai-suggest-json').textContent = JSON.stringify(resp, null, 2);
+                box.style.display = 'block';
+                box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 1800);
+        }
+
+        let approvedCount = 3;
+
+        function approveEvent() {
+            const seg = document.getElementById('event-segment').value;
+            const turn = document.getElementById('event-turn').value;
+            const text = document.getElementById('event-input').value || 'Nuevo Evento';
+            const segLabel = { todos: 'Todos', economico: '🏷️ Económico', medio: '⚡ Medio', lujo: '💎 Lujo' }[seg];
+            const badgeCls = { todos: 'badge--warning', economico: 'badge--economico', medio: 'badge--medio', lujo: 'badge--lujo' }[seg];
+
+            const tbody = document.getElementById('events-tbody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+        <td class="table__mono">${turn}</td>
+        <td><span class="badge ${badgeCls}">${segLabel}</span></td>
+        <td style="font-weight:600">${text.slice(0, 40)}</td>
+        <td><code style="font-family:var(--font-mono);font-size:0.78rem;background:var(--bg-elevated);padding:2px 8px;border-radius:4px;">design_cost +20%</code></td>
+        <td><span class="badge badge--success">✅ Aprobado</span></td>
+      `;
+            tbody.appendChild(tr);
+
+            document.getElementById('ai-suggest-box').style.display = 'none';
+            document.getElementById('event-input').value = '';
+        }
+
+        function editDelta() { alert('En la versión completa, este modal permite ajustar el delta numérico antes de aprobar.'); }
+        function rejectEvent() { document.getElementById('ai-suggest-box').style.display = 'none'; }
+
+        // ── RUN TURN ──────────────────────────────────────────────
+        function runTurn() {
+            const pending = ['T-03 Vanguard', 'T-09 Orion Labs', 'T-12 Meridian', 'T-16 Apex'];
+            const msg = `⚠️ Atención: ${pending.length} equipos aún no han enviado sus decisiones:\n${pending.join(', ')}\n\n¿Deseas iniciar el turno de todas formas? Los equipos pendientes recibirán las decisiones del turno anterior como default.`;
+            if (!confirm(msg)) return;
+
+            // Simulate processing
+            const btn = document.querySelector('.run-turn-bar .btn--primary');
+            btn.disabled = true;
+            btn.textContent = '⏳ Procesando...';
+
+            const steps = [
+                { label: '📥 Leyendo 18 Excels de Inputs_Turno/', pct: 15, delay: 600 },
+                { label: '⚖️ Ejecutando market_engine.py — Mercado Económico', pct: 30, delay: 1100 },
+                { label: '⚖️ Ejecutando market_engine.py — Mercado Medio', pct: 45, delay: 1600 },
+                { label: '⚖️ Ejecutando market_engine.py — Mercado Lujo', pct: 58, delay: 2100 },
+                { label: '🤖 LLM Árbitro evaluando 18 equipos (en paralelo)...', pct: 75, delay: 2700 },
+                { label: '📊 Generando reportes individuales → Outputs_Turno/', pct: 88, delay: 3500 },
+                { label: '💾 Actualizando DB_Master_Simulacion.xlsx', pct: 95, delay: 4100 },
+                { label: '✅ Turno Q4 completado — 18 reportes generados', pct: 100, delay: 4800 },
+            ];
+
+            // Add a progress area
+            const bar = document.querySelector('.run-turn-bar');
+            let logDiv = document.getElementById('run-log');
+            if (!logDiv) {
+                logDiv = document.createElement('div');
+                logDiv.id = 'run-log';
+                logDiv.style.cssText = 'margin-top:12px;padding:12px;background:var(--bg-input);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.75rem;color:var(--text-secondary);line-height:1.8;max-height:160px;overflow-y:auto;border:1px solid var(--border);';
+                bar.insertAdjacentElement('afterend', logDiv);
+            }
+            logDiv.textContent = '';
+
+            const fillEl = document.querySelector('.progress-bar-fill');
+            const pctLabel = document.querySelector('.progress-bar-wrapper div');
+
+            steps.forEach(step => {
+                setTimeout(() => {
+                    if (fillEl) fillEl.style.width = step.pct + '%';
+                    if (pctLabel) pctLabel.textContent = step.pct + '% completo';
+                    logDiv.innerHTML += `<div>> ${step.label}</div>`;
+                    logDiv.scrollTop = logDiv.scrollHeight;
+                    if (step.pct === 100) {
+                        btn.textContent = '✅ Turno Completado';
+                        btn.style.background = 'var(--accent-emerald)';
+                        setTimeout(() => {
+                            btn.disabled = false;
+                            btn.textContent = '▶ Iniciar Turno Q5';
+                            btn.style.background = '';
+                        }, 2000);
+                    }
+                }, step.delay);
+            });
+        }
+
+        // ── AUTENTICACIÓN ────────────────────────────────────────────
+        async function logoutProfessor() {
+            if (confirm('¿Deseas cerrar la sesión del Panel Profesor?')) {
+                await fetch('/api/professor-logout', { method: 'POST' });
+                window.location.href = '/';
+            }
+        }
+
+        // Verificar sesión al cargar — si no está autenticado, redirigir
+        (async function checkAuth() {
+            try {
+                const res = await fetch('/api/auth-status');
+                const data = await res.json();
+                if (!data.isProfessor) {
+                    window.location.href = '/professor-login';
+                }
+            } catch (e) {
+                // Si no hay servidor Express (modo python), no redirigir
+            }
+        })();
+    </script>
+    <script src="js/mock-data.js"></script>
+    <script>
+        // ═══════════════════════════════════════════════════════════
+        // ADMIN — EQUIPOS
+        // ═══════════════════════════════════════════════════════════
+
+        const SEG_LABELS = { economico: '🏷️ Económico', medio: '⚡ Medio', lujo: '💎 Lujo' };
+
+        function renderAdminTeams() {
+            const teams = DataStore.getTeams();
+            const container = document.getElementById('admin-teams-list');
+            const empty = document.getElementById('admin-empty');
+
+            if (teams.length === 0) {
+                container.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+
+            container.innerHTML = teams.map(t => `
+                <div class="card" style="margin-bottom:16px; padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
+                        <div>
+                            <span style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-dim);">${t.id}</span>
+                            <span class="badge" style="margin-left:8px;">${SEG_LABELS[t.segmento] || t.segmento}</span>
+                        </div>
+                        <button class="btn btn--danger btn--sm" onclick="deleteTeamAdmin('${t.id}')" title="Eliminar equipo">🗑️ Eliminar</button>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Nombre Empresa</label>
+                            <input type="text" class="form-input" value="${escHtml(t.name)}" onchange="editTeamField('${t.id}', 'name', this.value)">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Segmento</label>
+                            <select class="form-input" onchange="editTeamField('${t.id}', 'segmento', this.value)">
+                                <option value="economico" ${t.segmento === 'economico' ? 'selected' : ''}>🏷️ Económico</option>
+                                <option value="medio" ${t.segmento === 'medio' ? 'selected' : ''}>⚡ Medio</option>
+                                <option value="lujo" ${t.segmento === 'lujo' ? 'selected' : ''}>💎 Lujo</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Producto A — Nombre</label>
+                            <input type="text" class="form-input" value="${escHtml(t.products.a.name)}" onchange="editTeamField('${t.id}', 'products.a.name', this.value)">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Producto A — Descripción</label>
+                            <input type="text" class="form-input" value="${escHtml(t.products.a.description)}" onchange="editTeamField('${t.id}', 'products.a.description', this.value)" placeholder="Sin descripción">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Producto B — Nombre</label>
+                            <input type="text" class="form-input" value="${escHtml(t.products.b.name)}" onchange="editTeamField('${t.id}', 'products.b.name', this.value)">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Producto B — Descripción</label>
+                            <input type="text" class="form-input" value="${escHtml(t.products.b.description)}" onchange="editTeamField('${t.id}', 'products.b.description', this.value)" placeholder="Sin descripción">
+                        </div>
+                    </div>
+                    <div style="margin-top:12px; font-size:0.72rem; color:var(--text-dim);">Creado: ${new Date(t.createdAt).toLocaleString('es-CL')}</div>
+                </div>
+            `).join('');
+        }
+
+        function escHtml(s) { return (s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+        function editTeamField(teamId, path, value) {
+            DataStore.updateTeamField(teamId, path, value);
+            // Show saved feedback
+            const toast = document.createElement('div');
+            toast.textContent = '✅ Guardado';
+            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--accent-emerald);color:#fff;padding:10px 20px;border-radius:10px;font-weight:700;font-size:0.85rem;z-index:9999;animation:fadeInUp 0.3s ease;box-shadow:0 4px 20px rgba(16,185,129,0.4);';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 1500);
+        }
+
+        function deleteTeamAdmin(teamId) {
+            const team = DataStore.getTeam(teamId);
+            if (!team) return;
+            if (!confirm(`¿Eliminar el equipo "${team.name}" (${teamId})? Esta acción no se puede deshacer.`)) return;
+            DataStore.deleteTeam(teamId);
+            renderAdminTeams();
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // PARAMS
+        // ═══════════════════════════════════════════════════════════
+
+        function loadParams() {
+            const c = DataStore.getConfig();
+            document.getElementById('param-quality-cost').value = c.qualityCostPerLevel;
+            document.getElementById('param-design-cost').value = c.designCostPerLevel;
+            document.getElementById('param-channel-cost').value = c.channelCostPerUnit;
+            document.getElementById('param-max-budget').value = c.maxBudget;
+            document.getElementById('param-quality-min').value = c.decisionLimits.quality.min;
+            document.getElementById('param-quality-max').value = c.decisionLimits.quality.max;
+            document.getElementById('param-design-min').value = c.decisionLimits.design.min;
+            document.getElementById('param-design-max').value = c.decisionLimits.design.max;
+            document.getElementById('param-price-min').value = c.decisionLimits.retailPrice.min;
+            document.getElementById('param-price-max').value = c.decisionLimits.retailPrice.max;
+            document.getElementById('param-adspend-max').value = c.decisionLimits.adSpend.max;
+            document.getElementById('param-channels-max').value = c.decisionLimits.channels.max;
+
+            // Registration toggle
+            const regOpen = c.registrationOpen !== false;
+            document.getElementById('param-reg-open').checked = regOpen;
+            updateRegVisual(regOpen);
+        }
+
+        function updateRegVisual(open) {
+            const knob = document.getElementById('reg-toggle-knob');
+            const status = document.getElementById('reg-status');
+            if (open) {
+                knob.style.transform = 'translateX(24px)';
+                knob.style.background = '#10B981';
+                status.innerHTML = '✅ <span style="color:var(--accent-emerald);">Registro ABIERTO</span> — Los alumnos pueden crear nuevas empresas.';
+            } else {
+                knob.style.transform = 'translateX(0)';
+                knob.style.background = '#94A3B8';
+                status.innerHTML = '🔒 <span style="color:var(--accent-rose);">Registro CERRADO</span> — Solo los equipos existentes pueden acceder.';
+            }
+        }
+
+        function toggleRegistration(checked) {
+            DataStore.setRegistrationOpen(checked);
+            updateRegVisual(checked);
+            // Toast
+            const toast = document.createElement('div');
+            toast.textContent = checked ? '✅ Registro abierto' : '🔒 Registro cerrado';
+            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:' + (checked ? 'var(--accent-emerald)' : 'var(--accent-rose)') + ';color:#fff;padding:10px 20px;border-radius:10px;font-weight:700;font-size:0.85rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function saveParams() {
+            const c = DataStore.getConfig();
+            c.qualityCostPerLevel = parseInt(document.getElementById('param-quality-cost').value) || 250;
+            c.designCostPerLevel = parseInt(document.getElementById('param-design-cost').value) || 150;
+            c.channelCostPerUnit = parseInt(document.getElementById('param-channel-cost').value) || 2000000;
+            c.maxBudget = parseInt(document.getElementById('param-max-budget').value) || 30000000;
+            c.decisionLimits.quality.min = parseInt(document.getElementById('param-quality-min').value) || 1;
+            c.decisionLimits.quality.max = parseInt(document.getElementById('param-quality-max').value) || 10;
+            c.decisionLimits.design.min = parseInt(document.getElementById('param-design-min').value) || 1;
+            c.decisionLimits.design.max = parseInt(document.getElementById('param-design-max').value) || 5;
+            c.decisionLimits.retailPrice.min = parseInt(document.getElementById('param-price-min').value) || 1000;
+            c.decisionLimits.retailPrice.max = parseInt(document.getElementById('param-price-max').value) || 6000;
+            c.decisionLimits.adSpend.max = parseInt(document.getElementById('param-adspend-max').value) || 20000000;
+            c.decisionLimits.channels.max = parseInt(document.getElementById('param-channels-max').value) || 4;
+            DataStore.saveConfig(c);
+            alert('✅ Parámetros guardados correctamente.');
+        }
+
+        function resetParams() {
+            if (confirm('¿Restaurar todos los parámetros a sus valores por defecto?')) {
+                DataStore.resetConfig();
+                loadParams();
+                alert('✅ Parámetros restaurados a los defaults.');
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // DANGER ZONE — Modal de confirmación con contraseña
+        // ═══════════════════════════════════════════════════════════
+
+        let pendingAction = null;
+
+        function confirmAction(action) {
+            pendingAction = action;
+            const modal = document.getElementById('confirm-modal');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDesc = document.getElementById('modal-desc');
+            const modalBtn = document.getElementById('modal-confirm-btn');
+
+            if (action === 'reset-round') {
+                modalIcon.textContent = '🔄';
+                modalTitle.textContent = 'Reiniciar Ronda';
+                modalDesc.textContent = 'Se borrarán TODAS las decisiones, métricas e historial. Los nombres de empresa se mantienen. ¿Continuar?';
+                modalBtn.textContent = '🔄 Reiniciar Ronda';
+                modalBtn.className = 'btn btn--ghost';
+                modalBtn.style.cssText = 'flex:1; border-color:var(--accent-amber); color:var(--accent-amber);';
+            } else if (action === 'full-reset') {
+                modalIcon.textContent = '🗑️';
+                modalTitle.textContent = 'BORRAR TODO';
+                modalDesc.textContent = '⚠️ Se eliminarán TODOS los equipos, datos y configuraciones del simulador. Esta acción es IRREVERSIBLE.';
+                modalBtn.textContent = '🗑️ Sí, Borrar Todo';
+                modalBtn.className = 'btn btn--danger';
+                modalBtn.style.cssText = 'flex:1;';
+            }
+
+            document.getElementById('modal-password').value = '';
+            document.getElementById('modal-error').style.display = 'none';
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
+            pendingAction = null;
+        }
+
+        async function executeAction() {
+            const password = document.getElementById('modal-password').value;
+            const errorEl = document.getElementById('modal-error');
+
+            // Verify password via server
+            try {
+                const res = await fetch('/api/professor-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password }),
+                });
+                if (!res.ok) {
+                    errorEl.textContent = '❌ Contraseña incorrecta.';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+            } catch (e) {
+                // If server is not running, accept password "MKT SLIM GAME2025" as fallback
+                if (password !== 'MKT SLIM GAME2025') {
+                    errorEl.textContent = '❌ Contraseña incorrecta.';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+            }
+
+            // Execute the action
+            if (pendingAction === 'reset-round') {
+                DataStore.resetRound();
+                alert('✅ Ronda reiniciada. Todos los equipos vuelven al estado inicial.');
+            } else if (pendingAction === 'full-reset') {
+                DataStore.fullReset();
+                alert('✅ Simulador borrado completamente.');
+            }
+
+            closeModal();
+            renderAdminTeams();
+            loadParams();
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAdminTeams();
+            loadParams();
+        });
+    </script>
+</body>
+
+</html>

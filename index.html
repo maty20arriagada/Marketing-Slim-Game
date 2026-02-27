@@ -1,0 +1,318 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MKT SLIM GAME — Simulador B2B</title>
+  <meta name="description"
+    content="Simulador interactivo de Estrategia de Marketing B2B con métricas reales: ARR, CAC, Market Share.">
+  <link rel="stylesheet" href="css/design-system.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .landing {
+      text-align: center;
+      max-width: 680px;
+      width: 100%;
+      padding: 40px 24px;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      border-radius: 20px;
+      font-size: 2rem;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.35);
+    }
+
+    .landing__wordmark {
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      background: linear-gradient(135deg, #F1F5F9, #94A3B8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .landing__tagline {
+      color: var(--text-muted);
+      font-size: 1rem;
+      font-weight: 400;
+      margin-bottom: 12px;
+    }
+
+    .landing__meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+
+    .landing__meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .role-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 32px 24px;
+      cursor: pointer;
+      transition: all var(--transition);
+      text-decoration: none;
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .role-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity var(--transition);
+      border-radius: var(--radius-xl);
+    }
+
+    .role-card--student::before {
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 60%);
+    }
+
+    .role-card--professor::before {
+      background: radial-gradient(circle at top left, rgba(245, 158, 11, 0.12), transparent 60%);
+    }
+
+    .role-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-card);
+    }
+
+    .role-card:hover::before {
+      opacity: 1;
+    }
+
+    .role-card--student:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+      box-shadow: var(--shadow-glow-blue);
+    }
+
+    .role-card--professor:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: var(--shadow-glow-amber);
+    }
+
+    .role-card__icon {
+      font-size: 2.2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .role-card__title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .role-card__desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .role-card__arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .role-card--student .role-card__arrow {
+      color: var(--accent-blue);
+    }
+
+    .role-card--professor .role-card__arrow {
+      color: var(--accent-amber);
+    }
+
+    .landing__footer {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stats-row__item {
+      text-align: center;
+    }
+
+    .stats-row__num {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: block;
+    }
+
+    .stats-row__label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    /* Animated background grid */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .landing {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="landing">
+    <div class="logo-mark">🚀</div>
+    <h1 class="landing__wordmark">MKT SLIM GAME</h1>
+    <p class="landing__tagline">Motor de Simulación de Estrategia Marketing B2B</p>
+
+    <div class="landing__meta">
+      <span class="landing__meta-pill" id="lp-turn">⚡ Q4 2025 en curso</span>
+      <span class="landing__meta-pill" id="lp-teams">👥 18 equipos activos</span>
+      <span class="landing__meta-pill">💎 3 segmentos</span>
+    </div>
+
+    <div class="role-grid">
+      <a href="#" id="student-link" class="role-card role-card--student">
+        <span class="role-card__icon">🎓</span>
+        <div class="role-card__title">Soy Alumno</div>
+        <div class="role-card__desc">
+          Accede al dashboard de tu marca, completa tus decisiones 4Ps y ve el reporte del Árbitro.
+        </div>
+        <div class="role-card__arrow" id="student-arrow">Ingresar como Alumno →</div>
+      </a>
+
+      <a href="professor-login.html" class="role-card role-card--professor">
+        <span class="role-card__icon">🎛️</span>
+        <div class="role-card__title">Soy Profesor</div>
+        <div class="role-card__desc">
+          Administra equipos, programa eventos con asistencia de IA e inicia el procesamiento del turno.
+        </div>
+        <div class="role-card__arrow">🔒 Ingresar como Profesor →</div>
+      </a>
+    </div>
+
+    <div class="stats-row stagger">
+      <div class="stats-row__item">
+        <span class="stats-row__num">3</span>
+        <span class="stats-row__label">Segmentos</span>
+      </div>
+      <div class="stats-row__item">
+        <span class="stats-row__num">2</span>
+        <span class="stats-row__label">Productos por Marca</span>
+      </div>
+      <div class="stats-row__item">
+        <span class="stats-row__num" id="stat-teams">0</span>
+        <span class="stats-row__label">Equipos Activos</span>
+      </div>
+      <div class="stats-row__item">
+        <span class="stats-row__num" id="stat-submitted">0</span>
+        <span class="stats-row__label">Enviaron Q4</span>
+      </div>
+    </div>
+
+    <p class="landing__footer mt-lg">MKT SLIM GAME — Ayudantía Marketing Estratégico B2B · 2025</p>
+  </div>
+
+  <script src="js/data-store.js"></script>
+  <script src="js/mock-data.js"></script>
+  <script src="js/theme-toggle.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Student link: if already logged in, go to dashboard; else go to login
+      const link = document.getElementById('student-link');
+      const arrow = document.getElementById('student-arrow');
+      const currentTeam = DataStore.getCurrentTeam();
+
+      if (currentTeam) {
+        link.href = 'student-dashboard.html';
+        arrow.textContent = `Continuar como ${currentTeam.name} →`;
+      } else {
+        link.href = 'student-login.html';
+        arrow.textContent = '🎓 Acceder al Simulador →';
+      }
+
+      // Stats from DataStore
+      const teams = DataStore.getTeams();
+      const el = id => document.getElementById(id);
+      if (el('stat-teams')) el('stat-teams').textContent = teams.length || '0';
+
+      // Fallback to mock data for other stats
+      const D = window.MOCK;
+      if (D) {
+        if (el('lp-turn')) el('lp-turn').textContent = `⚡ ${D.currentTurnLabel} en curso`;
+        if (teams.length > 0) {
+          if (el('lp-teams')) el('lp-teams').textContent = `👥 ${teams.length} equipos activos`;
+        } else {
+          if (el('lp-teams')) el('lp-teams').textContent = `👥 ${D.professor.totalTeams} equipos activos`;
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
