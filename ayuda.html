@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía del Simulador — MKT SLIM GAME B2B</title>
+    <meta name="description"
+        content="Documentación pedagógica completa del simulador MKT SLIM GAME: fundamentos teóricos, parámetros, métricas B2B y conexión con literatura científica.">
+    <link rel="stylesheet" href="css/design-system.css">
+    <style>
+        body {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        /* ── Typography ─────────────────────────────────── */
+        .guide-h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--text-primary);
+            line-height: 1.15;
+            margin-bottom: 8px;
+        }
+
+        .guide-h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 40px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .guide-h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin: 24px 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        p,
+        li {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.75;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        strong {
+            color: var(--text-secondary);
+        }
+
+        a {
+            color: var(--accent-blue);
+        }
+
+        /* ── Navigation ─────────────────────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            transition: all var(--transition);
+        }
+
+        .back-btn:hover {
+            border-color: var(--border-bright);
+            color: var(--text-primary);
+        }
+
+        .topbar-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* ── Table of Contents ──────────────────────────── */
+        .toc {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 40px;
+        }
+
+        .toc-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .toc ol {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .toc li {
+            margin-bottom: 4px;
+        }
+
+        .toc a {
+            color: var(--accent-blue);
+            font-size: 0.85rem;
+        }
+
+        /* ── Info Cards ─────────────────────────────────── */
+        .info-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+
+        .info-card--blue {
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .info-card--amber {
+            border-left: 3px solid var(--accent-amber);
+        }
+
+        .info-card--green {
+            border-left: 3px solid var(--accent-emerald);
+        }
+
+        .info-card--violet {
+            border-left: 3px solid var(--accent-violet);
+        }
+
+        .info-card--rose {
+            border-left: 3px solid var(--accent-rose);
+        }
+
+        .info-card__title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .info-card--blue .info-card__title {
+            color: var(--accent-blue);
+        }
+
+        .info-card--amber .info-card__title {
+            color: var(--accent-amber);
+        }
+
+        .info-card--green .info-card__title {
+            color: var(--accent-emerald);
+        }
+
+        .info-card--violet .info-card__title {
+            color: var(--accent-violet);
+        }
+
+        .info-card--rose .info-card__title {
+            color: var(--accent-rose);
+        }
+
+        /* ── Parameter Table ────────────────────────────── */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+        }
+
+        .param-table th {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .param-table td {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            line-height: 1.5;
+        }
+
+        .param-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .param-table td:first-child {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .param-table td:nth-child(2) {
+            color: var(--accent-amber);
+            font-size: 0.78rem;
+            white-space: nowrap;
+        }
+
+        /* ── Formula Box ────────────────────────────────── */
+        .formula {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: var(--accent-emerald);
+            line-height: 1.7;
+        }
+
+        /* ── Citation ───────────────────────────────────── */
+        .citation {
+            background: rgba(139, 92, 246, 0.06);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            margin: 10px 0;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .citation strong {
+            color: var(--accent-violet);
+            font-style: normal;
+        }
+
+        /* ── Segment Grid ───────────────────────────────── */
+        .seg-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .seg-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px;
+        }
+
+        .seg-card__name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .seg-card__weights {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .seg-card--eco {
+            border-top: 2px solid var(--seg-economico);
+        }
+
+        .seg-card--med {
+            border-top: 2px solid var(--seg-medio);
+        }
+
+        .seg-card--ljo {
+            border-top: 2px solid var(--seg-lujo);
+        }
+
+        /* ── Author Footer ──────────────────────────────── */
+        .author-footer {
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .author-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .author-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .author-role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+            line-height: 1.5;
+        }
+
+        .author-badge {
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+            border-radius: 99px;
+            padding: 2px 10px;
+        }
+
+        @media (max-width: 600px) {
+            .seg-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP NAV BAR -->
+    <div class="topbar">
+        <a href="index.html" class="back-btn">← Volver al Inicio</a>
+        <span class="topbar-title">📖 Guía del Simulador</span>
+    </div>
+
+    <!-- HEADER -->
+    <div style="margin-bottom: 32px;">
+        <h1 class="guide-h1">Guía Pedagógica del Simulador B2B</h1>
+        <p style="font-size:1rem; color:var(--text-muted); margin-top:8px; max-width:700px;">
+            Todo lo que necesitas saber sobre cómo funciona el juego, qué representa cada parámetro
+            y por qué estas métricas son las que usan las empresas B2B reales en el mundo.
+        </p>
+    </div>
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="toc">
+        <div class="toc-title">📑 Contenidos</div>
+        <ol>
+            <li><a href="#que-es">¿Qué es este simulador?</a></li>
+            <li><a href="#como-funciona">¿Cómo funciona el juego?</a></li>
+            <li><a href="#parametros">Los 8 Parámetros de Decisión (4Ps)</a></li>
+            <li><a href="#metricas">Métricas clave: ARR, CAC, Margen y Market Fit Score</a></li>
+            <li><a href="#segmentos">Los 3 Segmentos de Mercado</a></li>
+            <li><a href="#arbitro">El Árbitro: IA con contexto competitivo</a></li>
+            <li><a href="#investigacion">Base científica e investigación</a></li>
+            <li><a href="#glosario">Glosario rápido</a></li>
+        </ol>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 1: QUÉ ES -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <h2 class="guide-h2" id="que-es">🎯 1. ¿Qué es este simulador?</h2>
+
+    <p>
+        <strong>MKT SLIM GAME</strong> es un simulador de estrategia de marketing Business-to-Business (B2B) diseñado
+        para estudiantes universitarios. A diferencia de los casos de estudio estáticos, aquí tú tomas decisiones reales
+        cada turno y observas cómo impactan en tus métricas financieras frente a equipos rivales que compiten en el
+        mismo mercado.
+    </p>
+
+    <div class="info-card info-card--blue">
+        <div class="info-card__title">¿Qué diferencia al marketing B2B del B2C?</div>
+        <p style="margin:0">
+            En B2B, el cliente no es una persona, sino una <strong>organización</strong>. Los ciclos de venta son más
+            largos,
+            los comités de compra involucran múltiples tomadores de decisión y el precio no es el factor dominante:
+            la confianza, el soporte técnico y la creación de valor a largo plazo son lo que gana contratos.
+            Este simulador replica exactamente esa dinámica.
+        </p>
+    </div>
+
+    <div class="citation">
+        <strong>Referencia:</strong> Anderson, J. C., Narus, J. A., & van Rossum, W. (2006).
+        "Customer Value Propositions in Business Markets." <em>Harvard Business Review</em>, 84(3), 90–99.
+        — Los autores demuestran que en B2B, las propuestas de valor que combinan calidad técnica con
+        beneficios estratégicos generan entre 2x y 5x mayor retención que las basadas en precio.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 2: CÓMO FUNCIONA -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <h2 class="guide-h2" id="como-funciona">⚙️ 2. ¿Cómo funciona el juego?</h2>
+
+    <p>La simulación corre en <strong>turnos trimestrales</strong> (Q1, Q2, Q3…). Cada turno tiene este flujo:</p>
+
+    <div class="info-card info-card--amber">
+        <div class="info-card__title">Flujo de un turno</div>
+        <ol style="margin:0; padding-left:18px;">
+            <li><strong>1. El profesor activa el turno</strong> y puede publicar un <em>evento de mercado</em> (ej: alza
+                de materiales, nuevo competidor).</li>
+            <li><strong>2. Tú recibes el evento</strong> y lo ves en tu dashboard junto a los resultados del turno
+                anterior.</li>
+            <li><strong>3. Completas la Hoja de Decisiones</strong> con tus 8 parámetros (4Ps) para cada producto,
+                respetando el presupuesto del turno.</li>
+            <li><strong>4. El motor B2B calcula</strong> tus métricas (ARR, CAC, Margen) y las compara con todos los
+                equipos de tu segmento.</li>
+            <li><strong>5. El Árbitro (IA)</strong> genera un veredicto personalizado que explica por qué ganaste o
+                perdiste cuota.</li>
+            <li><strong>6. Ves tu posición</strong> en la tabla de posiciones del mercado y decides qué ajustar para el
+                siguiente turno.</li>
+        </ol>
+    </div>
+
+    <p>
+        La <strong>cuota de mercado</strong> funciona como un juego de suma cero dentro de cada segmento: si tú subes,
+        alguien baja. Esto refleja la realidad competitiva de los mercados B2B concentrados, donde existe un número
+        finito
+        de clientes institucionales y el mercado no crece infinitamente.
+    </p>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 3: PARÁMETROS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <h2 class="guide-h2" id="parametros">🎛️ 3. Los 8 Parámetros de Decisión (las 4Ps)</h2>
+
+    <p>Cada turno defines <strong>4 decisiones por producto</strong> (tienes 2 productos, por lo tanto 8 decisiones en
+        total).
+        Están organizadas en las 4Ps del Marketing Mix clásico, adaptadas al contexto B2B:</p>
+
+    <h3 class="guide-h3">📦 PRODUCT (Producto)</h3>
+    <table class="param-table">
+        <tr>
+            <th>Parámetro</th>
+            <th>Rango</th>
+            <th>Qué representa en el mundo real</th>
+        </tr>
+        <tr>
+            <td>Nivel de Calidad</td>
+            <td>1 – 10</td>
+            <td>
+                La robustez técnica, fiabilidad y certificaciones del producto (ej: ISO, SOC2 en SaaS).
+                Un nivel alto sube el <strong>costo unitario</strong> pero también el precio posible y la fidelización.
+                En B2B, la calidad es evaluada por el <em>comité técnico</em> antes de cualquier compra.
+            </td>
+        </tr>
+        <tr>
+            <td>Nivel de Diseño</td>
+            <td>1 – 5</td>
+            <td>
+                La experiencia de usuario, la interfaz y el posicionamiento estético de la marca (UX, branding premium).
+                Crítico en segmento Lujo; casi irrelevante en Económico. Impacta el <em>valor percibido</em>
+                que justifica precios más altos sin necesidad de descuentos.
+            </td>
+        </tr>
+    </table>
+
+    <h3 class="guide-h3">💰 PRICE (Precio)</h3>
+    <table class="param-table">
+        <tr>
+            <th>Parámetro</th>
+            <th>Rango</th>
+            <th>Qué representa en el mundo real</th>
+        </tr>
+        <tr>
+            <td>Precio de Lista B2B</td>
+            <td>$1,000 – $6,000</td>
+            <td>
+                El precio de contrato anual por licencia o unidad antes de descuentos (ACV: Annual Contract Value).
+                En B2B, el precio se negocia individualmente por cliente; el precio de lista es el punto de partida.
+                Fijar un precio demasiado alto sin respaldar con calidad o marca genera rechazo; uno muy bajo
+                señala baja calidad y destruye el margen.
+            </td>
+        </tr>
+        <tr>
+            <td>Descuento Corporativo</td>
+            <td>0% – 50%</td>
+            <td>
+                El descuento ofrecido para cerrar contratos (típico en licitaciones y acuerdos de volumen).
+                Un descuento alto baja el <em>margen por unidad</em> y perjudica la percepción de valor
+                (efecto señal negativa en compradores B2B sofisticados). Usar con moderación en segmentos premium.
+            </td>
+        </tr>
+    </table>
+
+    <h3 class="guide-h3">📡 PLACE (Distribución / Canales)</h3>
+    <table class="param-table">
+        <tr>
+            <th>Parámetro</th>
+            <th>Rango</th>
+            <th>Qué representa en el mundo real</th>
+        </tr>
+        <tr>
+            <td>N° de Canales de Distribución</td>
+            <td>1 – 4</td>
+            <td>
+                La cantidad de vías por las que llegas al cliente: fuerza de ventas directa, distribuidores,
+                marketplaces verticales B2B (ej: G2, Capterra) o alianzas estratégicas.
+                Más canales = mayor <strong>cobertura de mercado</strong> (reach), pero cada canal cuesta $2M de
+                presupuesto.
+                Existe rendimiento decreciente: pasar de 1 a 2 canales aumenta mucho el reach; de 3 a 4, casi nada.
+            </td>
+        </tr>
+    </table>
+
+    <div class="formula">
+        Reach (cobertura) por N° canales:
+        1 canal → 50% | 2 canales → 75% | 3 canales → 90% | 4 canales → 100%
+    </div>
+
+    <h3 class="guide-h3">📣 PROMOTION (Promoción)</h3>
+    <table class="param-table">
+        <tr>
+            <th>Parámetro</th>
+            <th>Rango</th>
+            <th>Qué representa en el mundo real</th>
+        </tr>
+        <tr>
+            <td>Inversión ABM / Generación de Demanda</td>
+            <td>$0 – $20,000,000</td>
+            <td>
+                El presupuesto dedicado a <strong>Account-Based Marketing (ABM)</strong>: identificar cuentas objetivo,
+                crear contenido personalizado, hacer campañas dirigidas y nutrir leads hasta el cierre.
+                Distinto al marketing masivo (B2C), el ABM es quirúrgico: se enfoca en las 50–200 empresas que
+                realmente pueden ser clientes. Mayor inversión reduce el CAC y acelera el ciclo de ventas.
+            </td>
+        </tr>
+    </table>
+
+    <div class="citation">
+        <strong>Referencia:</strong> Bev Burgess & Dave Munn (2021). <em>"A Practitioner's Guide to Account-Based
+            Marketing."</em>
+        Kogan Page. — Las empresas B2B que implementan ABM estructurado reportan hasta un 208% mayor
+        ingreso de marketing. El ABM alinea ventas y marketing hacia cuentas de alto valor, reduciendo el CAC
+        entre un 15% y 40% en ciclos de más de 6 meses.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 4: MÉTRICAS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <h2 class="guide-h2" id="metricas">📊 4. Métricas Clave del Simulador</h2>
+
+    <div class="info-card info-card--green">
+        <div class="info-card__title">ARR — Annual Recurring Revenue (Ingreso Recurrente Anual)</div>
+        <p style="margin:0">
+            La métrica estrella de cualquier empresa B2B con modelo de suscripción o contrato.
+            Representa el ingreso total anualizado que tu cartera de clientes genera de forma predecible.
+            Crecer ARR > 20% anual se considera trayectoria de alto crecimiento (benchmarks SaaS: Bessemer Venture
+            Partners, 2023).
+        </p>
+        <div class="formula">ARR = Precio de Lista × (1 − Descuento%) × Clientes × Reach × Market_Share_factor</div>
+    </div>
+
+    <div class="info-card info-card--violet">
+        <div class="info-card__title">CAC — Customer Acquisition Cost (Costo de Adquisición de Cliente)</div>
+        <p style="margin:0">
+            Todo el gasto que necesitas para convencer a UNA empresa de que te compre: salarios de ventas,
+            demos, viajes, eventos, marketing. Un CAC alto significa que estás gastando demasiado para cerrar
+            contratos. La relación <strong>LTV/CAC debe ser ≥ 3x</strong> para que el negocio sea sostenible
+            (regla dorada del SaaS B2B). En la simulación, el CAC baja cuando inviertes más en ABM eficiente.
+        </p>
+        <div class="formula">CAC = (Inversión ABM + Costos de Canales) / N° clientes cerrados</div>
+    </div>
+
+    <div class="info-card info-card--amber">
+        <div class="info-card__title">Margen Unitario</div>
+        <p style="margin:0">
+            La diferencia entre lo que cobras por unidad y lo que te cuesta producirla.
+            Un margen bajo significa que estás vendiendo mucho pero con poca rentabilidad, lo que hace
+            frágil el negocio ante cualquier shock de costos. En B2B premium, los márgenes brutos
+            superiores al 70% son comunes en software (Bessemer VPs Index, 2023).
+        </p>
+        <div class="formula">
+            Costo Unitario = (Nivel Calidad × $250) + (Nivel Diseño × $150)
+            Margen = Precio Lista × (1 − Descuento%) − Costo Unitario
+        </div>
+    </div>
+
+    <div class="info-card info-card--blue">
+        <div class="info-card__title">Market Fit Score (MFS) — Ajuste al Segmento</div>
+        <p style="margin:0">
+            Una métrica propia del simulador que mide qué tan bien tu estrategia <strong>encaja con las
+                preferencias del segmento</strong> al que apuntas. Es la versión simplificada del constructo
+            <em>Product-Market Fit</em> de Marc Andreessen (2007). Un MFS alto indica que tu producto
+            es el que el mercado quiere al precio que quiere y por los canales correctos.
+            Si es bajo (&lt;35%), debes replantear tu mezcla.
+        </p>
+        <div class="formula">
+            MFS = w_cal×(Calidad/10) + w_dis×(Diseño/5) + w_precio×(1−PrecioNorm) + w_abm×(ABM/20M)
+            Donde w_ varía según el segmento (ver tabla de segmentos abajo)
+        </div>
+    </div>
+
+    <div class="citation">
+        <strong>Referencia:</strong> Andreessen, M. (2007). "The only thing that matters." <em>pmarchive.com</em>.
+        — "En cualquier mercado, hay siempre un product-market fit ideal, y los fundadores que lo encuentran
+        pueden escalar casi sin límite; los que no, siguen peleando contra la corriente sin importar cuánto gasten."
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 5: SEGMENTOS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <h2 class="guide-h2" id="segmentos">🏷️ 5. Los 3 Segmentos de Mercado</h2>
+
+    <p>
+        Cada equipo compite dentro de <strong>un segmento de mercado fijo</strong> asignado por el profesor.
+        Los segmentos representan arquetipos reales de compradores B2B con criterios de decisión muy distintos.
+        Lo que funciona en Lujo puede fracasar en Económico y viceversa.
+    </p>
+
+    <div class="seg-grid">
+        <div class="seg-card seg-card--eco">
+            <div class="seg-card__name" style="color:var(--seg-economico)">🏷️ Mercado Económico</div>
+            <div class="seg-card__weights">
+                Compradores sensibles al precio.<br>
+                Ej: pymes, cooperativas, sector público.<br><br>
+                <strong>Ponderaciones MFS:</strong><br>
+                Precio bajo: 50%<br>
+                Canales: 30%<br>
+                Calidad: 20%<br>
+                Diseño: ~0%<br>
+            </div>
+        </div>
+        <div class="seg-card seg-card--med">
+            <div class="seg-card__name" style="color:var(--seg-medio)">⚡ Mercado Medio</div>
+            <div class="seg-card__weights">
+                Compradores equilibrados.<br>
+                Ej: empresas medianas, scale-ups.<br><br>
+                <strong>Ponderaciones MFS:</strong><br>
+                Calidad: 35%<br>
+                Precio: 25%<br>
+                Diseño: 25%<br>
+                ABM: 15%<br>
+            </div>
+        </div>
+        <div class="seg-card seg-card--ljo">
+            <div class="seg-card__name" style="color:var(--seg-lujo)">💎 Mercado Lujo</div>
+            <div class="seg-card__weights">
+                Compradores de valor premium.<br>
+                Ej: corporaciones multinacionales.<br><br>
+                <strong>Ponderaciones MFS:</strong><br>
+                Calidad: 40%<br>
+                Diseño: 40%<br>
+                ABM: 20%<br>
+                Precio: ~5%<br>
+            </div>
+        </div>
+    </div>
+
+    <div class="citation">
+        <strong>Referencia:</strong> Kotler, P., Rackham, N., & Krishnaswamy, S. (2006).
+        "Ending the War Between Sales and Marketing." <em>Harvard Business Review</em>, 84(7/8), 68–78.
+        — Los autores identifican que en el segmento enterprise (equivalente a Lujo en el simulador),
+        el precio es el último factor de decisión. Lo que cierra contratos es la confianza en el proveedor,
+        respaldada por calidad demostrable y presencia de marca sostenida (ABM de largo plazo).
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 6: ÁRBITRO -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <h2 class="guide-h2" id="arbitro">🤖 6. El Árbitro: Retroalimentación con IA</h2>
+
+    <p>
+        Al término de cada turno, un modelo de lenguaje (LLM) actúa como <strong>"Árbitro"</strong>:
+        analiza tus decisiones, tus resultados y también lo que hicieron los equipos rivales de tu segmento,
+        y genera un veredicto personalizado. Este informe es la retroalimentación pedagógica central del juego.
+    </p>
+
+    <div class="info-card info-card--violet">
+        <div class="info-card__title">¿Qué evalúa el Árbitro?</div>
+        <ul style="margin:0; padding-left:18px;">
+            <li>✅ Coherencia entre el segmento elegido y tus decisiones (¿tu producto encaja con el cliente?)</li>
+            <li>✅ Eficiencia del gasto (¿cuánto ARR generaste por cada peso invertido?)</li>
+            <li>✅ Posicionamiento competitivo (¿cómo te comparas con rivales en cuota y CAC?)</li>
+            <li>✅ Señales de alerta (¿tu margen se está erodando? ¿Tu CAC supera el LTV?)</li>
+            <li>✅ Recomendaciones concretas para el próximo turno.</li>
+        </ul>
+    </div>
+
+    <p>
+        El Árbitro tiene acceso a información <strong>anonimizada</strong> de los rivales: sabe que un equipo rival
+        bajó precios un 15% o que otro aumentó ABM drásticamente, pero no revela identidades. Esto simula
+        la inteligencia competitiva real que las empresas obtienen mediante informes de mercado, análisis
+        de precios públicos (price scraping) y benchmarking de industria.
+    </p>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 7: INVESTIGACIÓN -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <h2 class="guide-h2" id="investigacion">🔬 7. Base Científica e Investigación</h2>
+
+    <p>Este simulador no fue diseñado de forma arbitraria. Cada mecánica está respaldada por
+        investigación académica y evidencia empírica de la industria:</p>
+
+    <h3 class="guide-h3">Marco 4Ps adaptado a B2B</h3>
+    <div class="citation">
+        <strong>McCarthy, E. J. (1960).</strong> <em>Basic Marketing: A Managerial Approach.</em> Irwin.
+        — Las 4Ps originales (Product, Price, Place, Promotion) fueron diseñadas para B2C.
+        La adaptación al B2B requiere enfatizar la relación proveedor-cliente, el valor a largo plazo
+        (LTV) y la gestión de cuentas estratégicas. Este simulador implementa esa adaptación.
+    </div>
+
+    <h3 class="guide-h3">Teoría de juegos y competencia oligopólica</h3>
+    <div class="citation">
+        <strong>Tirole, J. (1988).</strong> <em>The Theory of Industrial Organization.</em> MIT Press.
+        — Los mercados B2B concentrados (pocos proveedores, pocos compradores) se comportan
+        como oligopolios diferenciados. Cada actor toma decisiones considerando la reacción de los
+        demás ("best response dynamics"). La mecánica de cuota de mercado del simulador replica este
+        equilibrio: si todos reducen precios, nadie gana ventaja; si uno invierte más en calidad, roba cuota.
+    </div>
+
+    <h3 class="guide-h3">Account-Based Marketing y ROI de Marketing B2B</h3>
+    <div class="citation">
+        <strong>Gartner Research (2022).</strong> "The Future of B2B Buying."
+        — El 75% de los compradores B2B prefieren una experiencia de compra sin necesidad de interactuar
+        con un vendedor. Esto implica que la inversión en contenido de calidad (ABM digital) tiene
+        mayor ROI que los canales de ventas directas, especialmente en la etapa de consideración.
+        El simulador pondera ABM como factor determinante en los segmentos de mayor sofisticación.
+    </div>
+
+    <h3 class="guide-h3">Métricas SaaS B2B y benchmarks de industria</h3>
+    <div class="citation">
+        <strong>Bessemer Venture Partners (2023).</strong> <em>"State of the Cloud Report."</em>
+        — Los benchmarks de referencia para empresas B2B saludables son:
+        CAC Payback Period &lt; 18 meses, LTV/CAC &gt; 3x, Net Revenue Retention &gt; 110%, ARR Growth &gt; 30%.
+        El simulador usa estas mismas métricas para evaluar el desempeño de los equipos.
+    </div>
+
+    <h3 class="guide-h3">Simulaciones de negocios como herramienta pedagógica</h3>
+    <div class="citation">
+        <strong>Faria, A. J., Hutchinson, D., Wellington, W. J., & Gold, S. (2009).</strong>
+        "Developments in Business Gaming: A Review of the Past 40 Years."
+        <em>Simulation &amp; Gaming</em>, 40(4), 464–487.
+        — Las simulaciones de negocios mejoran en un 28% la comprensión de conceptos de estrategia
+        comparado con metodologías de clase magistral. Las simulaciones con retroalimentación competitiva
+        (ver posición vs rivales) generan mayor involucramiento y mejor transferencia al mundo laboral.
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 8: GLOSARIO -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <h2 class="guide-h2" id="glosario">📚 8. Glosario Rápido</h2>
+
+    <table class="param-table">
+        <tr>
+            <th>Término</th>
+            <th>Sigla</th>
+            <th>Definición</th>
+        </tr>
+        <tr>
+            <td>Annual Recurring Revenue</td>
+            <td>ARR</td>
+            <td>Ingreso anual contratado y predecible. Métrica central de salud financiera en SaaS B2B.</td>
+        </tr>
+        <tr>
+            <td>Customer Acquisition Cost</td>
+            <td>CAC</td>
+            <td>Costo total de adquirir un nuevo cliente. Incluye marketing, ventas y onboarding.</td>
+        </tr>
+        <tr>
+            <td>Lifetime Value</td>
+            <td>LTV</td>
+            <td>Ingreso total que un cliente genera durante toda su relación con la empresa.</td>
+        </tr>
+        <tr>
+            <td>Account-Based Marketing</td>
+            <td>ABM</td>
+            <td>Estrategia que concentra recursos en un conjunto específico de cuentas de alto valor.</td>
+        </tr>
+        <tr>
+            <td>Market Fit Score</td>
+            <td>MFS</td>
+            <td>Índice que mide qué tan bien tu mezcla 4Ps encaja con las preferencias del segmento objetivo.</td>
+        </tr>
+        <tr>
+            <td>Annual Contract Value</td>
+            <td>ACV</td>
+            <td>Valor promedio de un contrato anual con un cliente. ACV alto con pocos clientes es modelo enterprise.
+            </td>
+        </tr>
+        <tr>
+            <td>Net Revenue Retention</td>
+            <td>NRR</td>
+            <td>% de ingresos retenidos de clientes existentes incluyendo upsells y descontando churns.</td>
+        </tr>
+        <tr>
+            <td>Churn Rate</td>
+            <td>—</td>
+            <td>Tasa de cancelación de contratos. CAC bajo y churn alto = negocio insostenible.</td>
+        </tr>
+    </table>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- AUTOR -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="author-footer">
+        <div class="author-avatar">👨‍💻</div>
+        <div>
+            <div class="author-name">Matías Arriagada R.</div>
+            <div class="author-role">
+                Desarrollador y diseñador del simulador MKT SLIM GAME.<br>
+                Estudiante de 5° año · Ingeniería Civil Industrial / Marketing · GIIA · Universidad De Concepción —
+                Ayudantía de Marketing Estratégico B2B, Noveno Semestre, 2025.
+            </div>
+            <span class="author-badge">Desarrollo &amp; Contenido</span>
+            <span class="author-badge"
+                style="background:rgba(16,185,129,0.1); color:var(--accent-emerald); margin-left:6px;">Investigación
+                Académica</span>
+            <p style="font-size:0.75rem; color:var(--text-dim); margin-top:12px; margin-bottom:0;">
+                Este documento fue elaborado con fines pedagógicos exclusivamente.
+                Las métricas, fórmulas y referencias corresponden a literatura académica y reportes
+                de la industria B2B. El simulador es una herramienta de aprendizaje experimental;
+                los resultados del juego son aproximaciones didácticas y no proyecciones financieras reales.
+            </p>
+        </div>
+    </div>
+
+</body>
+
+</html>

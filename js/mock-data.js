@@ -8,9 +8,9 @@
 
 (function buildDynamicViewModel() {
     const SEG_LABEL = {
-        economico: "Mercado Economico",
-        medio: "Mercado Intermedio",
-        lujo: "Mercado Lujo",
+        economico: "🏷️ Económico",
+        medio: "⚡ Intermedio",
+        lujo: "💎 Lujo",
     };
 
     const CHANNEL_REACH = { 1: 0.50, 2: 0.75, 3: 0.90, 4: 1.00 };
