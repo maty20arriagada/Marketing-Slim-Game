@@ -276,6 +276,13 @@
     </div>
 
     <p class="landing__footer mt-lg">MKT SLIM GAME — Ayudantía Marketing Estratégico B2B · 2025</p>
+    <p style="margin-top:12px;">
+      <a href="ayuda.html"
+        style="font-size:0.78rem; color:var(--accent-blue); text-decoration:none; display:inline-flex; align-items:center; gap:5px; opacity:0.75; transition:opacity 0.2s;"
+        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.75'">
+        📖 ¿Cómo funciona este simulador? → Guía completa
+      </a>
+    </p>
   </div>
 
   <script src="js/data-store.js"></script>
@@ -289,7 +296,7 @@
 
       link.href = 'student-login.html';
       if (currentTeam) {
-        arrow.textContent = `🔐 Ingresar como ${currentTeam.name} (pedirá contraseña) →`;
+        arrow.textContent = `🔐 Continuar con tu Compañía →`;
       } else {
         arrow.textContent = '🎓 Acceder al Simulador →';
       }

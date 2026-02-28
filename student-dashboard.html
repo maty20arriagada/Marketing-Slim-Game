@@ -170,7 +170,7 @@
             <div class="topnav__meta">
                 <span class="badge badge--lujo" id="nav-segment">💎 Mercado Lujo</span>
                 <span class="topnav__turn" id="nav-turn">TURNO Q1 2026</span>
-                <span class="timer animate-pulse" id="timer-display">⏱ 07:14:33</span>
+                <span class="timer animate-pulse" id="timer-display">⏱ --:--:--</span>
                 <button class="btn btn--danger btn--sm" onclick="logoutStudent()">🔓 Cerrar Sesión</button>
             </div>
         </div>
@@ -219,8 +219,10 @@
                     Dashboard del Equipo · <span id="hdr-turn">Q1 2026</span>
                 </div>
                 <h1 class="page-header__title" id="hdr-team">Nexus Corp</h1>
-                <p class="page-header__subtitle">Tienes hasta las 23:59 de hoy para confirmar tus decisiones del turno
-                    actual.</p>
+                <p class="page-header__subtitle" id="deadline-info"
+                    style="font-size:0.85rem; color:var(--text-muted); min-height:1.4em;">
+                    …cargando plazo de entrega…
+                </p>
             </div>
 
             <!-- METRIC TILES (rendered by JS) -->
@@ -319,18 +321,55 @@
     <script src="js/anticheat.js"></script>
     <script src="js/mock-data.js"></script>
     <script>
-        // ── TIMER compartido via sessionStorage ───────────────────
-        const SHARED_START_SECS = 7 * 3600 + 14 * 60 + 33;
-        const sessionKey = 'ag_timer_start';
-        if (!sessionStorage.getItem(sessionKey)) sessionStorage.setItem(sessionKey, Date.now());
+        // ── DEADLINE COUNTDOWN (lee desde DataStore cada tick) ────────
         const timerEl = document.getElementById('timer-display');
+        const deadlineInfoEl = document.getElementById('deadline-info');
+
+        function getDeadlineDate() {
+            return (window.DataStore && DataStore.getDeadline) ? DataStore.getDeadline() : null;
+        }
+
+        function fmtDeadlineFull(d) {
+            if (!d) return null;
+            return d.toLocaleString('es-CL', {
+                weekday: 'long', day: 'numeric', month: 'long',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+
         function updateTimer() {
-            const elapsed = Math.floor((Date.now() - parseInt(sessionStorage.getItem(sessionKey))) / 1000);
-            const remaining = Math.max(0, SHARED_START_SECS - elapsed);
-            const h = Math.floor(remaining / 3600), m = Math.floor((remaining % 3600) / 60), s = remaining % 60;
-            timerEl.textContent = `⏱ ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            if (h < 1) timerEl.classList.add('timer--urgent');
-            if (remaining <= 0) clearInterval(timerInterval);
+            const deadline = getDeadlineDate();
+            if (!deadline) {
+                if (timerEl) {
+                    timerEl.textContent = '⏱ Sin plazo';
+                    timerEl.classList.remove('timer--urgent');
+                }
+                if (deadlineInfoEl) {
+                    deadlineInfoEl.innerHTML = '<span style="color:var(--text-dim)">📅 El profesor aún no ha definido el plazo de entrega.</span>';
+                }
+                return;
+            }
+            const now = Date.now();
+            const diffMs = deadline.getTime() - now;
+            const remaining = Math.max(0, Math.floor(diffMs / 1000));
+            const h = Math.floor(remaining / 3600);
+            const m = Math.floor((remaining % 3600) / 60);
+            const s = remaining % 60;
+            const pad = n => String(n).padStart(2, '0');
+            if (timerEl) {
+                timerEl.textContent = remaining > 0
+                    ? `⏱ ${pad(h)}:${pad(m)}:${pad(s)}`
+                    : '⏱ ¡Plazo vencido!';
+                if (h < 1) timerEl.classList.add('timer--urgent');
+                else timerEl.classList.remove('timer--urgent');
+            }
+            if (deadlineInfoEl) {
+                const color = remaining === 0 ? 'var(--accent-rose)' : h < 2 ? 'var(--accent-amber)' : 'var(--accent-emerald)';
+                deadlineInfoEl.innerHTML = remaining > 0
+                    ? `📅 Plazo de entrega: <strong>${fmtDeadlineFull(deadline)}</strong>`
+                    + ` &nbsp;·&nbsp; <span style="color:${color};font-weight:700;">Faltan ${pad(h)}h ${pad(m)}m ${pad(s)}s</span>`
+                    : `⛔ <strong style="color:var(--accent-rose)">El plazo de entrega ya terminó.</strong>`;
+            }
         }
         const timerInterval = setInterval(updateTimer, 1000);
         updateTimer();

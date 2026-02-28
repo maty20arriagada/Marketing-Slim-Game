@@ -164,6 +164,10 @@
                 <span class="icon">🏆</span> Leaderboard Global
             </button>
 
+            <button class="sidebar__link" onclick="switchTab('historial', this)">
+                <span class="icon">📋</span> Historial
+            </button>
+
             <div class="sidebar__label" style="margin-top:12px;">Administración</div>
             <button class="sidebar__link" onclick="switchTab('admin', this)">
                 <span class="icon">⚙️</span> Admin Equipos
@@ -188,7 +192,8 @@
                         style="color:var(--accent-emerald)">0 / 0</strong></div>
                 <div class="mt-sm" id="sim-pending" style="font-size:0.75rem; color:var(--text-muted);">Pendientes: —
                 </div>
-                <div id="sim-markets" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Mercados: —</div>
+                <div id="sim-markets" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Mercados: —
+                </div>
             </div>
         </aside>
 
@@ -211,17 +216,25 @@
                         <div
                             style="font-family:var(--font-mono); font-size:1.1rem; font-weight:700; color:var(--text-primary);">
                             <span id="run-submitted-num">0</span> <span
-                                style="color:var(--text-muted); font-size:0.85rem;">de <span id="run-total-num">0</span> equipos</span></div>
+                                style="color:var(--text-muted); font-size:0.85rem;">de <span id="run-total-num">0</span>
+                                equipos</span>
+                        </div>
                     </div>
                     <div class="progress-bar-wrapper">
                         <div class="progress-bar-track">
                             <div class="progress-bar-fill"></div>
                         </div>
-                        <div id="run-progress-label" style="font-size:0.7rem; color:var(--text-muted); margin-top:5px; text-align:right;">0%
+                        <div id="run-progress-label"
+                            style="font-size:0.7rem; color:var(--text-muted); margin-top:5px; text-align:right;">0%
                             completo</div>
                     </div>
                     <button class="btn btn--primary btn--lg" id="run-turn-btn" onclick="runTurn()">
                         ▶ Iniciar Turno Q1
+                    </button>
+                    <button class="btn btn--ghost btn--sm" id="force-submit-btn" onclick="forceSubmitPending()"
+                        title="Auto-completa equipos pendientes con valores mínimos del mercado"
+                        style="white-space:nowrap;">
+                        ⚡ Completar Pendientes
                     </button>
                 </div>
 
@@ -389,14 +402,16 @@
                 <div class="page-header">
                     <div class="page-header__eyebrow">Panel Profesor</div>
                     <h1 class="page-header__title">🏆 Leaderboard Global</h1>
-                    <p class="page-header__subtitle" id="lb-subtitle">Ranking por clasificación del turno actual. El profesor ve nombres; los
+                    <p class="page-header__subtitle" id="lb-subtitle">Ranking por clasificación del turno actual. El
+                        profesor ve nombres; los
                         alumnos solo ven rivales anónimos.</p>
                 </div>
 
                 <div class="card mb-lg" style="padding:14px 18px;">
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                         <label class="form-label" style="margin:0;">Turno a visualizar</label>
-                        <select id="lb-turn-select" class="form-input" style="max-width:180px;" onchange="renderLeaderboard(); renderMarketResults();">
+                        <select id="lb-turn-select" class="form-input" style="max-width:180px;"
+                            onchange="renderLeaderboard(); renderMarketResults();">
                             <option value="Q1">Q1</option>
                             <option value="Q2">Q2</option>
                             <option value="Q3">Q3</option>
@@ -409,20 +424,108 @@
                 <div class="leaderboard-segments stagger" id="leaderboard-segments"></div>
 
                 <div class="card mt-lg">
-                    <div class="card__title">📊 Resultados por Mercado</div>
+                    <div class="card__title">📊 Resultados por Mercado <span
+                            style="font-size:0.78rem;color:var(--text-muted);font-weight:400;">— haz clic en un mercado
+                            para ver la evolución de cada empresa</span></div>
                     <div id="market-results-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px;">
                         <div class="text-sm text-muted">Sin datos disponibles.</div>
                     </div>
                 </div>
 
+                <!-- Modal de evolución por mercado -->
+                <div id="market-modal"
+                    style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9000; align-items:center; justify-content:center; backdrop-filter:blur(4px);"
+                    onclick="closeMarketModal(event)">
+                    <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:32px; max-width:840px; width:92%; max-height:88vh; overflow-y:auto; position:relative;"
+                        onclick="event.stopPropagation()">
+                        <button onclick="closeMarketModal()"
+                            style="position:absolute;top:16px;right:20px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--text-muted);line-height:1;">&#x2715;</button>
+                        <div id="modal-market-title" style="font-size:1.3rem;font-weight:800;margin-bottom:4px;"></div>
+                        <div id="modal-market-subtitle"
+                            style="font-size:0.82rem;color:var(--text-muted);margin-bottom:24px;"></div>
+                        <!-- ARR Evolution Chart -->
+                        <div style="margin-bottom:20px;">
+                            <div
+                                style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;">
+                                Evolución ARR por Empresa (por periodo)</div>
+                            <div id="modal-chart-wrap" style="position:relative;"></div>
+                            <div id="modal-tooltip"
+                                style="position:fixed;display:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.78rem;pointer-events:none;z-index:9999;min-width:160px;">
+                            </div>
+                        </div>
+                        <!-- Leaderboard del mercado -->
+                        <div
+                            style="font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;">
+                            Ranking Actual</div>
+                        <div id="modal-leaderboard" style="display:grid;gap:6px;"></div>
+                    </div>
+                </div>
+
             </div><!-- /tab-leaderboard -->
+
+            <!-- ═══════════════ TAB: HISTORIAL ═══════════════ -->
+            <div id="tab-historial" class="tab-panel">
+                <div class="page-header">
+                    <div class="page-header__eyebrow">Panel Profesor</div>
+                    <h1 class="page-header__title">📋 Historial de Decisiones</h1>
+                    <p class="page-header__subtitle">Revisa las decisiones de cada equipo, turno a turno, filtradas por
+                        mercado.</p>
+                </div>
+
+                <div class="card mb-lg" style="padding:14px 18px;">
+                    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <label class="form-label" style="margin:0;">Mercado</label>
+                        <select id="hist-market-filter" class="form-input" style="max-width:180px;"
+                            onchange="renderHistorial()">
+                            <option value="all">Todos los mercados</option>
+                            <option value="moda">👗 Moda</option>
+                            <option value="autos">🚗 Autos</option>
+                            <option value="casas">🏠 Casas</option>
+                        </select>
+                        <label class="form-label" style="margin:0;">Turno</label>
+                        <select id="hist-turn-filter" class="form-input" style="max-width:140px;"
+                            onchange="renderHistorial()">
+                            <option value="all">Todos los turnos</option>
+                        </select>
+                        <label class="form-label" style="margin:0;">Equipo</label>
+                        <select id="hist-team-filter" class="form-input" style="max-width:200px;"
+                            onchange="renderHistorial()">
+                            <option value="all">Todos los equipos</option>
+                        </select>
+                        <button class="btn btn--ghost btn--sm" onclick="exportHistorialCSV()">⬇️ CSV</button>
+                    </div>
+                </div>
+
+                <div class="card" style="padding:0; overflow:hidden;">
+                    <table class="table" id="historial-table">
+                        <thead>
+                            <tr>
+                                <th>Turno</th>
+                                <th>Equipo</th>
+                                <th>Mercado</th>
+                                <th>Segmento</th>
+                                <th>Producto</th>
+                                <th>Precio Desc.</th>
+                                <th>Calidad/Diseño</th>
+                                <th>Canales</th>
+                                <th>AdSpend</th>
+                                <th>ARR</th>
+                                <th>Margen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historial-tbody"></tbody>
+                    </table>
+                </div>
+                <div id="historial-summary" style="margin-top:12px; font-size:0.78rem; color:var(--text-muted);"></div>
+            </div><!-- /tab-historial -->
 
             <!-- ═══════════════ TAB: ADMIN EQUIPOS ═══════════════ -->
             <div id="tab-admin" class="tab-panel">
                 <div class="page-header">
                     <div class="page-header__eyebrow">Administración</div>
                     <h1 class="page-header__title">⚙️ Gestión de Equipos</h1>
-                    <p class="page-header__subtitle">Edita nombres, productos, mercado y clasificación automática de cualquier equipo
+                    <p class="page-header__subtitle">Edita nombres, productos, mercado y clasificación automática de
+                        cualquier equipo
                         registrado.</p>
                 </div>
 
@@ -430,7 +533,8 @@
                     <div style="display:flex; align-items:end; gap:12px; flex-wrap:wrap;">
                         <div class="form-group" style="margin:0; min-width:220px;">
                             <label class="form-label">Filtrar por mercado</label>
-                            <select id="admin-market-filter" class="form-input" onchange="setAdminMarketFilter(this.value)"></select>
+                            <select id="admin-market-filter" class="form-input"
+                                onchange="setAdminMarketFilter(this.value)"></select>
                         </div>
                         <div id="admin-filter-count" class="text-sm text-muted" style="padding-bottom:10px;">—</div>
                     </div>
@@ -487,7 +591,8 @@
                             <label class="form-label">Capacidad por Mercado (equipos)</label>
                             <input type="number" id="param-market-cap" class="form-input"
                                 style="font-family:var(--font-mono);">
-                            <div style="font-size:0.7rem;color:var(--text-dim);margin-top:3px;">Default: 9 por mercado</div>
+                            <div style="font-size:0.7rem;color:var(--text-dim);margin-top:3px;">Default: 9 por mercado
+                            </div>
                         </div>
                     </div>
 
@@ -610,7 +715,8 @@
                                     <td><input type="number" id="param-prof-moda-dcost" class="form-input"></td>
                                     <td><input type="number" id="param-prof-moda-ccost" class="form-input"></td>
                                     <td><input type="number" id="param-prof-moda-admax" class="form-input"></td>
-                                    <td><input type="number" step="0.05" id="param-prof-moda-sens" class="form-input"></td>
+                                    <td><input type="number" step="0.05" id="param-prof-moda-sens" class="form-input">
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Autos</td>
@@ -621,7 +727,8 @@
                                     <td><input type="number" id="param-prof-autos-dcost" class="form-input"></td>
                                     <td><input type="number" id="param-prof-autos-ccost" class="form-input"></td>
                                     <td><input type="number" id="param-prof-autos-admax" class="form-input"></td>
-                                    <td><input type="number" step="0.05" id="param-prof-autos-sens" class="form-input"></td>
+                                    <td><input type="number" step="0.05" id="param-prof-autos-sens" class="form-input">
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>Casas</td>
@@ -632,7 +739,8 @@
                                     <td><input type="number" id="param-prof-casas-dcost" class="form-input"></td>
                                     <td><input type="number" id="param-prof-casas-ccost" class="form-input"></td>
                                     <td><input type="number" id="param-prof-casas-admax" class="form-input"></td>
-                                    <td><input type="number" step="0.05" id="param-prof-casas-sens" class="form-input"></td>
+                                    <td><input type="number" step="0.05" id="param-prof-casas-sens" class="form-input">
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -644,7 +752,8 @@
                     <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">
                         Usa datasets separados para no mezclar ni sobrescribir equipos reales.
                     </div>
-                    <div id="dataset-mode-label" style="font-size:0.8rem; margin-bottom:12px; color:var(--text-secondary);">
+                    <div id="dataset-mode-label"
+                        style="font-size:0.8rem; margin-bottom:12px; color:var(--text-secondary);">
                         Dataset activo: REAL
                     </div>
                     <div style="display:flex; gap:12px;">
@@ -652,8 +761,34 @@
                         <button class="btn btn--ghost" onclick="switchDatasetMode('demo')">🧪 Usar Dataset Demo</button>
                     </div>
                     <div style="display:flex; gap:12px; margin-top:10px;">
-                        <button class="btn btn--primary" onclick="generateDemoDataset()">🎲 Generar Demo Aleatoria</button>
+                        <button class="btn btn--primary" onclick="generateDemoDataset()">🎲 Generar Demo
+                            Aleatoria</button>
                         <button class="btn btn--ghost" onclick="clearDemoDataset()">🧹 Limpiar Datos Demo</button>
+                    </div>
+                </div>
+
+                <!-- ─── DEADLINE DE ENTREGA ─── -->
+                <div class="card" style="margin-top:20px; border-color:rgba(59,130,246,0.25);">
+                    <div class="card__title">📅 Plazo de Entrega de Borradores</div>
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:16px; line-height:1.5;">
+                        Configura la fecha y hora límite en que los equipos deben confirmar sus decisiones del turno
+                        actual. Los alumnos verán en su interfaz la fecha exacta y un contador regresivo en tiempo real.
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end;">
+                        <div class="form-group" style="margin:0;">
+                            <label class="form-label">Fecha y hora límite</label>
+                            <input type="datetime-local" id="param-deadline" class="form-input"
+                                style="font-family:var(--font-mono);">
+                            <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;">
+                                Hora en tiempo local. Si está en blanco, los alumnos verán "Sin plazo definido".
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px; padding-bottom:2px;">
+                            <button class="btn btn--primary" onclick="saveDeadline()">💾 Guardar Plazo</button>
+                            <button class="btn btn--ghost" onclick="clearDeadline()" title="Eliminar plazo">✕</button>
+                        </div>
+                    </div>
+                    <div id="deadline-preview" style="margin-top:12px; font-size:0.82rem; color:var(--text-secondary);">
                     </div>
                 </div>
 
@@ -675,7 +810,8 @@
                 <div class="card" style="border-color:rgba(244,63,94,0.3); margin-bottom:20px;">
                     <div class="card__title" style="color:var(--accent-amber);">🔄 Reiniciar Ronda</div>
                     <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.6;">
-                        Resetea todas las decisiones, métricas e historial de los equipos del dataset activo al estado inicial.
+                        Resetea todas las decisiones, métricas e historial de los equipos del dataset activo al estado
+                        inicial.
                         <strong style="color:var(--text-secondary);">Los nombres de empresa y productos se
                             mantienen.</strong>
                         El turno vuelve a Q1.
@@ -1013,6 +1149,161 @@
             </svg>`;
         }
 
+        // Palette for multi-line chart
+        const CHART_PALETTE = [
+            '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+            '#06B6D4', '#F97316', '#EC4899', '#84CC16', '#A78BFA',
+            '#34D399', '#FBBF24', '#60A5FA', '#F472B6', '#4ADE80',
+        ];
+
+        function buildMultiLineSvg(seriesList, turnLabels) {
+            // seriesList: [{name, values:[numbers]}]
+            const W = 700; const H = 220; const PAD_L = 66; const PAD_R = 16; const PAD_T = 18; const PAD_B = 32;
+            const chartW = W - PAD_L - PAD_R;
+            const chartH = H - PAD_T - PAD_B;
+            const n = turnLabels.length;
+            if (!n || !seriesList.length) return '<p class="text-muted text-sm">Sin datos para graficar.</p>';
+
+            // Global min/max across all series
+            const allVals = seriesList.flatMap(s => s.values);
+            const globalMin = Math.min(...allVals.filter(v => v > 0), 0);
+            const globalMax = Math.max(...allVals, 1);
+            const range = Math.max(1, globalMax - globalMin);
+
+            function xOf(i) { return PAD_L + (i / Math.max(1, n - 1)) * chartW; }
+            function yOf(v) { return PAD_T + chartH - ((v - globalMin) / range) * chartH; }
+            function fmtM(v) { return v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(0) + 'K' : '$' + Math.round(v); }
+
+            // Y axis grid lines (5)
+            const gridLines = Array.from({ length: 5 }, (_, i) => {
+                const v = globalMin + (range * i / 4);
+                const y = yOf(v);
+                return `<line x1="${PAD_L}" y1="${y.toFixed(1)}" x2="${W - PAD_R}" y2="${y.toFixed(1)}" stroke="var(--border)" stroke-width="1"/>
+                <text x="${PAD_L - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--text-dim)">${fmtM(v)}</text>`;
+            });
+
+            // X axis labels
+            const xLabels = turnLabels.map((lbl, i) => {
+                const x = xOf(i);
+                return `<text x="${x.toFixed(1)}" y="${H - 4}" text-anchor="middle" font-size="10" fill="var(--text-dim)">${lbl}</text>`;
+            });
+
+            // Data lines + dots (with data attrs for tooltip)
+            const lines = seriesList.map((serie, si) => {
+                const color = CHART_PALETTE[si % CHART_PALETTE.length];
+                const pts = serie.values.map((v, i) => `${xOf(i).toFixed(1)},${yOf(v).toFixed(1)}`).join(' ');
+                // Area fill under line
+                const firstX = xOf(0).toFixed(1);
+                const lastX = xOf(serie.values.length - 1).toFixed(1);
+                const bottom = (PAD_T + chartH).toFixed(1);
+                const areaPoints = `${firstX},${bottom} ${pts} ${lastX},${bottom}`;
+                const dots = serie.values.map((v, i) => {
+                    const cx = xOf(i).toFixed(1);
+                    const cy = yOf(v).toFixed(1);
+                    return `<circle cx="${cx}" cy="${cy}" r="4" fill="${color}" stroke="var(--bg-surface)" stroke-width="2"
+                        class="chart-dot" data-label="${turnLabels[i]}" data-name="${escHtml(serie.name)}" data-val="${fmtM(v)}"
+                        style="cursor:pointer;"/>`;
+                }).join('');
+                return `<polygon points="${areaPoints}" fill="${color}" fill-opacity="0.07"/>
+                <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+                ${dots}`;
+            }).join('');
+
+            const svgId = 'mchart_' + Date.now();
+            return `<div style="overflow-x:auto;">
+            <svg id="${svgId}" viewBox="0 0 ${W} ${H}" style="width:100%;min-width:400px;height:${H}px;display:block;font-family:var(--font-mono);">
+                <rect x="${PAD_L}" y="${PAD_T}" width="${chartW}" height="${chartH}" fill="var(--bg-elevated)" rx="4"/>
+                ${gridLines.join('')}
+                ${lines}
+                ${xLabels.join('')}
+            </svg>
+            </div>`;
+        }
+
+        function openMarketModal(mid) {
+            const labels = getMarketLabels();
+            const teams = DataStore.getTeams().filter(t => (t.market || 'moda') === mid);
+            const cfg = DataStore.getConfig();
+            const maxTurns = cfg.maxTurns || 5;
+            const turnLabels = Array.from({ length: maxTurns }, (_, i) => `Q${i + 1}`);
+
+            const modal = document.getElementById('market-modal');
+            const titleEl = document.getElementById('modal-market-title');
+            const subtitleEl = document.getElementById('modal-market-subtitle');
+            const chartWrap = document.getElementById('modal-chart-wrap');
+            const lbDiv = document.getElementById('modal-leaderboard');
+            const marketEmoji = { moda: '👗', autos: '🚗', casas: '🏠' };
+
+            titleEl.textContent = `${marketEmoji[mid] || ''} Mercado de ${labels[mid] || mid}`;
+            subtitleEl.textContent = `${teams.length} empresa(s) compitiendo · Evolución ARR periodo a periodo`;
+
+            // Build series
+            const seriesList = teams.map(t => ({
+                name: t.name,
+                values: turnLabels.map(tl => {
+                    const h = (t.history || []).find(x => x.turn === tl);
+                    return h?.arr || 0;
+                }),
+            })).filter(s => s.values.some(v => v > 0));
+
+            chartWrap.innerHTML = seriesList.length
+                ? buildMultiLineSvg(seriesList, turnLabels)
+                : '<p class="text-sm text-muted" style="padding:20px 0;">Sin historial disponible para este mercado aún.</p>';
+
+            // Tooltip behavior
+            const tooltip = document.getElementById('modal-tooltip');
+            chartWrap.querySelectorAll('.chart-dot').forEach(dot => {
+                dot.addEventListener('mousemove', e => {
+                    tooltip.style.display = 'block';
+                    tooltip.style.left = (e.clientX + 14) + 'px';
+                    tooltip.style.top = (e.clientY - 12) + 'px';
+                    tooltip.innerHTML = `<strong>${dot.dataset.name}</strong><br>${dot.dataset.label}: <span style="color:var(--accent-blue);">${dot.dataset.val}</span>`;
+                });
+                dot.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+            });
+
+            // Legend
+            const legendHtml = `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;margin-bottom:16px;">${seriesList.map((s, i) => `<div style="display:flex;align-items:center;gap:5px;font-size:0.75rem;">
+                    <span style="width:12px;height:12px;border-radius:3px;background:${CHART_PALETTE[i % CHART_PALETTE.length]};flex-shrink:0;"></span>
+                    <span style="color:var(--text-secondary);">${escHtml(s.name)}</span>
+                </div>`).join('')
+                }</div>`;
+            chartWrap.insertAdjacentHTML('beforeend', legendHtml);
+
+            // Ranking
+            const lastQ = `Q${Math.min(cfg.currentTurn || 1, maxTurns)}`;
+            const ranked = teams.map(t => {
+                const h = (t.history || []).find(x => x.turn === lastQ);
+                return { name: t.name, arr: h?.arr || t.currentMetrics?.arr || 0, share: h?.marketShare || t.currentMetrics?.marketShare || 0, cac: h?.cac || t.currentMetrics?.cac || 0 };
+            }).sort((a, b) => b.arr - a.arr);
+            const totalArr = ranked.reduce((s, r) => s + r.arr, 0) || 1;
+            lbDiv.innerHTML = ranked.map((r, i) => {
+                const pct = ((r.arr / totalArr) * 100).toFixed(1);
+                const color = CHART_PALETTE[teams.findIndex(t => t.name === r.name) % CHART_PALETTE.length];
+                return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-elevated);border-radius:8px;">
+                    <span style="font-family:var(--font-mono);font-weight:700;color:${i < 3 ? ['#F59E0B', '#94A3B8', '#D97706'][i] : 'var(--text-dim)'};width:20px;text-align:center;">${i + 1}</span>
+                    <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+                    <span style="flex:1;font-weight:600;font-size:0.85rem;">${escHtml(r.name)}</span>
+                    <span style="font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-blue);">$${(r.arr / 1e6).toFixed(2)}M</span>
+                    <div style="width:80px;height:6px;background:var(--bg-surface);border-radius:99px;overflow:hidden;">
+                        <div style="height:100%;width:${pct}%;background:${color};"></div>
+                    </div>
+                    <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim);width:36px;text-align:right;">${pct}%</span>
+                </div>`;
+            }).join('');
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMarketModal(e) {
+            if (e && e.target !== document.getElementById('market-modal')) return;
+            document.getElementById('market-modal').style.display = 'none';
+            document.getElementById('modal-tooltip').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMarketModal(); });
+
         function renderMarketResults() {
             const container = document.getElementById('market-results-grid');
             if (!container) return;
@@ -1021,6 +1312,7 @@
             const cfg = DataStore.getConfig();
             const q = document.getElementById('lb-turn-select')?.value || `Q${cfg.currentTurn || 1}`;
             const marketIds = ['moda', 'autos', 'casas'];
+            const marketEmoji = { moda: '👗', autos: '🚗', casas: '🏠' };
 
             container.innerHTML = marketIds.map(mid => {
                 const marketTeams = teams.filter(t => (t.market || 'moda') === mid);
@@ -1031,13 +1323,7 @@
                         const p = srcProducts[pid];
                         if (!p) return null;
                         const seg = p.segmento || DataStore.classifyProductByAttributes(p, mid);
-                        return {
-                            arr: p.arr || 0,
-                            price: p.discPrice || p.retailPrice || 0,
-                            cost: p.unitCost || 0,
-                            gain: p.margin || 0,
-                            segmento: seg,
-                        };
+                        return { arr: p.arr || 0, price: p.discPrice || p.retailPrice || 0, cost: p.unitCost || 0, gain: p.margin || 0, segmento: seg };
                     }).filter(Boolean);
                 });
 
@@ -1047,40 +1333,190 @@
                     return acc + (h?.arr || 0);
                 }, 0));
 
-                if (!rows.length) {
-                    return `<div class="card" style="padding:14px;">
-                        <div style="font-weight:700; margin-bottom:6px;">${labels[mid] || mid}</div>
-                        <div class="text-sm text-muted">Sin productos registrados para ${q}.</div>
-                    </div>`;
-                }
+                const totalTeamArr = marketTeams.reduce((s, t) => s + (t.currentMetrics?.arr || 0), 0);
+                const topTeam = marketTeams.sort((a, b) => (b.currentMetrics?.arr || 0) - (a.currentMetrics?.arr || 0))[0];
 
-                const avgPrice = rows.reduce((a, r) => a + r.price, 0) / rows.length;
-                const avgCost = rows.reduce((a, r) => a + r.cost, 0) / rows.length;
-                const avgGain = rows.reduce((a, r) => a + r.gain, 0) / rows.length;
-                const maxBase = Math.max(avgPrice, avgCost, Math.abs(avgGain), 1);
+                const hasHistory = marketTeams.some(t => (t.history || []).length > 0);
                 const segCount = { economico: 0, medio: 0, lujo: 0 };
                 rows.forEach(r => { segCount[r.segmento] = (segCount[r.segmento] || 0) + 1; });
-                const f = (v) => '$' + Math.round(v).toLocaleString('es-CL').replace(/\./g, ',');
 
-                return `<div class="card" style="padding:14px;">
+                return `<div class="card" style="padding:14px;cursor:pointer;transition:box-shadow 0.2s,transform 0.15s;border:1px solid var(--border);" 
+                    onclick="openMarketModal('${mid}')"
+                    onmouseenter="this.style.boxShadow='0 8px 32px rgba(59,130,246,0.18)';this.style.transform='translateY(-2px)';"
+                    onmouseleave="this.style.boxShadow='';this.style.transform='';">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                        <strong>${labels[mid] || mid}</strong>
-                        <span class="badge">${rows.length} productos</span>
+                        <strong style="font-size:0.95rem;">${marketEmoji[mid] || ''} ${labels[mid] || mid}</strong>
+                        <span class="badge" style="background:rgba(59,130,246,0.15);color:var(--accent-blue);">Ver detalle →</span>
                     </div>
-                    <div style="display:grid; gap:8px; margin-bottom:10px;">
-                        <div><div class="text-sm">Precio promedio: <strong>${f(avgPrice)}</strong></div><div style="height:6px;background:var(--bg-elevated);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.max(6, (avgPrice / maxBase) * 100)}%;background:#3B82F6;"></div></div></div>
-                        <div><div class="text-sm">Costo promedio: <strong>${f(avgCost)}</strong></div><div style="height:6px;background:var(--bg-elevated);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.max(6, (avgCost / maxBase) * 100)}%;background:#F59E0B;"></div></div></div>
-                        <div><div class="text-sm">Ganancia promedio: <strong>${f(avgGain)}</strong></div><div style="height:6px;background:var(--bg-elevated);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.max(6, (Math.abs(avgGain) / maxBase) * 100)}%;background:${avgGain >= 0 ? '#10B981' : '#F43F5E'};"></div></div></div>
-                    </div>
-                    <div class="text-sm text-muted" style="margin-bottom:6px;">Tendencia ARR por turno</div>
-                    ${buildMarketTrendSvg(trend, '#8B5CF6')}
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px;">${marketTeams.length} empresa(s) · ${rows.length} productos</div>
+                    <div style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:2px;">ARR total: <strong style="color:var(--text-primary);">$${(totalTeamArr / 1e6).toFixed(2)}M</strong></div>
+                    ${topTeam ? `<div style="font-size:0.78rem;color:var(--text-muted);">Líder: ${escHtml(topTeam.name)}</div>` : ''}
                     <div style="margin-top:8px;">
-                        <span class="badge badge--economico">Econ: ${segCount.economico || 0}</span>
-                        <span class="badge badge--medio" style="margin-left:6px;">Medio: ${segCount.medio || 0}</span>
-                        <span class="badge badge--lujo" style="margin-left:6px;">Lujo: ${segCount.lujo || 0}</span>
+                        <div style="font-size:0.65rem;color:var(--text-dim);margin-bottom:4px;">Tendencia ARR total</div>
+                        ${buildMarketTrendSvg(trend, '#8B5CF6')}
+                    </div>
+                    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+                        <span class="badge badge--economico">Econ ${segCount.economico || 0}</span>
+                        <span class="badge badge--medio">Medio ${segCount.medio || 0}</span>
+                        <span class="badge badge--lujo">Lujo ${segCount.lujo || 0}</span>
+                        ${!hasHistory ? '<span class="badge badge--warning" style="font-size:0.65rem;">Sin historial aún</span>' : ''}
                     </div>
                 </div>`;
             }).join('');
+        }
+
+        // ── FORCE SUBMIT PENDING ────────────────────────────────
+        function forceSubmitPending() {
+            const c = DataStore.getConfig();
+            const teams = DataStore.getTeams();
+            const q = `Q${c.currentTurn || 1}`;
+            const pending = teams.filter(t => !(t.submitted && t.submitted[q]));
+            if (!pending.length) {
+                alert('✅ Todos los equipos ya enviaron sus decisiones para ' + q + '.');
+                return;
+            }
+            if (!confirm(`⚡ Auto-completar ${pending.length} equipo(s) pendiente(s) con valores de mercado mínimos (calidad 1, precio mínimo, 0 gasto pub):\n\n${pending.map(t => t.name).join('\n')}\n\n¿Confirmar?`)) return;
+
+            pending.forEach(team => {
+                const profile = DataStore.getMarketProfile(team.market || 'moda');
+                ['a', 'b'].forEach((pid, idx) => {
+                    if (!team.products[pid]) return;
+                    // Use minimum viable values for the market
+                    team.products[pid].quality = 1;
+                    team.products[pid].design = 1;
+                    team.products[pid].retailPrice = profile.priceMin;
+                    team.products[pid].discountPct = 0;
+                    team.products[pid].channels = 1;
+                    team.products[pid].adSpend = 0;
+                });
+                team.submitted = team.submitted || {};
+                team.submitted[q] = true;
+                DataStore.saveTeam(team);
+            });
+
+            refreshProfessorSummary();
+            const btn = document.getElementById('force-submit-btn');
+            if (btn) {
+                btn.textContent = `✅ ${pending.length} completado(s)`;
+                btn.style.color = 'var(--accent-emerald)';
+                setTimeout(() => { btn.textContent = '⚡ Completar Pendientes'; btn.style.color = ''; }, 3000);
+            }
+        }
+
+        // ── HISTORIAL DE DECISIONES ──────────────────────────────
+        function renderHistorial() {
+            const marketFilter = document.getElementById('hist-market-filter')?.value || 'all';
+            const turnFilter = document.getElementById('hist-turn-filter')?.value || 'all';
+            const teamFilter = document.getElementById('hist-team-filter')?.value || 'all';
+
+            const teams = DataStore.getTeams();
+            const cfg = DataStore.getConfig();
+            const labels = getMarketLabels();
+            const maxTurns = cfg.maxTurns || 5;
+
+            // Populate turn filter
+            const turnSel = document.getElementById('hist-turn-filter');
+            if (turnSel && turnSel.options.length <= 1) {
+                for (let i = 1; i <= maxTurns; i++) {
+                    const o = document.createElement('option'); o.value = `Q${i}`; o.textContent = `Q${i}`; turnSel.appendChild(o);
+                }
+            }
+            // Populate team filter
+            const teamSel = document.getElementById('hist-team-filter');
+            if (teamSel) {
+                const currentIds = Array.from(teamSel.options).map(o => o.value);
+                teams.forEach(t => {
+                    if (!currentIds.includes(t.id)) {
+                        const o = document.createElement('option'); o.value = t.id; o.textContent = `${t.id} ${t.name}`; teamSel.appendChild(o);
+                    }
+                });
+            }
+
+            const SEG_LABELS = { economico: 'Económico', medio: 'Medio', lujo: 'Lujo' };
+
+            // Build row data from history
+            const rows = [];
+            teams.forEach(team => {
+                if (marketFilter !== 'all' && (team.market || 'moda') !== marketFilter) return;
+                if (teamFilter !== 'all' && team.id !== teamFilter) return;
+                (team.history || []).forEach(h => {
+                    if (turnFilter !== 'all' && h.turn !== turnFilter) return;
+                    ['a', 'b'].forEach(pid => {
+                        const p = h.products?.[pid];
+                        if (!p) return;
+                        rows.push({
+                            turn: h.turn,
+                            teamName: team.name,
+                            market: team.market || 'moda',
+                            marketLabel: labels[team.market] || team.market,
+                            segmento: p.segmento || h.classification || team.segmento || '—',
+                            productName: p.name || `Producto ${pid.toUpperCase()}`,
+                            discPrice: p.discPrice || 0,
+                            quality: team.products?.[pid]?.quality || '—',
+                            design: team.products?.[pid]?.design || '—',
+                            channels: team.products?.[pid]?.channels || '—',
+                            adSpend: team.products?.[pid]?.adSpend || 0,
+                            arr: p.arr || (pid === 'a' ? Math.round((h.arr || 0) * 0.55) : Math.round((h.arr || 0) * 0.45)),
+                            margin: p.margin || 0,
+                        });
+                    });
+                });
+            });
+
+            const tbody = document.getElementById('historial-tbody');
+            const summary = document.getElementById('historial-summary');
+            if (!tbody) return;
+
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="11" class="text-muted" style="text-align:center;padding:20px;">No hay historial de decisiones para el filtro seleccionado.${teams.every(t => !(t.history || []).length) ? ' Procesa al menos un turno primero.' : ''}</td></tr>`;
+                if (summary) summary.textContent = '';
+                return;
+            }
+
+            const fM = v => '$' + Math.round(v || 0).toLocaleString('es-CL').replace(/\./g, ',');
+            const fA = v => v >= 1e6 ? '$' + (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(0) + 'K' : fM(v);
+
+            // Sort: turn desc, team, product
+            rows.sort((a, b) => {
+                const ta = parseInt(a.turn.replace(/\D/g, '')) || 0;
+                const tb = parseInt(b.turn.replace(/\D/g, '')) || 0;
+                if (ta !== tb) return tb - ta;
+                return a.teamName.localeCompare(b.teamName);
+            });
+
+            tbody.innerHTML = rows.map(r => {
+                const segColor = r.segmento === 'lujo' ? 'var(--seg-lujo)' : r.segmento === 'medio' ? 'var(--seg-medio)' : 'var(--seg-economico)';
+                const marginColor = r.margin >= 0 ? 'var(--accent-emerald)' : 'var(--accent-rose)';
+                return `<tr>
+                    <td class="table__mono" style="color:var(--accent-blue);font-weight:700;">${r.turn}</td>
+                    <td style="font-weight:600;">${escHtml(r.teamName)}</td>
+                    <td><span class="badge">${escHtml(r.marketLabel)}</span></td>
+                    <td><span style="color:${segColor};font-weight:600;font-size:0.78rem;">${SEG_LABELS[r.segmento] || r.segmento}</span></td>
+                    <td class="text-sm">${escHtml(r.productName)}</td>
+                    <td class="table__mono">${fM(r.discPrice)}</td>
+                    <td class="table__mono" style="font-size:0.8rem;">C:${r.quality} / D:${r.design}</td>
+                    <td class="table__mono">${r.channels}</td>
+                    <td class="table__mono" style="font-size:0.8rem;">${fA(r.adSpend)}</td>
+                    <td class="table__mono" style="font-weight:700;color:var(--accent-blue);">${fA(r.arr)}</td>
+                    <td class="table__mono" style="color:${marginColor};">${fM(r.margin)}</td>
+                </tr>`;
+            }).join('');
+
+            if (summary) summary.textContent = `Mostrando ${rows.length} registros de decisiones.`;
+        }
+
+        function exportHistorialCSV() {
+            const tbody = document.getElementById('historial-tbody');
+            if (!tbody || !tbody.rows.length) { alert('Sin datos para exportar.'); return; }
+            const header = 'Turno,Equipo,Mercado,Segmento,Producto,Precio Desc,Calidad/Diseño,Canales,AdSpend,ARR,Margen';
+            const csvRows = Array.from(tbody.rows).map(tr =>
+                Array.from(tr.cells).map(td => '"' + td.innerText.replace(/"/g, '""') + '"').join(',')
+            );
+            const blob = new Blob([header + '\n' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'historial_decisiones_mktslim.csv';
+            a.click();
         }
 
         function refreshProfessorSummary() {
@@ -1148,6 +1584,7 @@
             renderEventsTable();
             renderLeaderboard();
             renderMarketResults();
+            renderHistorial();
         }
 
         function renderEquiposTable() {
@@ -1522,6 +1959,7 @@
 
             renderAdminMarketFilterOptions();
             updateDatasetModeUI();
+            loadDeadline();
         }
 
         function updateRegVisual(open) {
@@ -1640,6 +2078,52 @@
             }
         }
 
+        // ═══ DEADLINE ════════════════════════════════════════════
+        function fmtDeadlineLong(d) {
+            if (!d) return null;
+            return d.toLocaleString('es-CL', {
+                weekday: 'long', year: 'numeric', month: 'long',
+                day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        function loadDeadline() {
+            const d = DataStore.getDeadline ? DataStore.getDeadline() : null;
+            const input = document.getElementById('param-deadline');
+            const preview = document.getElementById('deadline-preview');
+            if (!input) return;
+            if (d) {
+                // Format for datetime-local input (YYYY-MM-DDTHH:mm)
+                const pad = n => String(n).padStart(2, '0');
+                const local = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                input.value = local;
+                if (preview) preview.innerHTML = `✅ Plazo activo: <strong>${fmtDeadlineLong(d)}</strong>`;
+            } else {
+                input.value = '';
+                if (preview) preview.innerHTML = '<span style="color:var(--text-dim)">Sin plazo configurado. Los alumnos no verán contador.</span>';
+            }
+        }
+
+        function saveDeadline() {
+            const input = document.getElementById('param-deadline');
+            const val = input?.value || '';
+            if (!val) { clearDeadline(); return; }
+            const d = new Date(val);
+            if (isNaN(d.getTime())) { alert('⚠️ Fecha inválida.'); return; }
+            DataStore.setDeadline(d.toISOString());
+            loadDeadline();
+            const toast = document.createElement('div');
+            toast.textContent = '📅 Plazo guardado — los alumnos verán el contador actualizado';
+            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--accent-blue);color:#fff;padding:12px 20px;border-radius:10px;font-weight:700;font-size:0.85rem;z-index:9999;box-shadow:0 4px 20px rgba(59,130,246,0.4);max-width:380px;';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function clearDeadline() {
+            DataStore.setDeadline(null);
+            loadDeadline();
+        }
+
         function generateDemoDataset() {
             if (!confirm('¿Generar dataset DEMO aleatorio? Solo se reemplazará la data demo, no la real.')) return;
             const teams = DataStore.generateDemoData(27);
@@ -1749,6 +2233,7 @@
             renderAdminTeams();
             loadParams();
             refreshProfessorSummary();
+            loadDeadline();
         });
     </script>
 </body>

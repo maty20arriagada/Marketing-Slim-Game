@@ -147,6 +147,7 @@ const DataStore = (() => {
             channels: { min: 1, max: 4 },
         },
         events: [],
+        submissionDeadline: null,
     };
 
     const TEAM_TEMPLATE = {
@@ -1377,6 +1378,18 @@ const DataStore = (() => {
 
     init();
 
+    // ── DEADLINE HELPERS ──────────────────────────────────────────────
+    function getDeadline() {
+        const raw = getConfig().submissionDeadline;
+        if (!raw) return null;
+        const d = new Date(raw);
+        return isNaN(d.getTime()) ? null : d;
+    }
+
+    function setDeadline(isoString) {
+        updateConfig({ submissionDeadline: isoString || null });
+    }
+
     return {
         getTeams, getTeam, saveTeam, createTeam, deleteTeam, updateTeamField,
         setTeamMembers, addTeamMember, removeTeamMember, resetTeamPassword,
@@ -1390,6 +1403,7 @@ const DataStore = (() => {
         getDatasetMode, setDatasetMode, getStorageKey,
         generateDemoData,
         generateId, simpleHash, TEAM_TEMPLATE, DEFAULT_CONFIG,
+        getDeadline, setDeadline,
     };
 })();
 
