@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 
 // ── Contraseña del profesor ─────────────────────────────────────
 // Cambia esta contraseña antes de desplegar. Se puede mover a .env
-const PROFESSOR_PASSWORD = process.env.PROFESSOR_PASSWORD || "MKT SLIM GAME2025";
+const PROFESSOR_PASSWORD = process.env.PROFESSOR_PASSWORD || "mktslim2025";
 
 // ── Middleware ───────────────────────────────────────────────────
 app.use(express.json());
@@ -30,8 +30,8 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        httpOnly: true,    // No accesible desde JS del lado cliente
-        secure: false,     // Cambiar a true si usas HTTPS
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Auto-true en Railway/HTTPS
         maxAge: 4 * 60 * 60 * 1000, // 4 horas
         sameSite: "lax",
     },

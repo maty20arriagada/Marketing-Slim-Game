@@ -1,5 +1,5 @@
 ﻿{
-  "name": "MKT SLIM GAME-b2b-simulator",
+  "name": "marketing-slim-game",
   "version": "1.0.0",
   "description": "Simulador interactivo de Estrategia de Marketing B2B para ayudantías universitarias.",
   "main": "server.js",
@@ -13,7 +13,7 @@
     "b2b",
     "simulator",
     "education",
-    "MKT SLIM GAME"
+    "marketing-slim-game"
   ],
   "author": "Matias Arriagada R.",
   "license": "MIT",

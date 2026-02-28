@@ -1,0 +1,27 @@
+# Dependencias
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Entorno
+.env
+.env.local
+.env.production
+
+# Archivos temporales del sistema
+*.tmp
+tmpclaude-*
+*.png
+*.webp
+
+# Screenshots no necesarios
+onboarding_step1_*.png
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp

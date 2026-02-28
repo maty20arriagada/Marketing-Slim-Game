@@ -256,6 +256,9 @@
 
         <div class="login-card">
             <div class="error-box" id="error-box"></div>
+            <div class="error-box" id="session-hint"
+                style="display:none; background:rgba(59,130,246,0.08); border-color:rgba(59,130,246,0.25); color:var(--accent-blue);">
+            </div>
 
             <div class="form-group">
                 <label class="form-label" for="team-select">Tu Equipo</label>
@@ -286,10 +289,17 @@
 
     <script src="js/data-store.js"></script>
     <script>
+        function getStudentAuthKey() {
+            return (window.DataStore && DataStore.getStorageKey)
+                ? DataStore.getStorageKey('team_auth', true)
+                : 'ag_team_auth';
+        }
+
         // Populate team selector
         document.addEventListener("DOMContentLoaded", () => {
             const select = document.getElementById("team-select");
             const teams = DataStore.getTeams();
+            sessionStorage.removeItem(getStudentAuthKey());
 
             teams.forEach(t => {
                 const opt = document.createElement("option");
@@ -306,10 +316,13 @@
                 regSection.innerHTML = `<div class="register-closed">🔒 El registro de nuevas empresas está cerrado por el profesor.</div>`;
             }
 
-            // If already logged in, redirect
+            // If already logged in, keep team preselected but still require password
             const current = DataStore.getCurrentTeam();
             if (current) {
-                window.location.href = "student-dashboard.html";
+                select.value = current.id;
+                const hint = document.getElementById("session-hint");
+                hint.textContent = `ℹ️ Sesión previa detectada (${current.name}). Por seguridad, vuelve a ingresar la contraseña del equipo.`;
+                hint.style.display = "block";
             }
         });
 
@@ -333,6 +346,7 @@
 
             const result = DataStore.loginTeam(teamId, password);
             if (result.success) {
+                sessionStorage.setItem(getStudentAuthKey(), '1');
                 window.location.href = "student-dashboard.html";
             } else {
                 errorBox.textContent = "❌ " + result.error;

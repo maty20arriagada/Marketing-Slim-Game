@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MKT SLIM GAME — Reporte Q3 | Nexus Corp</title>
+    <title>MKT SLIM GAME — Reporte de Turno</title>
     <link rel="stylesheet" href="css/design-system.css">
     <script src="js/theme-toggle.js"></script>
     <style>
@@ -46,7 +46,8 @@
             </a>
             <div class="topnav__meta">
                 <span class="badge badge--lujo" id="nav-segment">💎 Mercado Lujo</span>
-                <span class="topnav__turn" id="nav-turn">REPORTE Q3 2025</span>
+                <span class="topnav__turn" id="nav-turn">REPORTE Q1 2026</span>
+                <button class="btn btn--danger btn--sm" onclick="logoutStudent()">🔓 Cerrar Sesión</button>
             </div>
         </div>
     </nav>
@@ -58,10 +59,10 @@
                 <span class="icon">📊</span> Dashboard
             </button>
             <button class="sidebar__link" onclick="location.href='student-decisions.html'">
-                <span class="icon">⚙️</span> Decisiones Q4
+                <span class="icon">⚙️</span> <span id="sb-decisions-label">Decisiones Q1</span>
             </button>
             <button class="sidebar__link active">
-                <span class="icon">📋</span> Reporte Q3
+                <span class="icon">📋</span> <span id="sb-report-label">Reporte Q0</span>
             </button>
             <hr class="divider" style="margin:16px 0;">
             <div style="padding:0 12px; font-size:0.75rem; color:var(--text-muted);">
@@ -76,7 +77,7 @@
                     <span class="status-dot status-dot--green"></span>
                     Informe del Árbitro · Turno Completado
                 </div>
-                <h1 class="page-header__title" id="hdr-title">📊 Reporte de Rendimiento: Q3 2025</h1>
+                <h1 class="page-header__title" id="hdr-title">📊 Reporte de Rendimiento: Q1 2026</h1>
                 <p class="page-header__subtitle" id="hdr-sub">Nexus Corp · Segmento Lujo · Evaluado por el Árbitro
                     MKT SLIM GAME</p>
             </div>
@@ -100,7 +101,7 @@
             </div>
 
             <!-- EVENTO ENTRANTE -->
-            <div class="section-title" id="event-section-title">🌪️ Evento de Mercado Entrante — Q4</div>
+            <div class="section-title" id="event-section-title">🌪️ Evento de Mercado Entrante</div>
             <div class="event-card event-card--incoming mb-lg">
                 <div class="event-card__icon">🚨</div>
                 <div>
@@ -126,36 +127,82 @@
                 </table>
             </div>
 
+            <div class="section-title">💹 Evolución Precio / Costo / Ganancia</div>
+            <div class="card mb-lg">
+                <div id="financial-trend-chart" class="text-sm text-muted">Sin datos financieros históricos.</div>
+            </div>
+
+            <div class="section-title">🌐 Estado de Mercados</div>
+            <div class="card mb-lg">
+                <div id="results-market-analytics" class="text-sm text-muted">Sin datos de mercado.</div>
+            </div>
+
             <div class="action-bar">
                 <div class="action-bar__info">
                     <span class="action-bar__label">Siguiente paso</span>
-                    <span style="font-size:0.9rem; color:var(--text-secondary);">Define tu estrategia Q4 considerando el
-                        evento de materiales premium.</span>
+                    <span id="next-step-text" style="font-size:0.9rem; color:var(--text-secondary);">Define tu estrategia para el siguiente turno considerando el evento de mercado.</span>
                 </div>
                 <button class="btn btn--primary" onclick="location.href='student-decisions.html'">
-                    ⚙️ Ir a Decisiones Q4 →
+                    <span id="go-decisions-label">⚙️ Ir a Decisiones Q1 →</span>
                 </button>
             </div>
 
         </main>
     </div>
 
+    <script src="js/data-store.js"></script>
     <script src="js/anticheat.js"></script>
     <script src="js/mock-data.js"></script>
     <script>
         const fmtM = v => '$' + (v / 1_000_000).toFixed(2) + 'M';
         const fmtK = v => '$' + Math.round(v).toLocaleString('es-CL');
 
+        function getStudentAuthKey() {
+            return (window.DataStore && DataStore.getStorageKey)
+                ? DataStore.getStorageKey('team_auth', true)
+                : 'ag_team_auth';
+        }
+
+        function logoutStudent() {
+            if (window.DataStore && DataStore.logoutTeam) {
+                DataStore.logoutTeam();
+            }
+            sessionStorage.removeItem(getStudentAuthKey());
+            window.location.href = 'student-login.html';
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            const team = (window.DataStore && DataStore.getCurrentTeam) ? DataStore.getCurrentTeam() : null;
+            const authOk = sessionStorage.getItem(getStudentAuthKey()) === '1';
+            if (!team || !authOk) {
+                window.location.href = 'student-login.html';
+                return;
+            }
             const D = window.MOCK;
             if (!D) return;
             const rpt = D.arbiterReport;
 
             // Nav
-            document.getElementById('nav-segment').textContent = D.team.segmentoLabel;
+            const navSeg = document.getElementById('nav-segment');
+            if (navSeg) {
+                navSeg.textContent = `${D.team.marketLabel} · ${D.team.segmentoLabel}`;
+                navSeg.className = `badge ${D.team.segmento === 'economico' ? 'badge--economico' : D.team.segmento === 'lujo' ? 'badge--lujo' : 'badge--medio'}`;
+            }
             document.getElementById('nav-turn').textContent = 'REPORTE ' + rpt.turn;
             document.getElementById('hdr-title').textContent = '📊 Reporte de Rendimiento: ' + rpt.turn;
-            document.getElementById('hdr-sub').textContent = `${D.team.name} · ${D.team.segmentoLabel} · Evaluado por el Árbitro MKT SLIM GAME`;
+            const segMap = { economico: 'Economico', medio: 'Intermedio', lujo: 'Lujo' };
+            const membersTxt = (D.team.members || []).length ? `${D.team.members.length} integrante(s)` : 'Sin integrantes';
+            document.getElementById('hdr-sub').textContent = `${D.team.name} · ${D.team.marketLabel} · Empresa ${D.team.segmentoLabel} · PA ${segMap[D.products?.a?.segmento] || '-'} · PB ${segMap[D.products?.b?.segmento] || '-'} · ${membersTxt} · Evaluado por el Árbitro MKT SLIM GAME`;
+            const currentQ = D.currentTurn || 1;
+            const prevQ = Math.max(0, currentQ - 1);
+            const sbDec = document.getElementById('sb-decisions-label');
+            const sbRep = document.getElementById('sb-report-label');
+            const go = document.getElementById('go-decisions-label');
+            const nextStep = document.getElementById('next-step-text');
+            if (sbDec) sbDec.textContent = `Decisiones Q${currentQ}`;
+            if (sbRep) sbRep.textContent = `Reporte Q${prevQ}`;
+            if (go) go.textContent = `⚙️ Ir a Decisiones Q${currentQ} →`;
+            if (nextStep) nextStep.textContent = `Define tu estrategia Q${currentQ} considerando el evento entrante.`;
 
             // Metrics
             const m = rpt.metrics;
@@ -163,7 +210,14 @@
                 { accent: 'var(--accent-emerald)', glow: ' card--glow-blue', label: 'ARR Total', value: fmtM(m.arr.value), delta: `▲ ${m.arr.deltaPct} vs turno anterior`, dir: m.arr.deltaDir },
                 { accent: 'var(--accent-blue)', glow: '', label: 'Cuota de Mercado', value: m.marketShare.value + '%', delta: `▲ ${m.marketShare.deltaPct} vs turno anterior`, dir: m.marketShare.deltaDir },
                 { accent: 'var(--accent-rose)', glow: '', label: 'Margen Prom. Unitario', value: fmtK(m.avgMargin.value), delta: `▼ ${m.avgMargin.deltaPct} vs turno anterior`, dir: m.avgMargin.deltaDir },
-                { accent: 'var(--accent-violet)', glow: '', label: 'CAC Promedio', value: D.history.length > 2 ? fmtK(D.history[D.history.length - 2].cac) : '—', delta: '▼ -10.1% vs turno anterior ✓', dir: 'up' },
+                {
+                    accent: 'var(--accent-violet)',
+                    glow: '',
+                    label: 'CAC Promedio',
+                    value: fmtK(m.cac?.value ?? (D.history.length ? D.history[D.history.length - 1].cac : 0)),
+                    delta: `${m.cac?.deltaDir === 'up' ? '▼' : '▲'} ${m.cac?.deltaPct || '0%'} vs turno anterior`,
+                    dir: m.cac?.deltaDir || 'up'
+                },
             ];
             document.getElementById('result-metrics').innerHTML = tiles.map(t => `
                 <div class="metric-tile${t.glow}">
@@ -192,7 +246,8 @@
 
             // History table
             const tbody = document.getElementById('history-tbody');
-            const reportTurnIdx = D.history.findIndex(h => h.turn === rpt.turn.split(' ')[0]);
+            const rawIdx = D.history.findIndex(h => h.turn === rpt.turn.split(' ')[0]);
+            const reportTurnIdx = rawIdx >= 0 ? rawIdx : Math.max(0, D.history.length - 1);
             tbody.innerHTML = D.history.map((h, i) => {
                 const isReported = i === reportTurnIdx;
                 const isFuture = i > reportTurnIdx;
@@ -203,11 +258,12 @@
                 const marginStyle = prevH && h.avgMargin < prevH.avgMargin ? 'color:var(--accent-rose)' : '';
                 const marginArrow = prevH && h.avgMargin < prevH.avgMargin ? ' ▼' : '';
 
+                const turnYear = (D.currentTurnLabel || '').split(' ')[1] || '2026';
                 if (isFuture) {
-                    return `<tr style="opacity:0.5"><td class="table__mono">${h.turn} 2025</td><td class="table__mono text-muted">En curso...</td><td class="table__mono text-muted">—</td><td class="table__mono text-muted">—</td><td class="table__mono text-muted">—</td></tr>`;
+                    return `<tr style="opacity:0.5"><td class="table__mono">${h.turn} ${turnYear}</td><td class="table__mono text-muted">En curso...</td><td class="table__mono text-muted">—</td><td class="table__mono text-muted">—</td><td class="table__mono text-muted">—</td></tr>`;
                 }
                 const rowStyle = isReported ? ' style="background:rgba(59,130,246,0.04)"' : '';
-                const turnLabel = isReported ? `${h.turn} 2025 <span class="badge badge--success" style="margin-left:8px">Evaluado</span>` : `${h.turn} 2025`;
+                const turnLabel = isReported ? `${h.turn} ${turnYear} <span class="badge badge--success" style="margin-left:8px">Evaluado</span>` : `${h.turn} ${turnYear}`;
                 return `<tr${rowStyle}>
                     <td class="table__mono">${turnLabel}</td>
                     <td class="table__mono">${fmtM(h.arr)}${arrArrow}</td>
@@ -216,6 +272,66 @@
                     <td class="table__mono" style="${prevH && h.cac < prevH.cac ? 'color:var(--accent-emerald)' : ''}">${fmtK(h.cac)}${cacArrow}</td>
                 </tr>`;
             }).join('');
+
+            const chart = document.getElementById('financial-trend-chart');
+            if (chart && D.financialHistory && D.financialHistory.length >= 2) {
+                const rows = D.financialHistory;
+                const keys = [
+                    { k: 'avgPrice', c: '#3B82F6', n: 'Precio' },
+                    { k: 'avgCost', c: '#F59E0B', n: 'Costo' },
+                    { k: 'avgMargin', c: '#10B981', n: 'Ganancia' },
+                ];
+                const all = rows.flatMap(r => keys.map(x => r[x.k] || 0));
+                const min = Math.min(...all);
+                const max = Math.max(...all);
+                const range = Math.max(1, max - min);
+                const w = 560;
+                const h = 180;
+                const pad = 20;
+                function pathFor(key) {
+                    return rows.map((r, i) => {
+                        const x = pad + (i * ((w - pad * 2) / Math.max(1, rows.length - 1)));
+                        const y = (h - pad) - (((r[key] || 0) - min) / range) * (h - pad * 2);
+                        return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
+                    }).join(' ');
+                }
+                const labels = rows.map(r => `<span style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);">${r.turn}</span>`).join('');
+                chart.innerHTML = `
+                    <svg viewBox="0 0 ${w} ${h}" style="width:100%;max-height:220px;display:block;">
+                        <line x1="${pad}" y1="${h - pad}" x2="${w - pad}" y2="${h - pad}" stroke="var(--border)"/>
+                        ${keys.map(x => `<path d="${pathFor(x.k)}" fill="none" stroke="${x.c}" stroke-width="2.2" stroke-linecap="round"/>`).join('')}
+                    </svg>
+                    <div style="display:flex;justify-content:space-between;margin-top:6px;">${labels}</div>
+                    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;">
+                        ${keys.map(x => `<span style="font-size:0.75rem;color:var(--text-muted);"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${x.c};margin-right:6px;"></span>${x.n}</span>`).join('')}
+                    </div>
+                `;
+            }
+
+            const marketBox = document.getElementById('results-market-analytics');
+            if (marketBox && Array.isArray(D.marketAnalytics)) {
+                const fmt = (v) => '$' + Math.round(v).toLocaleString('es-CL').replace(/\./g, ',');
+                marketBox.innerHTML = D.marketAnalytics.map(m => {
+                    const max = Math.max(m.avgPrice, m.avgCost, Math.abs(m.avgGain), 1);
+                    return `<div style="padding:10px 0; border-bottom:1px solid var(--border);">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <strong>${m.marketLabel}</strong>
+                            <span class="badge">${m.products} productos</span>
+                        </div>
+                        <div class="text-sm">Precio prom: <strong>${fmt(m.avgPrice)}</strong> · Costo prom: <strong>${fmt(m.avgCost)}</strong> · Ganancia prom: <strong>${fmt(m.avgGain)}</strong></div>
+                        <div style="margin-top:6px;height:6px;background:var(--bg-elevated);border-radius:99px;overflow:hidden;">
+                            <div style="height:100%;width:${Math.max(6, (m.avgPrice / max) * 100)}%;background:#3B82F6;"></div>
+                        </div>
+                        <div style="margin-top:4px;height:6px;background:var(--bg-elevated);border-radius:99px;overflow:hidden;">
+                            <div style="height:100%;width:${Math.max(6, (m.avgCost / max) * 100)}%;background:#F59E0B;"></div>
+                        </div>
+                        <div style="margin-top:4px;height:6px;background:var(--bg-elevated);border-radius:99px;overflow:hidden;">
+                            <div style="height:100%;width:${Math.max(6, (Math.abs(m.avgGain) / max) * 100)}%;background:${m.avgGain >= 0 ? '#10B981' : '#F43F5E'};"></div>
+                        </div>
+                        <div class="text-sm text-muted" style="margin-top:6px;">Mix: Econ ${m.segmentMix.economico || 0} · Medio ${m.segmentMix.medio || 0} · Lujo ${m.segmentMix.lujo || 0}</div>
+                    </div>`;
+                }).join('');
+            }
         });
     </script>
 </body>

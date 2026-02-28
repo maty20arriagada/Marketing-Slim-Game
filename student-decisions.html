@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MKT SLIM GAME — Decisiones Q4 | Nexus Corp</title>
+    <title>MKT SLIM GAME — Hoja de Decisiones</title>
     <link rel="stylesheet" href="css/design-system.css">
     <script src="js/theme-toggle.js"></script>
     <style>
@@ -204,9 +204,10 @@
                 <span class="topnav__wordmark">MKT SLIM GAME</span>
             </a>
             <div class="topnav__meta">
-                <span class="badge badge--lujo">💎 Mercado Lujo</span>
-                <span class="topnav__turn">DECISIONES Q4 2025</span>
+                <span class="badge badge--lujo" id="nav-market-badge">Mercado · Clasificación</span>
+                <span class="topnav__turn" id="turn-nav-label">DECISIONES Q1 2026</span>
                 <span class="timer animate-pulse" id="timer-display">⏱ 07:14:33</span>
+                <button class="btn btn--danger btn--sm" onclick="logoutStudent()">🔓 Cerrar Sesión</button>
             </div>
         </div>
     </nav>
@@ -220,30 +221,29 @@
                 <span class="icon">📊</span> Dashboard
             </button>
             <button class="sidebar__link active" onclick="location.href='student-decisions.html'">
-                <span class="icon">⚙️</span> Decisiones Q4
+                <span class="icon">⚙️</span> <span id="sb-decisions-label">Decisiones Q1</span>
             </button>
             <button class="sidebar__link" onclick="location.href='student-results.html'">
-                <span class="icon">📋</span> Reporte Q3
+                <span class="icon">📋</span> <span id="sb-report-label">Reporte Q0</span>
             </button>
             <hr class="divider" style="margin:16px 0;">
             <div style="padding:0 12px;">
                 <div
                     style="font-size:0.7rem;color:var(--text-dim);margin-bottom:6px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">
-                    Segmento</div>
+                    Clasificación</div>
                 <div style="font-size:0.75rem;color:var(--text-muted);" id="seg-hint">
-                    En el segmento Lujo, <strong style="color:var(--accent-amber)">Calidad y Diseño</strong> ponderan
-                    más que el precio.
+                    La clasificación se calcula automáticamente con precio, calidad y diseño.
                 </div>
             </div>
             <hr class="divider" style="margin:16px 0;">
             <div style="padding:0 12px;">
                 <div
                     style="font-size:0.7rem;color:var(--text-dim);margin-bottom:8px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">
-                    Presupuesto Q4</div>
+                    <span id="sb-budget-label">Presupuesto Q1</span></div>
                 <div style="font-family:var(--font-mono);font-size:0.95rem;font-weight:700;color:var(--text-primary);"
                     id="sb-spent">$0</div>
                 <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">de <strong
-                        style="color:var(--text-secondary);">$30,000,000</strong> disponibles</div>
+                        style="color:var(--text-secondary);" id="sb-max-budget">$30,000,000</strong> disponibles</div>
                 <div
                     style="margin-top:8px;background:var(--bg-elevated);border-radius:99px;height:4px;overflow:hidden;">
                     <div id="sb-budget-fill"
@@ -259,7 +259,7 @@
             <div class="page-header animate-fade-up">
                 <div class="page-header__eyebrow">
                     <span class="status-dot status-dot--amber animate-pulse"></span>
-                    Formulario de Decisiones · Q4 2025
+                    <span id="turn-form-label">Formulario de Decisiones · Q1 2026</span>
                 </div>
                 <h1 class="page-header__title">Hoja de Decisiones 4Ps</h1>
                 <p class="page-header__subtitle">Completa las 8 decisiones para cada producto. Los valores calculados se
@@ -271,16 +271,24 @@
                 style="padding:14px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
                 <span
                     style="font-size:0.8rem; font-weight:600; color:var(--text-muted); letter-spacing:0.5px; text-transform:uppercase; white-space:nowrap;">Tu
-                    Segmento</span>
-                <select id="segmento-select" class="form-input" style="max-width:220px;">
+                    Clasificación</span>
+                <select id="segmento-select" class="form-input" style="max-width:220px;" disabled>
                     <option value="economico">🏷️ Mercado Económico</option>
                     <option value="medio">⚡ Mercado Medio</option>
                     <option value="lujo" selected>💎 Mercado Lujo</option>
                 </select>
                 <span style="font-size:0.78rem; color:var(--text-muted);" id="seg-tip">
-                    <strong style="color:var(--accent-amber);">Lujo:</strong> Calidad (40%) + Diseño (40%) + ABM (20%).
-                    El precio casi no importa.
+                    Se calcula automáticamente según precio, calidad y diseño de tus productos.
                 </span>
+            </div>
+
+                <div class="card mb-lg" style="padding:16px 20px;">
+                <div class="card__title">🧭 Mercado de la Empresa</div>
+                <div class="text-sm text-muted" style="margin-bottom:12px;">
+                    La empresa compite en un único mercado principal (Moda/Autos/Casas).
+                </div>
+                <div id="market-catalog" style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;"></div>
+                <div id="market-sensitivity-note" style="font-size:0.78rem; color:var(--accent-amber);"></div>
             </div>
 
             <!-- BUDGET GAUGE -->
@@ -288,7 +296,7 @@
                 <div class="budget-gauge__header">
                     <span class="budget-gauge__title">💰 Presupuesto Total del Turno</span>
                     <span class="budget-gauge__numbers">Gastado: <strong id="bg-spent">$0</strong> &nbsp;/&nbsp;
-                        Disponible: <strong style="color:var(--accent-emerald);">$30,000,000</strong></span>
+                        Disponible: <strong style="color:var(--accent-emerald);" id="bg-max-budget">$30,000,000</strong></span>
                 </div>
                 <div class="budget-track">
                     <div class="budget-fill" id="bg-fill" style="width:0%"></div>
@@ -374,20 +382,20 @@
                 <div class="dc-label">
                     <div class="dc-label__cat">Precio</div>
                     <div class="dc-label__name">Precio de Lista B2B</div>
-                    <div class="dc-label__range">$1,000 – $6,000 USD</div>
+                    <div class="dc-label__range" id="price-range-label">$10 – $1,000 USD</div>
                 </div>
                 <div class="dc-input-cell">
                     <div class="input-with-preview">
-                        <input type="number" id="a-price" class="form-input-compact" min="1000" max="6000" step="50"
-                            value="5200">
-                        <span class="input-preview-val" id="a-price-preview">$5,200</span>
+                        <input type="number" id="a-price" class="form-input-compact" min="10" max="1000" step="10"
+                            value="180">
+                        <span class="input-preview-val" id="a-price-preview">$180</span>
                     </div>
                 </div>
                 <div class="dc-input-cell">
                     <div class="input-with-preview">
-                        <input type="number" id="b-price" class="form-input-compact" min="1000" max="6000" step="50"
-                            value="3800">
-                        <span class="input-preview-val" id="b-price-preview">$3,800</span>
+                        <input type="number" id="b-price" class="form-input-compact" min="10" max="1000" step="10"
+                            value="90">
+                        <span class="input-preview-val" id="b-price-preview">$90</span>
                     </div>
                 </div>
 
@@ -414,6 +422,34 @@
                 <div class="dc-section-divider"
                     style="grid-column:1/-1; background:rgba(16,185,129,0.04); border-top-color:rgba(16,185,129,0.18); color:var(--accent-emerald);">
                     🏪 PLACE</div>
+
+                <!-- Mercado principal -->
+                <div class="dc-label">
+                    <div class="dc-label__cat">Mercado</div>
+                    <div class="dc-label__name">Mercado Principal de la Empresa</div>
+                    <div class="dc-label__range">Único para toda la compañía</div>
+                </div>
+                <div class="dc-input-cell">
+                    <select id="a-main-market" class="form-input-compact" disabled></select>
+                    <span class="input-preview-val" id="a-main-market-label">—</span>
+                </div>
+                <div class="dc-input-cell">
+                    <select id="b-main-market" class="form-input-compact" disabled></select>
+                    <span class="input-preview-val" id="b-main-market-label">—</span>
+                </div>
+
+                <!-- Nivel objetivo -->
+                <div class="dc-label">
+                    <div class="dc-label__cat">Mercado</div>
+                    <div class="dc-label__name">Clasificación Automática</div>
+                    <div class="dc-label__range">Se actualiza en tiempo real por atributos</div>
+                </div>
+                <div class="dc-input-cell">
+                    <span class="input-preview-val" id="a-target-tier-label">⚡ Medio</span>
+                </div>
+                <div class="dc-input-cell">
+                    <span class="input-preview-val" id="b-target-tier-label">⚡ Medio</span>
+                </div>
 
                 <!-- Canales -->
                 <div class="dc-label">
@@ -449,20 +485,20 @@
                 <div class="dc-label">
                     <div class="dc-label__cat">Promoción</div>
                     <div class="dc-label__name">ABM / Generación de Demanda</div>
-                    <div class="dc-label__range">$0 – $20,000,000</div>
+                    <div class="dc-label__range" id="adspend-range-label">$0 – $4,000,000</div>
                 </div>
                 <div class="dc-input-cell">
                     <div class="input-with-preview">
-                        <input type="number" id="a-adspend" class="form-input-compact" min="0" max="20000000"
-                            step="500000" value="8000000">
-                        <span class="input-preview-val" id="a-adspend-preview">$8,000,000</span>
+                        <input type="number" id="a-adspend" class="form-input-compact" min="0" max="4000000"
+                            step="50000" value="1200000">
+                        <span class="input-preview-val" id="a-adspend-preview">$1,200,000</span>
                     </div>
                 </div>
                 <div class="dc-input-cell">
                     <div class="input-with-preview">
-                        <input type="number" id="b-adspend" class="form-input-compact" min="0" max="20000000"
-                            step="500000" value="4000000">
-                        <span class="input-preview-val" id="b-adspend-preview">$4,000,000</span>
+                        <input type="number" id="b-adspend" class="form-input-compact" min="0" max="4000000"
+                            step="50000" value="700000">
+                        <span class="input-preview-val" id="b-adspend-preview">$700,000</span>
                     </div>
                 </div>
 
@@ -473,7 +509,7 @@
                 <!-- Costo Unitario -->
                 <div class="dc-label">
                     <div class="dc-label__name" style="color:var(--text-muted)">Costo Unitario</div>
-                    <div class="dc-label__range">(Calidad×$250)+(Diseño×$150)</div>
+                    <div class="dc-label__range" id="unit-cost-formula">(Calidad×$18)+(Diseño×$12)</div>
                 </div>
                 <div class="dc-calc-cell"><span class="calc-value calc-value--neutral"
                         id="a-calc-unitcost">$2,600</span></div>
@@ -501,7 +537,7 @@
                 <!-- Costo Total Canales -->
                 <div class="dc-label">
                     <div class="dc-label__name" style="color:var(--text-muted)">Costo Total Canales</div>
-                    <div class="dc-label__range">$2,000,000 × N° canales</div>
+                    <div class="dc-label__range" id="channel-cost-formula">$95,000 × N° canales</div>
                 </div>
                 <div class="dc-calc-cell"><span class="calc-value calc-value--neutral"
                         id="a-calc-channelcost">$6,000,000</span></div>
@@ -533,8 +569,7 @@
                             <div class="mfs-bar-fill mfs-bar-fill--high" id="a-mfs-fill" style="width:78%"></div>
                         </div>
                     </div>
-                    <p class="text-sm text-muted mt-sm">Score basado en las ponderaciones del segmento Lujo: Calidad
-                        (40%) + Diseño (40%) + Publicidad (20%) − Precio.</p>
+                    <p class="text-sm text-muted mt-sm">Score basado en la clasificación automática de la empresa y su coherencia competitiva.</p>
                 </div>
                 <div class="card">
                     <div class="card__title">🎯 Market Fit Score — Producto B</div>
@@ -547,9 +582,13 @@
                             <div class="mfs-bar-fill mfs-bar-fill--mid" id="b-mfs-fill" style="width:55%"></div>
                         </div>
                     </div>
-                    <p class="text-sm text-muted mt-sm">Un score < 35% indica que el producto necesita reposicionamiento
-                            estratégico para el segmento asignado.</p>
+                    <p class="text-sm text-muted mt-sm">Un score < 35% indica necesidad de ajuste en precio, propuesta de valor o cobertura.</p>
                 </div>
+            </div>
+
+            <div class="card mb-lg" id="market-alignment-card">
+                <div class="card__title">🧩 Coherencia de Mercado</div>
+                <div id="market-alignment-note" class="text-sm text-muted">La clasificación se actualiza automáticamente según atributos y se guarda en los datos del equipo.</div>
             </div>
 
             <!-- ACTION BAR -->
@@ -564,35 +603,286 @@
                     </span>
                 </div>
                 <div class="flex flex--gap-sm">
-                    <button class="btn btn--ghost" onclick="saveDraft()">💾 Guardar Borrador</button>
-                    <button class="btn btn--primary" onclick="submitTurn()">🚀 Confirmar Turno Q4</button>
+                    <button class="btn btn--ghost" id="save-draft-btn" onclick="saveDraft()">💾 Guardar Borrador</button>
+                    <button class="btn btn--primary" id="submit-turn-btn" onclick="submitTurn()">🚀 Confirmar Turno Q1</button>
                 </div>
             </div>
 
         </main>
     </div>
 
+    <script src="js/data-store.js"></script>
     <script src="js/anticheat.js"></script>
     <script src="js/calculator.js"></script>
     <script>
+        const MARKET_TIER_LABELS = {
+            economico: '🏷️ Básico',
+            medio: '⚡ Medio',
+            lujo: '💎 Lujo',
+        };
+
+        function currentMainMarket() {
+            return document.getElementById('a-main-market')?.value || DataStore.getCurrentTeam()?.market || 'moda';
+        }
+
+        function decisionContext(marketId) {
+            if (window.DataStore && DataStore.getDecisionProfile) {
+                return DataStore.getDecisionProfile(marketId || currentMainMarket());
+            }
+            return {
+                marketId: marketId || 'moda',
+                marketName: marketNameById(marketId || 'moda'),
+                quality: { min: 1, max: 10 },
+                design: { min: 1, max: 5 },
+                price: { min: 10, max: 1000, step: 10 },
+                discountPct: { min: 0, max: 50, step: 1 },
+                adSpend: { min: 0, max: 4_000_000, step: 50_000 },
+                channels: { min: 1, max: 4 },
+                costs: { qualityCostPerLevel: 18, designCostPerLevel: 12, channelCostPerUnit: 95_000 },
+                sensitivity: { priceDistancePenalty: 1, minAlignment: 0.2 },
+                targetPriceBySegment: { economico: 70, medio: 280, lujo: 760 },
+                maxBudget: 8_000_000,
+            };
+        }
+
+        function productInputs(prefix) {
+            return {
+                quality: parseFloat(document.getElementById(`${prefix}-quality`)?.value ?? 5),
+                design: parseFloat(document.getElementById(`${prefix}-design`)?.value ?? 3),
+                retailPrice: parseFloat(document.getElementById(`${prefix}-price`)?.value ?? 3000),
+                channels: parseInt(document.getElementById(`${prefix}-channels`)?.value ?? 2, 10),
+                discountPct: parseFloat(document.getElementById(`${prefix}-discount`)?.value ?? 0),
+                adSpend: parseFloat(document.getElementById(`${prefix}-adspend`)?.value ?? 0),
+            };
+        }
+
+        function autoClassifyByInputs() {
+            const marketId = currentMainMarket();
+            const pA = productInputs('a');
+            const pB = productInputs('b');
+            const segA = DataStore.classifyProductByAttributes(pA, marketId);
+            const segB = DataStore.classifyProductByAttributes(pB, marketId);
+            const teamSeg = DataStore.classifyTeamByProducts({ market: marketId, products: { a: pA, b: pB } });
+            return {
+                marketId,
+                teamSeg,
+                productSeg: { a: segA, b: segB },
+                products: { a: pA, b: pB },
+                decision: decisionContext(marketId),
+            };
+        }
+
+        function getMainMarkets() {
+            const config = (window.DataStore && DataStore.getConfig) ? DataStore.getConfig() : null;
+            const arr = config?.mainMarkets || [];
+            if (arr.length >= 3) return arr;
+            return [
+                { id: 'moda', name: 'Moda' },
+                { id: 'autos', name: 'Autos' },
+                { id: 'casas', name: 'Casas' },
+            ];
+        }
+
+        function getTurnState() {
+            if (!window.DataStore || !DataStore.getConfig) return { turn: 1, label: 'Q1 2026' };
+            const c = DataStore.getConfig();
+            return {
+                turn: c.currentTurn || 1,
+                label: c.currentTurnLabel || `Q${c.currentTurn || 1} 2026`,
+            };
+        }
+
+        function getMaxBudget() {
+            const ctx = decisionContext(currentMainMarket());
+            return ctx.maxBudget || 30_000_000;
+        }
+
+        function applyTurnLabels() {
+            const t = getTurnState();
+            const qLabel = `Q${t.turn}`;
+            const prevQ = Math.max(0, t.turn - 1);
+            const maxBudget = getMaxBudget();
+            const maxBudgetFmt = '$' + Math.round(maxBudget).toLocaleString('es-CL').replace(/\./g, ',');
+            const nav = document.getElementById('turn-nav-label');
+            const form = document.getElementById('turn-form-label');
+            const sb = document.getElementById('sb-budget-label');
+            const btn = document.getElementById('submit-turn-btn');
+            const sbDec = document.getElementById('sb-decisions-label');
+            const sbRep = document.getElementById('sb-report-label');
+            const sbMax = document.getElementById('sb-max-budget');
+            const bgMax = document.getElementById('bg-max-budget');
+            if (nav) nav.textContent = `DECISIONES ${t.label}`;
+            if (form) form.textContent = `Formulario de Decisiones · ${t.label}`;
+            if (sb) sb.textContent = `Presupuesto ${qLabel}`;
+            if (btn) btn.textContent = `🚀 Confirmar Turno ${qLabel}`;
+            if (sbDec) sbDec.textContent = `Decisiones ${qLabel}`;
+            if (sbRep) sbRep.textContent = `Reporte Q${prevQ}`;
+            if (sbMax) sbMax.textContent = maxBudgetFmt;
+            if (bgMax) bgMax.textContent = maxBudgetFmt;
+        }
+
+        function getStudentAuthKey() {
+            return (window.DataStore && DataStore.getStorageKey)
+                ? DataStore.getStorageKey('team_auth', true)
+                : 'ag_team_auth';
+        }
+
+        function logoutStudent() {
+            if (window.DataStore && DataStore.logoutTeam) {
+                DataStore.logoutTeam();
+            }
+            sessionStorage.removeItem(getStudentAuthKey());
+            window.location.href = 'student-login.html';
+        }
+
+        function renderMainMarketSelects() {
+            const markets = getMainMarkets();
+            const html = markets.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            ['a-main-market', 'b-main-market'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = html;
+            });
+            const catalog = document.getElementById('market-catalog');
+            if (catalog) {
+                const occ = (window.DataStore && DataStore.getMarketOccupancy) ? DataStore.getMarketOccupancy() : null;
+                const capacityText = occ
+                    ? markets.map(m => `${m.name}: ${occ.markets?.[m.id]?.count || 0}/${occ.maxPerMarket}`).join(' · ')
+                    : '';
+                catalog.textContent = `Mercados activos: ${markets.map(m => m.name).join(' · ')}. ${capacityText ? `Cupos: ${capacityText}.` : ''}`;
+            }
+        }
+
+        function applyMarketProfileToInputs(marketId, decision) {
+            const priceMin = decision.price.min;
+            const priceMax = decision.price.max;
+            const priceStep = decision.price.step || 1;
+            const adMin = decision.adSpend.min || 0;
+            const adMax = decision.adSpend.max;
+            const adStep = decision.adSpend.step || 1000;
+            const channelCost = decision.costs.channelCostPerUnit || 0;
+            const qualityCost = decision.costs.qualityCostPerLevel || 0;
+            const designCost = decision.costs.designCostPerLevel || 0;
+
+            ['a-price', 'b-price'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.min = String(priceMin);
+                el.max = String(priceMax);
+                el.step = String(priceStep);
+                const current = parseFloat(el.value || '0');
+                if (Number.isFinite(current)) {
+                    el.value = String(Math.max(priceMin, Math.min(priceMax, current)));
+                }
+            });
+
+            ['a-adspend', 'b-adspend'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.min = String(adMin);
+                el.max = String(adMax);
+                el.step = String(adStep);
+                const current = parseFloat(el.value || '0');
+                if (Number.isFinite(current)) {
+                    el.value = String(Math.max(adMin, Math.min(adMax, current)));
+                }
+            });
+
+            const rangePrice = document.getElementById('price-range-label');
+            const rangeAd = document.getElementById('adspend-range-label');
+            const unitFormula = document.getElementById('unit-cost-formula');
+            const channelFormula = document.getElementById('channel-cost-formula');
+            const fmtN = (v) => '$' + Math.round(v).toLocaleString('es-CL').replace(/\./g, ',');
+            if (rangePrice) rangePrice.textContent = `${fmtN(priceMin)} – ${fmtN(priceMax)} USD`;
+            if (rangeAd) rangeAd.textContent = `${fmtN(adMin)} – ${fmtN(adMax)}`;
+            if (unitFormula) unitFormula.textContent = `(Calidad×${fmtN(qualityCost)})+(Diseño×${fmtN(designCost)})`;
+            if (channelFormula) channelFormula.textContent = `${fmtN(channelCost)} × N° canales`;
+        }
+
+        function marketNameById(id) {
+            const m = getMainMarkets().find(x => x.id === id);
+            return m ? m.name : id;
+        }
+
+        function loadCurrentTeamDecisions() {
+            if (!window.DataStore || !DataStore.getCurrentTeam) return;
+            const team = DataStore.getCurrentTeam();
+            if (!team) return;
+
+            const nameEls = document.querySelectorAll('.dc-col-product-name');
+            if (nameEls[0]) nameEls[0].textContent = team.products?.a?.name || 'Producto A';
+            if (nameEls[1]) nameEls[1].textContent = team.products?.b?.name || 'Producto B';
+
+            if (document.getElementById('segmento-select')) {
+                document.getElementById('segmento-select').value = team.segmento || 'medio';
+            }
+            ['a', 'b'].forEach(p => {
+                const src = team.products?.[p];
+                if (!src) return;
+                const set = (id, val) => {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null) el.value = val;
+                };
+                set(`${p}-quality`, src.quality);
+                set(`${p}-design`, src.design);
+                set(`${p}-price`, src.retailPrice);
+                set(`${p}-discount`, src.discountPct);
+                set(`${p}-channels`, src.channels);
+                set(`${p}-adspend`, src.adSpend);
+                set(`${p}-main-market`, team.market || 'moda');
+            });
+            applyMarketProfileToInputs(team.market || 'moda', decisionContext(team.market || 'moda'));
+        }
+
+        function saveCurrentTeamDecisions() {
+            if (!window.DataStore || !DataStore.getCurrentTeam || !DataStore.saveTeam) return;
+            const team = DataStore.getCurrentTeam();
+            if (!team) return;
+
+            const state = autoClassifyByInputs();
+            team.segmento = state.teamSeg;
+            ['a', 'b'].forEach(p => {
+                const dst = team.products[p];
+                dst.quality = parseFloat(document.getElementById(`${p}-quality`)?.value || dst.quality || 5);
+                dst.design = parseFloat(document.getElementById(`${p}-design`)?.value || dst.design || 3);
+                dst.retailPrice = parseFloat(document.getElementById(`${p}-price`)?.value || dst.retailPrice || 3000);
+                dst.discountPct = parseFloat(document.getElementById(`${p}-discount`)?.value || dst.discountPct || 0);
+                dst.channels = parseInt(document.getElementById(`${p}-channels`)?.value || dst.channels || 2);
+                dst.adSpend = parseFloat(document.getElementById(`${p}-adspend`)?.value || dst.adSpend || 0);
+            });
+            team.market = state.marketId || document.getElementById('a-main-market')?.value || team.market || 'moda';
+            DataStore.saveTeam(team);
+        }
+
         // ── OVERRIDE de updateProductDisplay para manejar los IDs de esta pantalla ──
         // En esta pantalla los IDs son a-quality, b-quality, etc.
         // Redefinimos updateProductDisplay para el layout de columnas de esta pantalla
 
         function updateAllCalcs() {
+            const state = autoClassifyByInputs();
+            const mainMarket = state.marketId;
+            const autoSeg = state.teamSeg;
+            const decision = state.decision;
+            const calcOpts = {
+                costs: decision.costs,
+                price: decision.price,
+                adSpend: decision.adSpend,
+                sensitivity: decision.sensitivity,
+                targetPriceBySegment: decision.targetPriceBySegment,
+            };
+
+            applyMarketProfileToInputs(mainMarket, decision);
+            applyTurnLabels();
+
+            ['b-main-market'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = mainMarket;
+            });
+
             ['a', 'b'].forEach(p => {
-                const seg = document.getElementById('segmento-select')?.value ?? 'lujo';
-
-                const quality = parseFloat(document.getElementById(`${p}-quality`)?.value ?? 5);
-                const design = parseFloat(document.getElementById(`${p}-design`)?.value ?? 3);
-                const retailPrice = parseFloat(document.getElementById(`${p}-price`)?.value ?? 3000);
-                const channels = parseInt(document.getElementById(`${p}-channels`)?.value ?? 2);
-                const discountPct = parseFloat(document.getElementById(`${p}-discount`)?.value ?? 0);
-                const adSpend = parseFloat(document.getElementById(`${p}-adspend`)?.value ?? 0);
-
-                const inputs = { quality, design, retailPrice, channels, discountPct, adSpend };
-                const m = calcProductMetrics(inputs);
-                const mfs = calcMarketFitScore(inputs, seg);
+                const inputs = state.products[p];
+                const m = calcProductMetrics(inputs, calcOpts);
+                const pSeg = state.productSeg[p];
+                const mfs = calcMarketFitScore(inputs, pSeg, calcOpts);
 
                 const fmt_c = (v) => '$' + Math.round(v).toLocaleString('es-CL').replace(/\./g, ',');
                 const fmt_p = (v) => (v * 100).toFixed(0) + '%';
@@ -609,22 +899,37 @@
                 }
 
                 // Slider labels
-                setText(`${p}-quality-label`, quality);
-                setText(`${p}-design-label`, design);
-                setText(`${p}-discount-label`, `${discountPct}%`);
-                setText(`${p}-price-preview`, fmt_c(retailPrice));
-                setText(`${p}-adspend-preview`, fmt_c(adSpend));
+                setText(`${p}-quality-label`, inputs.quality);
+                setText(`${p}-design-label`, inputs.design);
+                setText(`${p}-discount-label`, `${inputs.discountPct}%`);
+                setText(`${p}-price-preview`, fmt_c(inputs.retailPrice));
+                setText(`${p}-adspend-preview`, fmt_c(inputs.adSpend));
+                setText(`${p}-main-market-label`, marketNameById(mainMarket));
+                setText(`${p}-target-tier-label`, MARKET_TIER_LABELS[pSeg] || pSeg);
 
                 // MFS
                 const pct = Math.round(mfs * 100);
                 const barEl = document.getElementById(`${p}-mfs-fill`);
                 const scoreEl = document.getElementById(`${p}-mfs-score`);
                 const descEl = document.getElementById(`${p}-mfs-desc`);
-                const segLabel = { economico: 'Mercado Económico', medio: 'Mercado Medio', lujo: 'Mercado Lujo' }[seg];
+                const segLabel = { economico: 'Mercado Económico', medio: 'Mercado Medio', lujo: 'Mercado Lujo' }[pSeg];
                 if (barEl) { barEl.style.width = `${pct}%`; barEl.className = `mfs-bar-fill ${pct < 35 ? 'mfs-bar-fill--low' : pct < 65 ? 'mfs-bar-fill--mid' : 'mfs-bar-fill--high'}`; }
                 if (scoreEl) { scoreEl.textContent = `${pct}%`; scoreEl.style.color = pct < 35 ? 'var(--accent-rose)' : pct < 65 ? 'var(--accent-amber)' : 'var(--accent-emerald)'; }
                 if (descEl) descEl.textContent = pct < 35 ? `Débil para ${segLabel}` : pct < 65 ? `Competitivo en ${segLabel}` : `Fuerte en ${segLabel}`;
             });
+
+            const segSelect = document.getElementById('segmento-select');
+            if (segSelect) segSelect.value = autoSeg;
+            const tipEl = document.getElementById('seg-tip');
+            const hintEl = document.getElementById('seg-hint');
+            if (tipEl && SEGMENT_TIPS[autoSeg]) tipEl.innerHTML = SEGMENT_TIPS[autoSeg];
+            if (hintEl && SEGMENT_TIPS[autoSeg]) hintEl.innerHTML = SEGMENT_TIPS[autoSeg];
+            const badge = document.getElementById('nav-market-badge');
+            if (badge) {
+                const cls = autoSeg === 'economico' ? 'badge--economico' : autoSeg === 'lujo' ? 'badge--lujo' : 'badge--medio';
+                badge.className = `badge ${cls}`;
+                badge.textContent = `${marketNameById(mainMarket)} · ${MARKET_TIER_LABELS[autoSeg] || autoSeg}`;
+            }
 
             // ── Totales de presupuesto ─────────────────────────────
             const ad_a = parseFloat(document.getElementById('a-adspend')?.value ?? 0);
@@ -632,17 +937,41 @@
             const ch_a = parseInt(document.getElementById('a-channels')?.value ?? 1);
             const ch_b = parseInt(document.getElementById('b-channels')?.value ?? 1);
             setText('total-adspend', '$' + (ad_a + ad_b).toLocaleString('es-CL').replace(/\./g, ','));
-            const chCost = (ch_a + ch_b) * 2_000_000;
+            const chCost = (ch_a + ch_b) * (decision.costs.channelCostPerUnit || 0);
             setText('total-channels', '$' + chCost.toLocaleString('es-CL').replace(/\./g, ','));
             const totalSpent = ad_a + ad_b + chCost;
             setText('total-budget', '$' + totalSpent.toLocaleString('es-CL').replace(/\./g, ','));
             updateBudgetGauge(totalSpent);
+
+            // Coherencia mercado/segmento
+            const note = document.getElementById('market-alignment-note');
+            if (note) {
+                note.textContent = `Mercado empresa: ${marketNameById(mainMarket)}. Clasificación empresa: ${MARKET_TIER_LABELS[autoSeg] || autoSeg}. Producto A: ${MARKET_TIER_LABELS[state.productSeg.a] || state.productSeg.a}. Producto B: ${MARKET_TIER_LABELS[state.productSeg.b] || state.productSeg.b}.`;
+            }
+
+            const sens = document.getElementById('market-sensitivity-note');
+            if (sens) {
+                const fitA = calcPriceAlignment(state.products.a.retailPrice, state.productSeg.a, buildCalcContext(calcOpts));
+                const fitB = calcPriceAlignment(state.products.b.retailPrice, state.productSeg.b, buildCalcContext(calcOpts));
+                const avgDist = ((fitA.distance + fitB.distance) / 2) * 100;
+                const penalty = Math.round((decision.sensitivity.priceDistancePenalty || 1) * 100) / 100;
+                sens.textContent = `Sensibilidad de precio ${marketNameById(mainMarket)}: penalización ${penalty}x por distancia al precio objetivo. Distancia promedio actual: ${avgDist.toFixed(1)}%.`;
+            }
         }
 
         function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 
         // Bind all inputs
         document.addEventListener('DOMContentLoaded', () => {
+            const team = (window.DataStore && DataStore.getCurrentTeam) ? DataStore.getCurrentTeam() : null;
+            const authOk = sessionStorage.getItem(getStudentAuthKey()) === '1';
+            if (!team || !authOk) {
+                window.location.href = 'student-login.html';
+                return;
+            }
+            applyTurnLabels();
+            renderMainMarketSelects();
+            loadCurrentTeamDecisions();
             document.querySelectorAll('input, select').forEach(el => {
                 el.addEventListener('input', updateAllCalcs);
                 el.addEventListener('change', updateAllCalcs);
@@ -650,13 +979,11 @@
             updateAllCalcs();
         });
 
-        // Agrega la lectura de totales al comienzo de updateAllCalcs
-        const _origCalcs = updateAllCalcs;
-
         // ── BUDGET GAUGE ──────────────────────────────────────────
-        const MAX_BUDGET = 30_000_000;
         function updateBudgetGauge(spent) {
-            const pct = Math.min(spent / MAX_BUDGET * 100, 100);
+            const maxBudget = getMaxBudget();
+            const rawPct = (spent / maxBudget) * 100;
+            const pct = Math.min(rawPct, 100);
             const fill = document.getElementById('bg-fill');
             const sbFill = document.getElementById('sb-budget-fill');
             const alert = document.getElementById('bg-alert');
@@ -669,17 +996,17 @@
 
             if (bgSpent) bgSpent.textContent = fmt(spent);
             if (sbSpent) sbSpent.textContent = fmt(spent);
-            if (bgPct) bgPct.textContent = pct.toFixed(0) + '%';
+            if (bgPct) bgPct.textContent = rawPct.toFixed(0) + '%';
             if (remVal) {
-                const rem = MAX_BUDGET - spent;
+                const rem = maxBudget - spent;
                 remVal.textContent = fmt(rem);
-                remVal.style.color = rem < 0 ? 'var(--accent-rose)' : rem < MAX_BUDGET * 0.2 ? 'var(--accent-amber)' : 'var(--accent-emerald)';
+                remVal.style.color = rem < 0 ? 'var(--accent-rose)' : rem < maxBudget * 0.2 ? 'var(--accent-amber)' : 'var(--accent-emerald)';
             }
 
-            const fillClass = pct > 100 ? 'budget-fill--crit' : pct > 80 ? 'budget-fill--warn' : '';
+            const fillClass = rawPct > 100 ? 'budget-fill--crit' : rawPct > 80 ? 'budget-fill--warn' : '';
             if (fill) { fill.style.width = Math.min(pct, 100) + '%'; fill.className = 'budget-fill ' + fillClass; }
-            if (sbFill) { sbFill.style.width = Math.min(pct, 100) + '%'; sbFill.style.background = pct > 100 ? 'var(--accent-rose)' : pct > 80 ? 'var(--accent-amber)' : 'var(--accent-emerald)'; }
-            if (alert) alert.style.display = spent > MAX_BUDGET ? 'block' : 'none';
+            if (sbFill) { sbFill.style.width = Math.min(pct, 100) + '%'; sbFill.style.background = rawPct > 100 ? 'var(--accent-rose)' : rawPct > 80 ? 'var(--accent-amber)' : 'var(--accent-emerald)'; }
+            if (alert) alert.style.display = spent > maxBudget ? 'block' : 'none';
         }
 
         // ── SEGMENT TIPS ──────────────────────────────────────────
@@ -697,30 +1024,54 @@
         });
 
         function saveDraft() {
-            const btn = event.target;
+            const btn = document.getElementById('save-draft-btn');
             // Guardar en localStorage
             const data = {};
             document.querySelectorAll('input, select').forEach(el => { if (el.id) data[el.id] = el.value; });
-            localStorage.setItem('ag_draft_q4', JSON.stringify(data));
-            btn.textContent = '✅ Borrador Guardado';
-            btn.style.color = 'var(--accent-emerald)';
-            setTimeout(() => { btn.textContent = '💾 Guardar Borrador'; btn.style.color = ''; }, 2500);
+            const t = getTurnState();
+            const draftKey = (window.DataStore && DataStore.getStorageKey)
+                ? DataStore.getStorageKey(`draft_q${t.turn}`, true)
+                : `ag_draft_q${t.turn}`;
+            localStorage.setItem(draftKey, JSON.stringify(data));
+            saveCurrentTeamDecisions();
+            if (btn) {
+                btn.textContent = '✅ Borrador Guardado';
+                btn.style.color = 'var(--accent-emerald)';
+                setTimeout(() => { btn.textContent = '💾 Guardar Borrador'; btn.style.color = ''; }, 2500);
+            }
         }
 
         function submitTurn() {
             // Verificar presupuesto
+            const state = autoClassifyByInputs();
             const ad_a = parseFloat(document.getElementById('a-adspend')?.value ?? 0);
             const ad_b = parseFloat(document.getElementById('b-adspend')?.value ?? 0);
             const ch_a = parseInt(document.getElementById('a-channels')?.value ?? 1);
             const ch_b = parseInt(document.getElementById('b-channels')?.value ?? 1);
-            const totalSpent = ad_a + ad_b + (ch_a + ch_b) * 2_000_000;
-            if (totalSpent > MAX_BUDGET) {
-                alert('⚠️ No puedes confirmar: el presupuesto total supera los $30,000,000.\nReduce tu inversión en ABM o canales.');
+            const totalSpent = ad_a + ad_b + (ch_a + ch_b) * (state.decision.costs.channelCostPerUnit || 0);
+            const maxBudget = getMaxBudget();
+            if (totalSpent > maxBudget) {
+                const maxBudgetFmt = '$' + Math.round(maxBudget).toLocaleString('es-CL').replace(/\./g, ',');
+                alert(`⚠️ No puedes confirmar: el presupuesto total supera ${maxBudgetFmt}.\nReduce tu inversión en ABM o canales.`);
                 return;
             }
-            if (confirm('¿Confirmas tus decisiones para el Turno Q4? No podrás modificarlas después.')) {
+            const t = getTurnState();
+            if (confirm(`¿Confirmas tus decisiones para el Turno Q${t.turn}? No podrás modificarlas después.`)) {
+                saveCurrentTeamDecisions();
+                if (window.DataStore && DataStore.getCurrentTeam && DataStore.saveTeam && DataStore.getConfig) {
+                    const team = DataStore.getCurrentTeam();
+                    if (team) {
+                        const q = `Q${DataStore.getConfig().currentTurn || 1}`;
+                        team.submitted = team.submitted || {};
+                        team.submitted[q] = true;
+                        DataStore.saveTeam(team);
+                    }
+                }
                 // Marcar como enviado
-                localStorage.setItem('ag_submitted_q4', '1');
+                const submittedKey = (window.DataStore && DataStore.getStorageKey)
+                    ? DataStore.getStorageKey(`submitted_q${t.turn}`, true)
+                    : `ag_submitted_q${t.turn}`;
+                localStorage.setItem(submittedKey, '1');
                 window.location.href = 'student-results.html';
             }
         }

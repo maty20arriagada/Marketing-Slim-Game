@@ -144,7 +144,7 @@
             </a>
             <div class="topnav__meta">
                 <span class="badge badge--warning">🎛️ Modo Profesor</span>
-                <span class="topnav__turn">TURNO Q4 2025</span>
+                <span class="topnav__turn" id="prof-top-turn">TURNO Q1 2026</span>
                 <button onclick="logoutProfessor()" class="btn btn--danger btn--sm">🔒 Cerrar Sesión</button>
             </div>
         </div>
@@ -180,13 +180,15 @@
                 <div
                     style="font-size:0.7rem; color:var(--text-dim); margin-bottom:8px; font-weight:600; letter-spacing:1px; text-transform:uppercase;">
                     Simulación</div>
-                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">Turno Actual: <strong>Q4
-                        2025</strong></div>
-                <div style="font-size:0.85rem; color:var(--text-secondary);">Equipos: <strong>18</strong></div>
-                <div style="font-size:0.85rem; color:var(--text-secondary);">Enviaron: <strong
-                        style="color:var(--accent-emerald)">14 / 18</strong></div>
-                <div class="mt-sm" style="font-size:0.75rem; color:var(--text-muted);">Pendientes: T-03, T-09, T-12,
-                    T-16</div>
+                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:4px;">Turno Actual: <strong
+                        id="sim-turn">Q1 2026</strong></div>
+                <div style="font-size:0.85rem; color:var(--text-secondary);">Equipos: <strong id="sim-teams">0</strong>
+                </div>
+                <div style="font-size:0.85rem; color:var(--text-secondary);">Enviaron: <strong id="sim-submitted"
+                        style="color:var(--accent-emerald)">0 / 0</strong></div>
+                <div class="mt-sm" id="sim-pending" style="font-size:0.75rem; color:var(--text-muted);">Pendientes: —
+                </div>
+                <div id="sim-markets" style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Mercados: —</div>
             </div>
         </aside>
 
@@ -197,7 +199,7 @@
 
                 <div class="page-header">
                     <div class="page-header__eyebrow">Panel Profesor</div>
-                    <h1 class="page-header__title">Estado de Equipos — Q4</h1>
+                    <h1 class="page-header__title" id="equipos-title">Estado de Equipos — Q1</h1>
                 </div>
 
                 <!-- Run Turn Bar -->
@@ -208,17 +210,18 @@
                             Envíos Recibidos</div>
                         <div
                             style="font-family:var(--font-mono); font-size:1.1rem; font-weight:700; color:var(--text-primary);">
-                            14 <span style="color:var(--text-muted); font-size:0.85rem;">de 18 equipos</span></div>
+                            <span id="run-submitted-num">0</span> <span
+                                style="color:var(--text-muted); font-size:0.85rem;">de <span id="run-total-num">0</span> equipos</span></div>
                     </div>
                     <div class="progress-bar-wrapper">
                         <div class="progress-bar-track">
                             <div class="progress-bar-fill"></div>
                         </div>
-                        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px; text-align:right;">77.7%
+                        <div id="run-progress-label" style="font-size:0.7rem; color:var(--text-muted); margin-top:5px; text-align:right;">0%
                             completo</div>
                     </div>
-                    <button class="btn btn--primary btn--lg" onclick="runTurn()">
-                        ▶ Iniciar Turno Q4
+                    <button class="btn btn--primary btn--lg" id="run-turn-btn" onclick="runTurn()">
+                        ▶ Iniciar Turno Q1
                     </button>
                 </div>
 
@@ -227,24 +230,24 @@
                     <div class="metric-tile">
                         <div class="metric-tile__accent" style="background:var(--accent-blue)"></div>
                         <div class="metric-tile__label">Total Equipos</div>
-                        <div class="metric-tile__value">18</div>
+                        <div class="metric-tile__value" id="sum-total-teams">0</div>
                     </div>
                     <div class="metric-tile">
                         <div class="metric-tile__accent" style="background:var(--accent-emerald)"></div>
                         <div class="metric-tile__label">Enviaron Decisiones</div>
-                        <div class="metric-tile__value" style="color:var(--accent-emerald)">14</div>
+                        <div class="metric-tile__value" id="sum-submitted" style="color:var(--accent-emerald)">0</div>
                         <div class="metric-tile__delta metric-tile__delta--up">✓ A tiempo</div>
                     </div>
                     <div class="metric-tile">
                         <div class="metric-tile__accent" style="background:var(--accent-rose)"></div>
                         <div class="metric-tile__label">Pendientes</div>
-                        <div class="metric-tile__value" style="color:var(--accent-rose)">4</div>
+                        <div class="metric-tile__value" id="sum-pending" style="color:var(--accent-rose)">0</div>
                         <div class="metric-tile__delta metric-tile__delta--down">⚠ Sin enviar</div>
                     </div>
                     <div class="metric-tile">
                         <div class="metric-tile__accent" style="background:var(--accent-amber)"></div>
                         <div class="metric-tile__label">Eventos Programados</div>
-                        <div class="metric-tile__value">3</div>
+                        <div class="metric-tile__value" id="sum-events">0</div>
                     </div>
                 </div>
 
@@ -256,94 +259,13 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Nombre de Marca</th>
-                                <th>Segmento</th>
+                                <th>Mercado / Clasificación</th>
                                 <th>Producto A</th>
                                 <th>Producto B</th>
-                                <th>Estado Q4</th>
+                                <th id="th-status-turn">Estado Q1</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td class="table__mono text-muted">T-01</td>
-                                <td style="font-weight:600">Vox Industries</td>
-                                <td><span class="badge badge--economico">🏷️ Económico</span></td>
-                                <td class="text-muted text-sm">VoxBase X</td>
-                                <td class="text-muted text-sm">VoxLite</td>
-                                <td><span class="team-table-status"><span
-                                            class="status-dot status-dot--green"></span>Enviado</span></td>
-                            </tr>
-                            <tr>
-                                <td class="table__mono text-muted">T-02</td>
-                                <td style="font-weight:600">Prism Tech</td>
-                                <td><span class="badge badge--medio">⚡ Medio</span></td>
-                                <td class="text-muted text-sm">Prism One</td>
-                                <td class="text-muted text-sm">Prism Go</td>
-                                <td><span class="team-table-status"><span
-                                            class="status-dot status-dot--green"></span>Enviado</span></td>
-                            </tr>
-                            <tr style="background:rgba(244,63,94,0.03)">
-                                <td class="table__mono text-muted">T-03</td>
-                                <td style="font-weight:600">Vanguard</td>
-                                <td><span class="badge badge--medio">⚡ Medio</span></td>
-                                <td class="text-muted text-sm">—</td>
-                                <td class="text-muted text-sm">—</td>
-                                <td><span class="team-table-status"><span
-                                            class="status-dot status-dot--red"></span><span
-                                            style="color:var(--accent-rose)">Pendiente</span></span></td>
-                            </tr>
-                            <tr>
-                                <td class="table__mono text-muted">T-04</td>
-                                <td style="font-weight:600">Helix Group</td>
-                                <td><span class="badge badge--economico">🏷️ Económico</span></td>
-                                <td class="text-muted text-sm">Helix Core</td>
-                                <td class="text-muted text-sm">Helix Mini</td>
-                                <td><span class="team-table-status"><span
-                                            class="status-dot status-dot--green"></span>Enviado</span></td>
-                            </tr>
-                            <tr>
-                                <td class="table__mono text-muted">T-05</td>
-                                <td style="font-weight:600">Zenith Co.</td>
-                                <td><span class="badge badge--lujo">💎 Lujo</span></td>
-                                <td class="text-muted text-sm">Zenith Pro</td>
-                                <td class="text-muted text-sm">Zenith S</td>
-                                <td><span class="team-table-status"><span
-                                            class="status-dot status-dot--green"></span>Enviado</span></td>
-                            </tr>
-                            <tr>
-                                <td class="table__mono text-muted">T-06</td>
-                                <td style="font-weight:600">Cobalt Studio</td>
-                                <td><span class="badge badge--lujo">💎 Lujo</span></td>
-                                <td class="text-muted text-sm">Cobalt One</td>
-                                <td class="text-muted text-sm">Cobalt Lite</td>
-                                <td><span class="team-table-status"><span
-                                            class="status-dot status-dot--green"></span>Enviado</span></td>
-                            </tr>
-                            <tr>
-                                <td class="table__mono text-muted">T-07</td>
-                                <td style="font-weight:600; color:var(--accent-blue)">Nexus Corp</td>
-                                <td><span class="badge badge--lujo">💎 Lujo</span></td>
-                                <td class="text-muted text-sm">Aurora Pro</td>
-                                <td class="text-muted text-sm">Aurora Lite</td>
-                                <td><span class="team-table-status"><span
-                                            class="status-dot status-dot--green"></span>Enviado</span></td>
-                            </tr>
-                            <tr style="background:rgba(244,63,94,0.03)">
-                                <td class="table__mono text-muted">T-09</td>
-                                <td style="font-weight:600">Orion Labs</td>
-                                <td><span class="badge badge--economico">🏷️ Económico</span></td>
-                                <td class="text-muted text-sm">—</td>
-                                <td class="text-muted text-sm">—</td>
-                                <td><span class="team-table-status"><span
-                                            class="status-dot status-dot--red"></span><span
-                                            style="color:var(--accent-rose)">Pendiente</span></span></td>
-                            </tr>
-                            <tr style="background:var(--bg-input); opacity:0.6">
-                                <td class="table__mono text-muted" colspan="6"
-                                    style="text-align:center; font-size:0.75rem; color:var(--text-dim); padding:10px;">
-                                    +10 equipos más · T-08, T-10 – T-18
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tbody id="equipos-tbody"></tbody>
                     </table>
                 </div>
 
@@ -380,13 +302,37 @@
                         </div>
                     </div>
 
+                    <div style="display:grid; grid-template-columns:1fr 120px 120px; gap:12px; margin-bottom:16px;">
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label">Coeficiente Afectado</label>
+                            <select id="event-coefficient" class="form-input">
+                                <option value="arr_multiplier">Demanda ARR</option>
+                                <option value="quality_cost_per_level">Costo por Calidad</option>
+                                <option value="design_cost_per_level">Costo por Diseño</option>
+                                <option value="channel_cost_per_unit">Costo por Canal</option>
+                                <option value="cac_multiplier">CAC</option>
+                                <option value="margin_multiplier">Margen</option>
+                                <option value="price_distance_penalty">Sensibilidad de Precio</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label">Tipo</label>
+                            <select id="event-delta-mode" class="form-input">
+                                <option value="pct">%</option>
+                                <option value="abs">Absoluto</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label">Delta</label>
+                            <input type="number" id="event-delta" class="form-input" value="10" step="1">
+                        </div>
+                    </div>
+
                     <div style="display:flex; gap:12px; align-items:center;">
                         <div class="form-group" style="margin-bottom:0; flex:1;">
                             <label class="form-label">Turno de Activación</label>
                             <select id="event-turn" class="form-input">
-                                <option value="Q4" selected>Q4 2025 (actual)</option>
-                                <option value="Q5">Q5 2025</option>
-                                <option value="Q6">Q6 2025</option>
+                                <option value="Q1">Cargando turnos...</option>
                             </select>
                         </div>
                         <div style="padding-top:20px;">
@@ -426,38 +372,12 @@
                                 <th>Segmento</th>
                                 <th>Nombre</th>
                                 <th>Coeficiente Afectado</th>
+                                <th>Delta</th>
                                 <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="events-tbody">
-                            <tr>
-                                <td class="table__mono">Q4</td>
-                                <td><span class="badge badge--lujo">💎 Lujo</span></td>
-                                <td style="font-weight:600">Alza Materiales Premium</td>
-                                <td><code
-                                        style="font-family:var(--font-mono); font-size:0.78rem; background:var(--bg-elevated); padding:2px 8px; border-radius:4px;">design_cost +20%</code>
-                                </td>
-                                <td><span class="badge badge--success">✅ Activo</span></td>
-                            </tr>
-                            <tr>
-                                <td class="table__mono">Q5</td>
-                                <td><span class="badge badge--economico">🏷️ Económico</span></td>
-                                <td style="font-weight:600">Entrada rival asiático</td>
-                                <td><code
-                                        style="font-family:var(--font-mono); font-size:0.78rem; background:var(--bg-elevated); padding:2px 8px; border-radius:4px;">+1 competidor ficticio</code>
-                                </td>
-                                <td><span class="badge badge--warning">⏳ Pendiente</span></td>
-                            </tr>
-                            <tr>
-                                <td class="table__mono">Q5</td>
-                                <td><span class="badge badge--medio">⚡ Medio</span></td>
-                                <td style="font-weight:600">Nueva regulación de etiquetado</td>
-                                <td><code
-                                        style="font-family:var(--font-mono); font-size:0.78rem; background:var(--bg-elevated); padding:2px 8px; border-radius:4px;">unit_cost +$50</code>
-                                </td>
-                                <td><span class="badge badge--warning">⏳ Pendiente</span></td>
-                            </tr>
-                        </tbody>
+                        <tbody id="events-tbody"></tbody>
                     </table>
                 </div>
 
@@ -469,175 +389,31 @@
                 <div class="page-header">
                     <div class="page-header__eyebrow">Panel Profesor</div>
                     <h1 class="page-header__title">🏆 Leaderboard Global</h1>
-                    <p class="page-header__subtitle">Ranking por segmento tras el turno Q3. El profesor ve nombres; los
+                    <p class="page-header__subtitle" id="lb-subtitle">Ranking por clasificación del turno actual. El profesor ve nombres; los
                         alumnos solo ven rivales anónimos.</p>
                 </div>
 
-                <div class="leaderboard-segments stagger">
-
-                    <!-- Económico -->
-                    <div class="seg-leaderboard-card">
-                        <div class="seg-leaderboard-header seg-leaderboard-header--economico">
-                            <span style="font-weight:700; color:var(--seg-economico)">🏷️ Mercado Económico</span>
-                            <span class="badge badge--economico">5 equipos</span>
-                        </div>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Marca</th>
-                                    <th>ARR</th>
-                                    <th>Cuota</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><span class="table__rank table__rank--1">1</span></td>
-                                    <td style="font-weight:600">Vox Industries</td>
-                                    <td class="table__mono">$3.20M</td>
-                                    <td class="table__mono">28.4%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank table__rank--2">2</span></td>
-                                    <td>Rival #2</td>
-                                    <td class="table__mono">$2.80M</td>
-                                    <td class="table__mono">24.9%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank table__rank--3">3</span></td>
-                                    <td>Rival #3</td>
-                                    <td class="table__mono">$2.10M</td>
-                                    <td class="table__mono">18.6%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank" style="color:var(--text-dim)">4</span></td>
-                                    <td>Rival #4</td>
-                                    <td class="table__mono">$1.80M</td>
-                                    <td class="table__mono">16.0%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank" style="color:var(--text-dim)">5</span></td>
-                                    <td>Rival #5</td>
-                                    <td class="table__mono">$1.35M</td>
-                                    <td class="table__mono">12.1%</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="card mb-lg" style="padding:14px 18px;">
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <label class="form-label" style="margin:0;">Turno a visualizar</label>
+                        <select id="lb-turn-select" class="form-input" style="max-width:180px;" onchange="renderLeaderboard(); renderMarketResults();">
+                            <option value="Q1">Q1</option>
+                            <option value="Q2">Q2</option>
+                            <option value="Q3">Q3</option>
+                            <option value="Q4">Q4</option>
+                            <option value="Q5">Q5</option>
+                        </select>
                     </div>
+                </div>
 
-                    <!-- Medio -->
-                    <div class="seg-leaderboard-card">
-                        <div class="seg-leaderboard-header seg-leaderboard-header--medio">
-                            <span style="font-weight:700; color:var(--seg-medio)">⚡ Mercado Medio</span>
-                            <span class="badge badge--medio">6 equipos</span>
-                        </div>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Marca</th>
-                                    <th>ARR</th>
-                                    <th>Cuota</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><span class="table__rank table__rank--1">1</span></td>
-                                    <td style="font-weight:600">Prism Tech</td>
-                                    <td class="table__mono">$5.10M</td>
-                                    <td class="table__mono">26.3%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank table__rank--2">2</span></td>
-                                    <td>Rival #2</td>
-                                    <td class="table__mono">$4.40M</td>
-                                    <td class="table__mono">22.7%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank table__rank--3">3</span></td>
-                                    <td>Rival #3</td>
-                                    <td class="table__mono">$3.70M</td>
-                                    <td class="table__mono">19.1%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank" style="color:var(--text-dim)">4</span></td>
-                                    <td>Rival #4</td>
-                                    <td class="table__mono">$3.10M</td>
-                                    <td class="table__mono">16.0%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank" style="color:var(--text-dim)">5</span></td>
-                                    <td>Rival #5</td>
-                                    <td class="table__mono">$3.05M</td>
-                                    <td class="table__mono">15.7%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank" style="color:var(--text-dim)">6</span></td>
-                                    <td style="color:var(--accent-rose)">Vanguard ⚠</td>
-                                    <td class="table__mono" style="color:var(--accent-rose)">$0.23M</td>
-                                    <td class="table__mono" style="color:var(--accent-rose)">0.1%</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="leaderboard-segments stagger" id="leaderboard-segments"></div>
+
+                <div class="card mt-lg">
+                    <div class="card__title">📊 Resultados por Mercado</div>
+                    <div id="market-results-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px;">
+                        <div class="text-sm text-muted">Sin datos disponibles.</div>
                     </div>
-
-                    <!-- Lujo -->
-                    <div class="seg-leaderboard-card">
-                        <div class="seg-leaderboard-header seg-leaderboard-header--lujo">
-                            <span style="font-weight:700; color:var(--seg-lujo)">💎 Mercado Lujo</span>
-                            <span class="badge badge--lujo">6 equipos</span>
-                        </div>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Marca</th>
-                                    <th>ARR</th>
-                                    <th>Cuota</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><span class="table__rank table__rank--1">1</span></td>
-                                    <td style="font-weight:600; color:var(--accent-blue)">Nexus Corp</td>
-                                    <td class="table__mono">$4.82M</td>
-                                    <td class="table__mono">22.4%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank table__rank--2">2</span></td>
-                                    <td>Rival #2</td>
-                                    <td class="table__mono">$4.10M</td>
-                                    <td class="table__mono">19.1%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank table__rank--3">3</span></td>
-                                    <td>Rival #3</td>
-                                    <td class="table__mono">$3.90M</td>
-                                    <td class="table__mono">18.2%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank" style="color:var(--text-dim)">4</span></td>
-                                    <td>Rival #4</td>
-                                    <td class="table__mono">$3.10M</td>
-                                    <td class="table__mono">14.4%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank" style="color:var(--text-dim)">5</span></td>
-                                    <td>Rival #5</td>
-                                    <td class="table__mono">$2.90M</td>
-                                    <td class="table__mono">13.8%</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="table__rank" style="color:var(--text-dim)">6</span></td>
-                                    <td>Rival #6</td>
-                                    <td class="table__mono">$2.60M</td>
-                                    <td class="table__mono">12.1%</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div><!-- /leaderboard-segments -->
+                </div>
 
             </div><!-- /tab-leaderboard -->
 
@@ -646,8 +422,18 @@
                 <div class="page-header">
                     <div class="page-header__eyebrow">Administración</div>
                     <h1 class="page-header__title">⚙️ Gestión de Equipos</h1>
-                    <p class="page-header__subtitle">Edita nombres, productos y segmentos de cualquier equipo
+                    <p class="page-header__subtitle">Edita nombres, productos, mercado y clasificación automática de cualquier equipo
                         registrado.</p>
+                </div>
+
+                <div class="card mb-lg" style="padding:14px 18px;">
+                    <div style="display:flex; align-items:end; gap:12px; flex-wrap:wrap;">
+                        <div class="form-group" style="margin:0; min-width:220px;">
+                            <label class="form-label">Filtrar por mercado</label>
+                            <select id="admin-market-filter" class="form-input" onchange="setAdminMarketFilter(this.value)"></select>
+                        </div>
+                        <div id="admin-filter-count" class="text-sm text-muted" style="padding-bottom:10px;">—</div>
+                    </div>
                 </div>
 
                 <div id="admin-teams-list"></div>
@@ -696,6 +482,12 @@
                                 style="font-family:var(--font-mono);">
                             <div style="font-size:0.7rem;color:var(--text-dim);margin-top:3px;">Default: $30,000,000
                             </div>
+                        </div>
+                        <div class="form-group" style="margin-top:12px; margin-bottom:0;">
+                            <label class="form-label">Capacidad por Mercado (equipos)</label>
+                            <input type="number" id="param-market-cap" class="form-input"
+                                style="font-family:var(--font-mono);">
+                            <div style="font-size:0.7rem;color:var(--text-dim);margin-top:3px;">Default: 9 por mercado</div>
                         </div>
                     </div>
 
@@ -767,6 +559,104 @@
                     <div id="reg-status" style="margin-top:8px;font-size:0.78rem;"></div>
                 </div>
 
+                <div class="card" style="margin-top:20px;">
+                    <div class="card__title">🏙️ Mercados Principales (Editables)</div>
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">
+                        Estos nombres alimentan el apartado "Mercados" en decisiones de alumno.
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Mercado 1</label>
+                            <input type="text" id="param-market-1" class="form-input">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Mercado 2</label>
+                            <input type="text" id="param-market-2" class="form-input">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Mercado 3</label>
+                            <input type="text" id="param-market-3" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:20px;">
+                    <div class="card__title">📈 Perfiles por Mercado</div>
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">
+                        Ajusta rangos realistas de precio, costos base y sensibilidad por distancia de precio.
+                    </div>
+                    <div style="overflow:auto;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Mercado</th>
+                                    <th>Precio Min</th>
+                                    <th>Precio Max</th>
+                                    <th>Paso Precio</th>
+                                    <th>Costo Calidad</th>
+                                    <th>Costo Diseño</th>
+                                    <th>Costo Canal</th>
+                                    <th>ABM Max</th>
+                                    <th>Sensibilidad Precio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Moda</td>
+                                    <td><input type="number" id="param-prof-moda-price-min" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-moda-price-max" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-moda-price-step" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-moda-qcost" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-moda-dcost" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-moda-ccost" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-moda-admax" class="form-input"></td>
+                                    <td><input type="number" step="0.05" id="param-prof-moda-sens" class="form-input"></td>
+                                </tr>
+                                <tr>
+                                    <td>Autos</td>
+                                    <td><input type="number" id="param-prof-autos-price-min" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-autos-price-max" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-autos-price-step" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-autos-qcost" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-autos-dcost" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-autos-ccost" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-autos-admax" class="form-input"></td>
+                                    <td><input type="number" step="0.05" id="param-prof-autos-sens" class="form-input"></td>
+                                </tr>
+                                <tr>
+                                    <td>Casas</td>
+                                    <td><input type="number" id="param-prof-casas-price-min" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-casas-price-max" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-casas-price-step" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-casas-qcost" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-casas-dcost" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-casas-ccost" class="form-input"></td>
+                                    <td><input type="number" id="param-prof-casas-admax" class="form-input"></td>
+                                    <td><input type="number" step="0.05" id="param-prof-casas-sens" class="form-input"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top:20px;">
+                    <div class="card__title">🎲 Versión Demo para Clase</div>
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:12px;">
+                        Usa datasets separados para no mezclar ni sobrescribir equipos reales.
+                    </div>
+                    <div id="dataset-mode-label" style="font-size:0.8rem; margin-bottom:12px; color:var(--text-secondary);">
+                        Dataset activo: REAL
+                    </div>
+                    <div style="display:flex; gap:12px;">
+                        <button class="btn btn--ghost" onclick="switchDatasetMode('real')">📚 Usar Dataset Real</button>
+                        <button class="btn btn--ghost" onclick="switchDatasetMode('demo')">🧪 Usar Dataset Demo</button>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-top:10px;">
+                        <button class="btn btn--primary" onclick="generateDemoDataset()">🎲 Generar Demo Aleatoria</button>
+                        <button class="btn btn--ghost" onclick="clearDemoDataset()">🧹 Limpiar Datos Demo</button>
+                    </div>
+                </div>
+
                 <div style="display:flex; gap:12px; margin-top:20px;">
                     <button class="btn btn--primary" onclick="saveParams()">💾 Guardar Parámetros</button>
                     <button class="btn btn--ghost" onclick="resetParams()">↩️ Restaurar Defaults</button>
@@ -778,14 +668,14 @@
                 <div class="page-header">
                     <div class="page-header__eyebrow" style="color:var(--accent-rose);">⚠️ Zona Peligrosa</div>
                     <h1 class="page-header__title">🔴 Acciones Irreversibles</h1>
-                    <p class="page-header__subtitle">Estas acciones afectan a TODOS los equipos y no se pueden deshacer.
-                        Se requiere confirmación con contraseña.</p>
+                    <p class="page-header__subtitle">Estas acciones afectan al dataset ACTIVO (real o demo) y no se
+                        pueden deshacer. Se requiere confirmación con contraseña.</p>
                 </div>
 
                 <div class="card" style="border-color:rgba(244,63,94,0.3); margin-bottom:20px;">
                     <div class="card__title" style="color:var(--accent-amber);">🔄 Reiniciar Ronda</div>
                     <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.6;">
-                        Resetea todas las decisiones, métricas e historial de TODOS los equipos al estado inicial.
+                        Resetea todas las decisiones, métricas e historial de los equipos del dataset activo al estado inicial.
                         <strong style="color:var(--text-secondary);">Los nombres de empresa y productos se
                             mantienen.</strong>
                         El turno vuelve a Q1.
@@ -797,7 +687,7 @@
                 <div class="card" style="border-color:rgba(244,63,94,0.5);">
                     <div class="card__title" style="color:var(--accent-rose);">🗑️ Borrar Todo</div>
                     <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px; line-height:1.6;">
-                        Elimina TODOS los equipos, configuraciones y datos del simulador.
+                        Elimina los equipos, configuraciones y datos del dataset activo.
                         <strong style="color:var(--accent-rose);">Esta acción es completamente irreversible.</strong>
                     </p>
                     <button class="btn btn--danger" onclick="confirmAction('full-reset')">🗑️ Borrar Todo el
@@ -846,10 +736,10 @@
         // ── EVENT IA MOCK ─────────────────────────────────────────
         const AI_RESPONSES = {
             default: {
-                coeficiente: "unit_cost_design_multiplier",
-                delta: "+20%",
+                coeficiente: "design_cost_per_level",
+                delta: "+10%",
                 segmento: "lujo",
-                turno: "Q4",
+                turno: "Q1",
                 justificacion: "El alza en materiales premium encarece el costo del componente Design Level. Fórmula afectada: costo_unitario_design = Design × 150 × 1.20",
                 impacto_esperado: "Incremento de ~$60-$120 en costo unitario para productos con Design ≥ 3 en segmento Lujo."
             }
@@ -866,44 +756,443 @@
 
             setTimeout(() => {
                 thinking.classList.remove('visible');
-                const resp = AI_RESPONSES.default;
+                const resp = Object.assign({}, AI_RESPONSES.default, {
+                    segmento: document.getElementById('event-segment').value || 'todos',
+                    turno: document.getElementById('event-turn').value || 'Q1',
+                    coeficiente: document.getElementById('event-coefficient').value || 'arr_multiplier',
+                    delta: `${document.getElementById('event-delta').value || 0}${document.getElementById('event-delta-mode').value === 'pct' ? '%' : ''}`,
+                });
                 document.getElementById('ai-suggest-json').textContent = JSON.stringify(resp, null, 2);
                 box.style.display = 'block';
                 box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }, 1800);
         }
 
-        let approvedCount = 3;
-
         function approveEvent() {
             const seg = document.getElementById('event-segment').value;
             const turn = document.getElementById('event-turn').value;
-            const text = document.getElementById('event-input').value || 'Nuevo Evento';
-            const segLabel = { todos: 'Todos', economico: '🏷️ Económico', medio: '⚡ Medio', lujo: '💎 Lujo' }[seg];
-            const badgeCls = { todos: 'badge--warning', economico: 'badge--economico', medio: 'badge--medio', lujo: 'badge--lujo' }[seg];
+            const text = (document.getElementById('event-input').value || 'Nuevo Evento').trim();
+            const coefficient = document.getElementById('event-coefficient').value;
+            const deltaMode = document.getElementById('event-delta-mode').value;
+            const deltaValue = parseFloat(document.getElementById('event-delta').value || '0') || 0;
+            const currentTurn = DataStore.getConfig().currentTurn || 1;
+            const eventTurn = parseInt(String(turn).replace(/[^\d]/g, ''), 10) || currentTurn;
+            const status = eventTurn <= currentTurn ? 'activo' : 'pendiente';
 
-            const tbody = document.getElementById('events-tbody');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-        <td class="table__mono">${turn}</td>
-        <td><span class="badge ${badgeCls}">${segLabel}</span></td>
-        <td style="font-weight:600">${text.slice(0, 40)}</td>
-        <td><code style="font-family:var(--font-mono);font-size:0.78rem;background:var(--bg-elevated);padding:2px 8px;border-radius:4px;">design_cost +20%</code></td>
-        <td><span class="badge badge--success">✅ Aprobado</span></td>
-      `;
-            tbody.appendChild(tr);
+            DataStore.addEvent({
+                id: `EV-${Date.now()}`,
+                turn,
+                segmento: seg,
+                name: text.slice(0, 80),
+                coefficient,
+                deltaMode,
+                deltaValue,
+                coeficiente: coefficient,
+                delta: deltaValue,
+                status,
+                createdAt: new Date().toISOString(),
+            });
 
             document.getElementById('ai-suggest-box').style.display = 'none';
             document.getElementById('event-input').value = '';
+            renderEventsTable();
+            refreshProfessorSummary();
         }
 
         function editDelta() { alert('En la versión completa, este modal permite ajustar el delta numérico antes de aprobar.'); }
         function rejectEvent() { document.getElementById('ai-suggest-box').style.display = 'none'; }
 
+        function updateDatasetModeUI() {
+            const mode = DataStore.getDatasetMode();
+            const el = document.getElementById('dataset-mode-label');
+            if (!el) return;
+            const pretty = mode === 'demo' ? 'DEMO' : 'REAL';
+            const color = mode === 'demo' ? 'var(--accent-amber)' : 'var(--accent-emerald)';
+            el.innerHTML = `Dataset activo: <strong style="color:${color};">${pretty}</strong>`;
+        }
+
+        function switchDatasetMode(mode) {
+            const selected = DataStore.setDatasetMode(mode);
+            renderAdminTeams();
+            loadParams();
+            refreshProfessorSummary();
+            alert(`✅ Cambiado a dataset ${selected.toUpperCase()}.`);
+        }
+
+        function refreshEventTurnOptions() {
+            const c = DataStore.getConfig();
+            const current = c.currentTurn || 1;
+            const maxTurns = c.maxTurns || 5;
+            const year = (c.currentTurnLabel || `Q${current} 2026`).split(' ')[1] || '2026';
+            const select = document.getElementById('event-turn');
+            if (!select) return;
+            const currVal = select.value || `Q${current}`;
+            const opts = Array.from({ length: maxTurns }, (_, i) => i + 1).map((q) => {
+                const txt = q === current ? `Q${q} ${year} (actual)` : `Q${q} ${year}`;
+                return `<option value="Q${q}" ${`Q${q}` === currVal ? 'selected' : ''}>${txt}</option>`;
+            }).join('');
+            select.innerHTML = opts;
+            if (!Array.from(select.options).some(o => o.value === currVal)) {
+                select.value = `Q${Math.min(current, maxTurns)}`;
+            }
+        }
+
+        function turnNum(turnKey) {
+            return parseInt(String(turnKey || '').replace(/[^\d]/g, ''), 10) || 0;
+        }
+
+        function segBadge(seg) {
+            if (seg === 'economico') return '<span class="badge badge--economico">🏷️ Económico</span>';
+            if (seg === 'medio') return '<span class="badge badge--medio">⚡ Medio</span>';
+            if (seg === 'lujo') return '<span class="badge badge--lujo">💎 Lujo</span>';
+            return '<span class="badge badge--warning">Todos</span>';
+        }
+
+        function coefficientLabel(key) {
+            const map = {
+                arr_multiplier: 'Demanda ARR',
+                quality_cost_per_level: 'Costo por Calidad',
+                design_cost_per_level: 'Costo por Diseño',
+                channel_cost_per_unit: 'Costo por Canal',
+                cac_multiplier: 'CAC',
+                margin_multiplier: 'Margen',
+                price_distance_penalty: 'Sensibilidad Precio',
+            };
+            return map[key] || key;
+        }
+
+        function renderEventsTable() {
+            const tbody = document.getElementById('events-tbody');
+            if (!tbody) return;
+            const currentTurn = DataStore.getConfig().currentTurn || 1;
+            const events = (DataStore.getEvents ? DataStore.getEvents() : [])
+                .slice()
+                .sort((a, b) => turnNum(a.turn) - turnNum(b.turn));
+            if (!events.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-muted" style="text-align:center; padding:18px;">No hay eventos programados en el dataset activo.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = events.map(ev => {
+                const status = ev.status || (turnNum(ev.turn) > currentTurn ? 'pendiente' : 'ejecutado');
+                const statusBadge = status === 'pendiente'
+                    ? '<span class="badge badge--warning">⏳ Pendiente</span>'
+                    : status === 'activo'
+                        ? '<span class="badge badge--success">✅ Activo</span>'
+                        : '<span class="badge badge--economico">✔ Ejecutado</span>';
+                const coef = ev.coefficient || ev.coeficiente || 'arr_multiplier';
+                const delta = `${ev.deltaValue ?? ev.delta ?? 0}${(ev.deltaMode || 'pct') === 'pct' ? '%' : ''}`;
+                return `<tr>
+                    <td class="table__mono">${escHtml(ev.turn || 'Q1')}</td>
+                    <td>${segBadge(ev.segmento)}</td>
+                    <td style="font-weight:600">${escHtml(ev.name || 'Evento')}</td>
+                    <td><code style="font-family:var(--font-mono);font-size:0.78rem;background:var(--bg-elevated);padding:2px 8px;border-radius:4px;" title="${escHtml(coef)}">${escHtml(coefficientLabel(coef))}</code></td>
+                    <td class="table__mono">${escHtml(delta)}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn btn--ghost btn--sm" onclick="editEventRow('${ev.id}')">✏️ Editar</button>
+                        <button class="btn btn--danger btn--sm" onclick="deleteEventRow('${ev.id}')">🗑️</button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function editEventRow(eventId) {
+            const ev = (DataStore.getEvents ? DataStore.getEvents() : []).find(e => e.id === eventId);
+            if (!ev) return;
+            const nextCoef = prompt('Coeficiente (arr_multiplier, quality_cost_per_level, design_cost_per_level, channel_cost_per_unit, cac_multiplier, margin_multiplier, price_distance_penalty):', ev.coefficient || ev.coeficiente || 'arr_multiplier');
+            if (nextCoef === null) return;
+            const nextMode = prompt('Modo de delta (pct o abs):', ev.deltaMode || 'pct');
+            if (nextMode === null) return;
+            const nextDelta = prompt('Valor delta:', String(ev.deltaValue ?? ev.delta ?? 0));
+            if (nextDelta === null) return;
+            DataStore.updateEvent(eventId, {
+                coefficient: nextCoef.trim(),
+                coeficiente: nextCoef.trim(),
+                deltaMode: (nextMode.trim() === 'abs' ? 'abs' : 'pct'),
+                deltaValue: parseFloat(nextDelta) || 0,
+                delta: parseFloat(nextDelta) || 0,
+            });
+            refreshProfessorSummary();
+        }
+
+        function deleteEventRow(eventId) {
+            if (!confirm('¿Eliminar este evento?')) return;
+            DataStore.deleteEvent(eventId);
+            refreshProfessorSummary();
+        }
+
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboard-segments');
+            const subtitle = document.getElementById('lb-subtitle');
+            const turnSelect = document.getElementById('lb-turn-select');
+            if (!container) return;
+
+            const config = DataStore.getConfig();
+            const teams = DataStore.getTeams();
+            const markets = getMarketLabels();
+            const currentQ = `Q${config.currentTurn || 1}`;
+            const q = turnSelect?.value || currentQ;
+            if (subtitle) subtitle.textContent = `Ranking por producto y clasificación para ${q}. El profesor ve nombres; los alumnos solo ven rivales anónimos.`;
+
+            const defs = [
+                { id: 'economico', cls: 'economico', title: '🏷️ Mercado Económico', color: 'var(--seg-economico)' },
+                { id: 'medio', cls: 'medio', title: '⚡ Mercado Medio', color: 'var(--seg-medio)' },
+                { id: 'lujo', cls: 'lujo', title: '💎 Mercado Lujo', color: 'var(--seg-lujo)' },
+            ];
+
+            container.innerHTML = defs.map(def => {
+                const rows = teams
+                    .flatMap(t => {
+                        const turnRow = (t.history || []).find(h => h.turn === q) || null;
+                        const products = turnRow?.products || null;
+                        const build = (pid) => {
+                            const src = products?.[pid] || t.products?.[pid];
+                            if (!src) return null;
+                            const seg = src.segmento || DataStore.classifyProductByAttributes(src, t.market || 'moda');
+                            const arr = src.arr || Math.round((t.currentMetrics?.arr || 0) * (pid === 'a' ? 0.55 : 0.45));
+                            return {
+                                teamName: t.name,
+                                marketLabel: markets[t.market] || t.market || 'Moda',
+                                productName: src.name || `Producto ${pid.toUpperCase()}`,
+                                segmento: seg,
+                                arr,
+                            };
+                        };
+                        return [build('a'), build('b')].filter(Boolean);
+                    })
+                    .filter(r => r.segmento === def.id)
+                    .sort((a, b) => b.arr - a.arr);
+                const total = rows.reduce((acc, r) => acc + r.arr, 0) || 1;
+                const body = rows.length
+                    ? rows.map((r, i) => {
+                        const rank = i + 1;
+                        const rankEl = rank <= 3
+                            ? `<span class="table__rank table__rank--${rank}">${rank}</span>`
+                            : `<span class="table__rank" style="color:var(--text-dim)">${rank}</span>`;
+                        const arrM = `$${(r.arr / 1_000_000).toFixed(2)}M`;
+                        const share = `${((r.arr / total) * 100).toFixed(1)}%`;
+                        return `<tr>
+                            <td>${rankEl}</td>
+                            <td style="font-weight:600">${escHtml(r.teamName)} <span class="badge" style="margin-left:6px;">${escHtml(r.marketLabel)}</span><div class="text-sm text-muted">${escHtml(r.productName)}</div></td>
+                            <td class="table__mono">${arrM}</td>
+                            <td class="table__mono">${share}</td>
+                        </tr>`;
+                    }).join('')
+                    : '<tr><td colspan="4" class="text-muted" style="text-align:center; padding:12px;">Sin equipos en esta clasificación.</td></tr>';
+
+                return `<div class="seg-leaderboard-card">
+                    <div class="seg-leaderboard-header seg-leaderboard-header--${def.cls}">
+                        <span style="font-weight:700; color:${def.color}">${def.title}</span>
+                        <span class="badge badge--${def.cls}">${rows.length} equipo(s)</span>
+                    </div>
+                    <table class="table">
+                        <thead><tr><th>#</th><th>Compañía / Producto</th><th>ARR</th><th>Cuota</th></tr></thead>
+                        <tbody>${body}</tbody>
+                    </table>
+                </div>`;
+            }).join('');
+        }
+
+        function buildMarketTrendSvg(values, color) {
+            if (!values.length) return '';
+            const w = 220;
+            const h = 70;
+            const pad = 6;
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+            const range = Math.max(1, max - min);
+            const pts = values.map((v, i) => {
+                const x = pad + (i / Math.max(1, values.length - 1)) * (w - pad * 2);
+                const y = (h - pad) - ((v - min) / range) * (h - pad * 2);
+                return `${x.toFixed(1)},${y.toFixed(1)}`;
+            });
+            const last = pts[pts.length - 1].split(',');
+            return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:72px;display:block;">
+                <polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                <circle cx="${last[0]}" cy="${last[1]}" r="3" fill="${color}"></circle>
+            </svg>`;
+        }
+
+        function renderMarketResults() {
+            const container = document.getElementById('market-results-grid');
+            if (!container) return;
+            const labels = getMarketLabels();
+            const teams = DataStore.getTeams();
+            const cfg = DataStore.getConfig();
+            const q = document.getElementById('lb-turn-select')?.value || `Q${cfg.currentTurn || 1}`;
+            const marketIds = ['moda', 'autos', 'casas'];
+
+            container.innerHTML = marketIds.map(mid => {
+                const marketTeams = teams.filter(t => (t.market || 'moda') === mid);
+                const rows = marketTeams.flatMap(t => {
+                    const tr = (t.history || []).find(h => h.turn === q) || null;
+                    const srcProducts = tr?.products || t.products || {};
+                    return ['a', 'b'].map(pid => {
+                        const p = srcProducts[pid];
+                        if (!p) return null;
+                        const seg = p.segmento || DataStore.classifyProductByAttributes(p, mid);
+                        return {
+                            arr: p.arr || 0,
+                            price: p.discPrice || p.retailPrice || 0,
+                            cost: p.unitCost || 0,
+                            gain: p.margin || 0,
+                            segmento: seg,
+                        };
+                    }).filter(Boolean);
+                });
+
+                const turns = Array.from({ length: cfg.maxTurns || 5 }, (_, i) => `Q${i + 1}`);
+                const trend = turns.map(turnKey => marketTeams.reduce((acc, t) => {
+                    const h = (t.history || []).find(x => x.turn === turnKey);
+                    return acc + (h?.arr || 0);
+                }, 0));
+
+                if (!rows.length) {
+                    return `<div class="card" style="padding:14px;">
+                        <div style="font-weight:700; margin-bottom:6px;">${labels[mid] || mid}</div>
+                        <div class="text-sm text-muted">Sin productos registrados para ${q}.</div>
+                    </div>`;
+                }
+
+                const avgPrice = rows.reduce((a, r) => a + r.price, 0) / rows.length;
+                const avgCost = rows.reduce((a, r) => a + r.cost, 0) / rows.length;
+                const avgGain = rows.reduce((a, r) => a + r.gain, 0) / rows.length;
+                const maxBase = Math.max(avgPrice, avgCost, Math.abs(avgGain), 1);
+                const segCount = { economico: 0, medio: 0, lujo: 0 };
+                rows.forEach(r => { segCount[r.segmento] = (segCount[r.segmento] || 0) + 1; });
+                const f = (v) => '$' + Math.round(v).toLocaleString('es-CL').replace(/\./g, ',');
+
+                return `<div class="card" style="padding:14px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <strong>${labels[mid] || mid}</strong>
+                        <span class="badge">${rows.length} productos</span>
+                    </div>
+                    <div style="display:grid; gap:8px; margin-bottom:10px;">
+                        <div><div class="text-sm">Precio promedio: <strong>${f(avgPrice)}</strong></div><div style="height:6px;background:var(--bg-elevated);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.max(6, (avgPrice / maxBase) * 100)}%;background:#3B82F6;"></div></div></div>
+                        <div><div class="text-sm">Costo promedio: <strong>${f(avgCost)}</strong></div><div style="height:6px;background:var(--bg-elevated);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.max(6, (avgCost / maxBase) * 100)}%;background:#F59E0B;"></div></div></div>
+                        <div><div class="text-sm">Ganancia promedio: <strong>${f(avgGain)}</strong></div><div style="height:6px;background:var(--bg-elevated);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${Math.max(6, (Math.abs(avgGain) / maxBase) * 100)}%;background:${avgGain >= 0 ? '#10B981' : '#F43F5E'};"></div></div></div>
+                    </div>
+                    <div class="text-sm text-muted" style="margin-bottom:6px;">Tendencia ARR por turno</div>
+                    ${buildMarketTrendSvg(trend, '#8B5CF6')}
+                    <div style="margin-top:8px;">
+                        <span class="badge badge--economico">Econ: ${segCount.economico || 0}</span>
+                        <span class="badge badge--medio" style="margin-left:6px;">Medio: ${segCount.medio || 0}</span>
+                        <span class="badge badge--lujo" style="margin-left:6px;">Lujo: ${segCount.lujo || 0}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function refreshProfessorSummary() {
+            const c = DataStore.getConfig();
+            const teams = DataStore.getTeams();
+            const events = DataStore.getEvents ? DataStore.getEvents() : [];
+            const q = `Q${c.currentTurn || 1}`;
+            const submitted = teams.filter(t => t.submitted && t.submitted[q]).length;
+            const pending = teams.filter(t => !(t.submitted && t.submitted[q])).slice(0, 4).map(t => `${t.id} ${t.name}`);
+
+            const topTurn = document.getElementById('prof-top-turn');
+            const simTurn = document.getElementById('sim-turn');
+            const simTeams = document.getElementById('sim-teams');
+            const simSubmitted = document.getElementById('sim-submitted');
+            const simPending = document.getElementById('sim-pending');
+            const simMarkets = document.getElementById('sim-markets');
+            const eqTitle = document.getElementById('equipos-title');
+            const runBtn = document.getElementById('run-turn-btn');
+            const runSubmitted = document.getElementById('run-submitted-num');
+            const runTotal = document.getElementById('run-total-num');
+            const runProgress = document.getElementById('run-progress-label');
+            const fillEl = document.querySelector('.progress-bar-fill');
+            const sumTotal = document.getElementById('sum-total-teams');
+            const sumSubmitted = document.getElementById('sum-submitted');
+            const sumPending = document.getElementById('sum-pending');
+            const sumEvents = document.getElementById('sum-events');
+            const thStatus = document.getElementById('th-status-turn');
+            const pct = teams.length ? Math.round((submitted / teams.length) * 1000) / 10 : 0;
+
+            if (topTurn) topTurn.textContent = `TURNO ${c.currentTurnLabel || q}`;
+            if (simTurn) simTurn.textContent = c.currentTurnLabel || q;
+            if (simTeams) simTeams.textContent = String(teams.length);
+            if (simSubmitted) simSubmitted.textContent = `${submitted} / ${teams.length}`;
+            if (simPending) simPending.textContent = pending.length ? `Pendientes: ${pending.join(', ')}` : 'Pendientes: —';
+            if (simMarkets && DataStore.getMarketOccupancy) {
+                const occ = DataStore.getMarketOccupancy();
+                const labels = getMarketLabels();
+                simMarkets.textContent = `Mercados: ${labels.moda} ${occ.markets.moda.count}/${occ.maxPerMarket} · ${labels.autos} ${occ.markets.autos.count}/${occ.maxPerMarket} · ${labels.casas} ${occ.markets.casas.count}/${occ.maxPerMarket}`;
+            }
+            if (eqTitle) eqTitle.textContent = `Estado de Equipos — ${q}`;
+            if (runBtn) runBtn.textContent = `▶ Iniciar Turno ${q}`;
+            if (runSubmitted) runSubmitted.textContent = String(submitted);
+            if (runTotal) runTotal.textContent = String(teams.length);
+            if (runProgress) runProgress.textContent = `${pct}% completo`;
+            if (fillEl) fillEl.style.width = `${pct}%`;
+            if (sumTotal) sumTotal.textContent = String(teams.length);
+            if (sumSubmitted) sumSubmitted.textContent = String(submitted);
+            if (sumPending) sumPending.textContent = String(Math.max(0, teams.length - submitted));
+            if (sumEvents) sumEvents.textContent = String(events.length);
+            if (thStatus) thStatus.textContent = `Estado ${q}`;
+            const lbSelect = document.getElementById('lb-turn-select');
+            if (lbSelect) {
+                const maxTurns = c.maxTurns || 5;
+                const currVal = lbSelect.value || q;
+                lbSelect.innerHTML = Array.from({ length: maxTurns }, (_, i) => `Q${i + 1}`)
+                    .map(key => `<option value="${key}" ${key === currVal ? 'selected' : ''}>${key}</option>`).join('');
+                if (!Array.from(lbSelect.options).some(o => o.value === currVal)) {
+                    lbSelect.value = `Q${maxTurns}`;
+                }
+            }
+            updateDatasetModeUI();
+            refreshEventTurnOptions();
+            renderAdminMarketFilterOptions();
+            renderEquiposTable();
+            renderEventsTable();
+            renderLeaderboard();
+            renderMarketResults();
+        }
+
+        function renderEquiposTable() {
+            const c = DataStore.getConfig();
+            const q = `Q${c.currentTurn || 1}`;
+            const tbody = document.getElementById('equipos-tbody');
+            if (!tbody) return;
+            const teams = DataStore.getTeams();
+            const marketLabels = getMarketLabels();
+            if (!teams.length) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-muted" style="text-align:center; padding:18px;">No hay equipos en el dataset activo.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = teams.map(t => {
+                const isSubmitted = !!(t.submitted && t.submitted[q]);
+                const status = isSubmitted
+                    ? `<span class="team-table-status"><span class="status-dot status-dot--green"></span>Enviado</span>`
+                    : `<span class="team-table-status"><span class="status-dot status-dot--red"></span><span style="color:var(--accent-rose)">Pendiente</span></span>`;
+                return `<tr>
+                    <td class="table__mono text-muted">${t.id}</td>
+                    <td style="font-weight:600">${escHtml(t.name)}</td>
+                    <td>
+                        <span class="badge">${marketLabels[t.market] || t.market}</span>
+                        <span class="badge badge--warning" style="margin-left:6px;">${CLASS_LABELS[t.segmento] || t.segmento}</span>
+                    </td>
+                    <td class="text-muted text-sm">${escHtml(t.products?.a?.name || '—')}</td>
+                    <td class="text-muted text-sm">${escHtml(t.products?.b?.name || '—')}</td>
+                    <td>${status}</td>
+                </tr>`;
+            }).join('');
+        }
+
         // ── RUN TURN ──────────────────────────────────────────────
         function runTurn() {
-            const pending = ['T-03 Vanguard', 'T-09 Orion Labs', 'T-12 Meridian', 'T-16 Apex'];
-            const msg = `⚠️ Atención: ${pending.length} equipos aún no han enviado sus decisiones:\n${pending.join(', ')}\n\n¿Deseas iniciar el turno de todas formas? Los equipos pendientes recibirán las decisiones del turno anterior como default.`;
+            const c = DataStore.getConfig();
+            const teams = DataStore.getTeams();
+            if (!teams.length) {
+                alert('No hay equipos en el dataset activo. Crea equipos o genera una demo antes de correr turno.');
+                return;
+            }
+            const q = `Q${c.currentTurn || 1}`;
+            const pending = teams.filter(t => !(t.submitted && t.submitted[q])).map(t => `${t.id} ${t.name}`);
+            const msg = pending.length
+                ? `⚠️ Atención: ${pending.length} equipos aún no han enviado sus decisiones:\n${pending.join(', ')}\n\n¿Deseas iniciar el turno de todas formas? Los equipos pendientes recibirán las decisiones del turno anterior como default.`
+                : `¿Deseas iniciar el turno ${q} con todos los equipos enviados?`;
             if (!confirm(msg)) return;
 
             // Simulate processing
@@ -912,14 +1201,14 @@
             btn.textContent = '⏳ Procesando...';
 
             const steps = [
-                { label: '📥 Leyendo 18 Excels de Inputs_Turno/', pct: 15, delay: 600 },
+                { label: `📥 Leyendo ${teams.length} envíos del turno`, pct: 15, delay: 600 },
                 { label: '⚖️ Ejecutando market_engine.py — Mercado Económico', pct: 30, delay: 1100 },
                 { label: '⚖️ Ejecutando market_engine.py — Mercado Medio', pct: 45, delay: 1600 },
                 { label: '⚖️ Ejecutando market_engine.py — Mercado Lujo', pct: 58, delay: 2100 },
-                { label: '🤖 LLM Árbitro evaluando 18 equipos (en paralelo)...', pct: 75, delay: 2700 },
+                { label: `🤖 LLM Árbitro evaluando ${teams.length} equipos (en paralelo)...`, pct: 75, delay: 2700 },
                 { label: '📊 Generando reportes individuales → Outputs_Turno/', pct: 88, delay: 3500 },
                 { label: '💾 Actualizando DB_Master_Simulacion.xlsx', pct: 95, delay: 4100 },
-                { label: '✅ Turno Q4 completado — 18 reportes generados', pct: 100, delay: 4800 },
+                { label: `✅ Turno ${q} completado — ${teams.length} reportes generados`, pct: 100, delay: 4800 },
             ];
 
             // Add a progress area
@@ -934,7 +1223,7 @@
             logDiv.textContent = '';
 
             const fillEl = document.querySelector('.progress-bar-fill');
-            const pctLabel = document.querySelector('.progress-bar-wrapper div');
+            const pctLabel = document.getElementById('run-progress-label');
 
             steps.forEach(step => {
                 setTimeout(() => {
@@ -943,11 +1232,20 @@
                     logDiv.innerHTML += `<div>> ${step.label}</div>`;
                     logDiv.scrollTop = logDiv.scrollHeight;
                     if (step.pct === 100) {
+                        const processed = DataStore.processTurn();
+                        if (!processed.success) {
+                            alert(`❌ ${processed.error}`);
+                            btn.disabled = false;
+                            btn.textContent = `▶ Iniciar Turno ${q}`;
+                            return;
+                        }
+                        refreshProfessorSummary();
                         btn.textContent = '✅ Turno Completado';
                         btn.style.background = 'var(--accent-emerald)';
                         setTimeout(() => {
                             btn.disabled = false;
-                            btn.textContent = '▶ Iniciar Turno Q5';
+                            const updated = DataStore.getConfig();
+                            btn.textContent = `▶ Iniciar Turno Q${updated.currentTurn || 1}`;
                             btn.style.background = '';
                         }, 2000);
                     }
@@ -976,32 +1274,67 @@
             }
         })();
     </script>
-    <script src="js/mock-data.js"></script>
     <script>
         // ═══════════════════════════════════════════════════════════
         // ADMIN — EQUIPOS
         // ═══════════════════════════════════════════════════════════
 
-        const SEG_LABELS = { economico: '🏷️ Económico', medio: '⚡ Medio', lujo: '💎 Lujo' };
+        const CLASS_LABELS = { economico: '🏷️ Económico', medio: '⚡ Intermedio', lujo: '💎 Lujo' };
+        let ADMIN_MARKET_FILTER = 'all';
+
+        function getMarketLabels() {
+            const markets = DataStore.getConfig().mainMarkets || [];
+            const out = {};
+            markets.forEach(m => out[m.id] = m.name);
+            return Object.assign({ moda: 'Moda', autos: 'Autos', casas: 'Casas' }, out);
+        }
+
+        function renderAdminMarketFilterOptions() {
+            const select = document.getElementById('admin-market-filter');
+            if (!select) return;
+            const labels = getMarketLabels();
+            const opts = [{ id: 'all', name: 'Todos' }, { id: 'moda', name: labels.moda }, { id: 'autos', name: labels.autos }, { id: 'casas', name: labels.casas }];
+            select.innerHTML = opts.map(o => `<option value="${o.id}" ${ADMIN_MARKET_FILTER === o.id ? 'selected' : ''}>${o.name}</option>`).join('');
+        }
+
+        function setAdminMarketFilter(value) {
+            ADMIN_MARKET_FILTER = value || 'all';
+            renderAdminTeams();
+        }
 
         function renderAdminTeams() {
-            const teams = DataStore.getTeams();
+            const allTeams = DataStore.getTeams();
+            const teams = ADMIN_MARKET_FILTER === 'all'
+                ? allTeams
+                : allTeams.filter(t => (t.market || 'moda') === ADMIN_MARKET_FILTER);
             const container = document.getElementById('admin-teams-list');
             const empty = document.getElementById('admin-empty');
+            const count = document.getElementById('admin-filter-count');
+
+            if (count) count.textContent = `${teams.length} de ${allTeams.length} equipos`;
 
             if (teams.length === 0) {
                 container.innerHTML = '';
                 empty.style.display = 'block';
+                empty.querySelector('p').textContent = allTeams.length
+                    ? 'No hay equipos para el filtro de mercado seleccionado.'
+                    : 'No hay equipos registrados aún. Los alumnos pueden crear sus equipos desde la página de inicio.';
                 return;
             }
             empty.style.display = 'none';
 
-            container.innerHTML = teams.map(t => `
+            container.innerHTML = teams.map(t => {
+                const members = Array.isArray(t.members) ? t.members : [];
+                const membersHtml = members.length
+                    ? members.map((m, idx) => `<span class="badge" style="display:inline-flex;align-items:center;gap:6px;margin:0 6px 6px 0;">${escHtml(m)} <button class="btn btn--danger btn--sm" style="padding:2px 6px;" onclick="removeTeamMemberAdmin('${t.id}', ${idx})">x</button></span>`).join('')
+                    : '<span class="text-muted">Sin integrantes.</span>';
+                return `
                 <div class="card" style="margin-bottom:16px; padding:20px;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px;">
                         <div>
                             <span style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-dim);">${t.id}</span>
-                            <span class="badge" style="margin-left:8px;">${SEG_LABELS[t.segmento] || t.segmento}</span>
+                            <span class="badge" style="margin-left:8px;">${(getMarketLabels()[t.market] || t.market || 'Moda')}</span>
+                            <span class="badge badge--warning" style="margin-left:8px;">${CLASS_LABELS[t.segmento] || t.segmento}</span>
                         </div>
                         <button class="btn btn--danger btn--sm" onclick="deleteTeamAdmin('${t.id}')" title="Eliminar equipo">🗑️ Eliminar</button>
                     </div>
@@ -1011,12 +1344,14 @@
                             <input type="text" class="form-input" value="${escHtml(t.name)}" onchange="editTeamField('${t.id}', 'name', this.value)">
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
-                            <label class="form-label">Segmento</label>
-                            <select class="form-input" onchange="editTeamField('${t.id}', 'segmento', this.value)">
-                                <option value="economico" ${t.segmento === 'economico' ? 'selected' : ''}>🏷️ Económico</option>
-                                <option value="medio" ${t.segmento === 'medio' ? 'selected' : ''}>⚡ Medio</option>
-                                <option value="lujo" ${t.segmento === 'lujo' ? 'selected' : ''}>💎 Lujo</option>
+                            <label class="form-label">Mercado</label>
+                            <select class="form-input" onchange="editTeamField('${t.id}', 'market', this.value)">
+                                ${Object.entries(getMarketLabels()).map(([id, name]) => `<option value="${id}" ${t.market === id ? 'selected' : ''}>${name}</option>`).join('')}
                             </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Clasificación automática</label>
+                            <input type="text" class="form-input" value="${CLASS_LABELS[t.segmento] || t.segmento}" disabled>
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
                             <label class="form-label">Producto A — Nombre</label>
@@ -1034,16 +1369,62 @@
                             <label class="form-label">Producto B — Descripción</label>
                             <input type="text" class="form-input" value="${escHtml(t.products.b.description)}" onchange="editTeamField('${t.id}', 'products.b.description', this.value)" placeholder="Sin descripción">
                         </div>
+                        <div class="form-group" style="margin-bottom:0; grid-column:1 / -1;">
+                            <label class="form-label">Integrantes</label>
+                            <div style="margin-bottom:8px;">${membersHtml}</div>
+                            <div style="display:flex; gap:10px;">
+                                <input type="text" id="member-add-${t.id}" class="form-input" placeholder="Agregar integrante">
+                                <button class="btn btn--ghost btn--sm" onclick="addTeamMemberAdmin('${t.id}')">➕ Añadir</button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0; grid-column:1 / -1;">
+                            <label class="form-label">Contraseña Equipo (Reset)</label>
+                            <div style="display:flex; gap:10px;">
+                                <input type="password" id="pw-reset-${t.id}" class="form-input" placeholder="Nueva contraseña (mínimo 4 caracteres)" style="font-family:var(--font-mono);">
+                                <button class="btn btn--ghost btn--sm" onclick="resetTeamPasswordAdmin('${t.id}')">🔑 Resetear</button>
+                            </div>
+                        </div>
                     </div>
                     <div style="margin-top:12px; font-size:0.72rem; color:var(--text-dim);">Creado: ${new Date(t.createdAt).toLocaleString('es-CL')}</div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
         }
 
         function escHtml(s) { return (s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
 
+        function addTeamMemberAdmin(teamId) {
+            const input = document.getElementById(`member-add-${teamId}`);
+            const value = (input?.value || '').trim();
+            if (!value) return;
+            const result = DataStore.addTeamMember ? DataStore.addTeamMember(teamId, value) : { success: false };
+            if (!result.success) {
+                alert(`❌ ${result.error || 'No fue posible agregar integrante.'}`);
+                return;
+            }
+            if (input) input.value = '';
+            refreshProfessorSummary();
+            renderAdminTeams();
+        }
+
+        function removeTeamMemberAdmin(teamId, idx) {
+            const result = DataStore.removeTeamMember ? DataStore.removeTeamMember(teamId, idx) : { success: false };
+            if (!result.success) {
+                alert(`❌ ${result.error || 'No fue posible eliminar integrante.'}`);
+                return;
+            }
+            refreshProfessorSummary();
+            renderAdminTeams();
+        }
+
         function editTeamField(teamId, path, value) {
-            DataStore.updateTeamField(teamId, path, value);
+            const ok = DataStore.updateTeamField(teamId, path, value);
+            if (!ok) {
+                alert('⚠️ No se pudo guardar el cambio. Verifica capacidad del mercado o datos inválidos.');
+                renderAdminTeams();
+                return;
+            }
+            refreshProfessorSummary();
+            renderAdminTeams();
             // Show saved feedback
             const toast = document.createElement('div');
             toast.textContent = '✅ Guardado';
@@ -1058,6 +1439,20 @@
             if (!confirm(`¿Eliminar el equipo "${team.name}" (${teamId})? Esta acción no se puede deshacer.`)) return;
             DataStore.deleteTeam(teamId);
             renderAdminTeams();
+            refreshProfessorSummary();
+        }
+
+        function resetTeamPasswordAdmin(teamId) {
+            const input = document.getElementById(`pw-reset-${teamId}`);
+            const newPassword = (input?.value || '').trim();
+            const result = DataStore.resetTeamPassword(teamId, newPassword);
+            if (!result.success) {
+                alert(`❌ ${result.error}`);
+                return;
+            }
+            if (input) input.value = '';
+            refreshProfessorSummary();
+            alert('✅ Contraseña de equipo actualizada.');
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -1070,6 +1465,7 @@
             document.getElementById('param-design-cost').value = c.designCostPerLevel;
             document.getElementById('param-channel-cost').value = c.channelCostPerUnit;
             document.getElementById('param-max-budget').value = c.maxBudget;
+            document.getElementById('param-market-cap').value = c.maxTeamsPerMarket || 9;
             document.getElementById('param-quality-min').value = c.decisionLimits.quality.min;
             document.getElementById('param-quality-max').value = c.decisionLimits.quality.max;
             document.getElementById('param-design-min').value = c.decisionLimits.design.min;
@@ -1083,6 +1479,49 @@
             const regOpen = c.registrationOpen !== false;
             document.getElementById('param-reg-open').checked = regOpen;
             updateRegVisual(regOpen);
+
+            const markets = c.mainMarkets || [];
+            document.getElementById('param-market-1').value = markets[0]?.name || 'Moda';
+            document.getElementById('param-market-2').value = markets[1]?.name || 'Autos';
+            document.getElementById('param-market-3').value = markets[2]?.name || 'Casas';
+
+            const prof = c.marketProfiles || {};
+            const fillProfile = (id, key, def = 0) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const market = id.includes('-moda-') ? 'moda' : id.includes('-autos-') ? 'autos' : 'casas';
+                const field = key;
+                el.value = prof?.[market]?.[field] ?? def;
+            };
+            fillProfile('param-prof-moda-price-min', 'priceMin', 10);
+            fillProfile('param-prof-moda-price-max', 'priceMax', 1000);
+            fillProfile('param-prof-moda-price-step', 'priceStep', 10);
+            fillProfile('param-prof-moda-qcost', 'qualityCostPerLevel', 18);
+            fillProfile('param-prof-moda-dcost', 'designCostPerLevel', 12);
+            fillProfile('param-prof-moda-ccost', 'channelCostPerUnit', 95000);
+            fillProfile('param-prof-moda-admax', 'adSpendMax', 4000000);
+            document.getElementById('param-prof-moda-sens').value = prof?.moda?.sensitivity?.priceDistancePenalty ?? 1.05;
+
+            fillProfile('param-prof-autos-price-min', 'priceMin', 8000);
+            fillProfile('param-prof-autos-price-max', 'priceMax', 150000);
+            fillProfile('param-prof-autos-price-step', 'priceStep', 500);
+            fillProfile('param-prof-autos-qcost', 'qualityCostPerLevel', 1800);
+            fillProfile('param-prof-autos-dcost', 'designCostPerLevel', 900);
+            fillProfile('param-prof-autos-ccost', 'channelCostPerUnit', 1500000);
+            fillProfile('param-prof-autos-admax', 'adSpendMax', 45000000);
+            document.getElementById('param-prof-autos-sens').value = prof?.autos?.sensitivity?.priceDistancePenalty ?? 0.9;
+
+            fillProfile('param-prof-casas-price-min', 'priceMin', 100000);
+            fillProfile('param-prof-casas-price-max', 'priceMax', 3000000);
+            fillProfile('param-prof-casas-price-step', 'priceStep', 25000);
+            fillProfile('param-prof-casas-qcost', 'qualityCostPerLevel', 40000);
+            fillProfile('param-prof-casas-dcost', 'designCostPerLevel', 22000);
+            fillProfile('param-prof-casas-ccost', 'channelCostPerUnit', 6500000);
+            fillProfile('param-prof-casas-admax', 'adSpendMax', 120000000);
+            document.getElementById('param-prof-casas-sens').value = prof?.casas?.sensitivity?.priceDistancePenalty ?? 1.25;
+
+            renderAdminMarketFilterOptions();
+            updateDatasetModeUI();
         }
 
         function updateRegVisual(open) {
@@ -1115,16 +1554,79 @@
             c.qualityCostPerLevel = parseInt(document.getElementById('param-quality-cost').value) || 250;
             c.designCostPerLevel = parseInt(document.getElementById('param-design-cost').value) || 150;
             c.channelCostPerUnit = parseInt(document.getElementById('param-channel-cost').value) || 2000000;
-            c.maxBudget = parseInt(document.getElementById('param-max-budget').value) || 30000000;
+            c.maxBudget = parseInt(document.getElementById('param-max-budget').value) || 150000000;
+            c.maxTeamsPerMarket = parseInt(document.getElementById('param-market-cap').value) || 9;
             c.decisionLimits.quality.min = parseInt(document.getElementById('param-quality-min').value) || 1;
             c.decisionLimits.quality.max = parseInt(document.getElementById('param-quality-max').value) || 10;
             c.decisionLimits.design.min = parseInt(document.getElementById('param-design-min').value) || 1;
             c.decisionLimits.design.max = parseInt(document.getElementById('param-design-max').value) || 5;
-            c.decisionLimits.retailPrice.min = parseInt(document.getElementById('param-price-min').value) || 1000;
-            c.decisionLimits.retailPrice.max = parseInt(document.getElementById('param-price-max').value) || 6000;
-            c.decisionLimits.adSpend.max = parseInt(document.getElementById('param-adspend-max').value) || 20000000;
+            c.decisionLimits.retailPrice.min = parseInt(document.getElementById('param-price-min').value) || 10;
+            c.decisionLimits.retailPrice.max = parseInt(document.getElementById('param-price-max').value) || 3000000;
+            c.decisionLimits.adSpend.max = parseInt(document.getElementById('param-adspend-max').value) || 150000000;
             c.decisionLimits.channels.max = parseInt(document.getElementById('param-channels-max').value) || 4;
+
+            const m1 = (document.getElementById('param-market-1').value || 'Moda').trim();
+            const m2 = (document.getElementById('param-market-2').value || 'Autos').trim();
+            const m3 = (document.getElementById('param-market-3').value || 'Casas').trim();
+            c.mainMarkets = [
+                { id: 'moda', name: m1 || 'Moda', totalMarketSize: 18_500_000, growthRate: 0.06 },
+                { id: 'autos', name: m2 || 'Autos', totalMarketSize: 26_000_000, growthRate: 0.04 },
+                { id: 'casas', name: m3 || 'Casas', totalMarketSize: 21_000_000, growthRate: 0.05 },
+            ];
+
+            const prev = c.marketProfiles || {};
+            c.marketProfiles = {
+                moda: Object.assign({}, prev.moda || {}, {
+                    id: 'moda',
+                    priceMin: parseFloat(document.getElementById('param-prof-moda-price-min').value) || 10,
+                    priceMax: parseFloat(document.getElementById('param-prof-moda-price-max').value) || 1000,
+                    priceStep: parseFloat(document.getElementById('param-prof-moda-price-step').value) || 10,
+                    qualityCostPerLevel: parseFloat(document.getElementById('param-prof-moda-qcost').value) || 18,
+                    designCostPerLevel: parseFloat(document.getElementById('param-prof-moda-dcost').value) || 12,
+                    channelCostPerUnit: parseFloat(document.getElementById('param-prof-moda-ccost').value) || 95000,
+                    adSpendMax: parseFloat(document.getElementById('param-prof-moda-admax').value) || 4000000,
+                    sensitivity: Object.assign({}, prev.moda?.sensitivity || {}, {
+                        priceDistancePenalty: parseFloat(document.getElementById('param-prof-moda-sens').value) || 1.05,
+                    }),
+                }),
+                autos: Object.assign({}, prev.autos || {}, {
+                    id: 'autos',
+                    priceMin: parseFloat(document.getElementById('param-prof-autos-price-min').value) || 8000,
+                    priceMax: parseFloat(document.getElementById('param-prof-autos-price-max').value) || 150000,
+                    priceStep: parseFloat(document.getElementById('param-prof-autos-price-step').value) || 500,
+                    qualityCostPerLevel: parseFloat(document.getElementById('param-prof-autos-qcost').value) || 1800,
+                    designCostPerLevel: parseFloat(document.getElementById('param-prof-autos-dcost').value) || 900,
+                    channelCostPerUnit: parseFloat(document.getElementById('param-prof-autos-ccost').value) || 1500000,
+                    adSpendMax: parseFloat(document.getElementById('param-prof-autos-admax').value) || 45000000,
+                    sensitivity: Object.assign({}, prev.autos?.sensitivity || {}, {
+                        priceDistancePenalty: parseFloat(document.getElementById('param-prof-autos-sens').value) || 0.9,
+                    }),
+                }),
+                casas: Object.assign({}, prev.casas || {}, {
+                    id: 'casas',
+                    priceMin: parseFloat(document.getElementById('param-prof-casas-price-min').value) || 100000,
+                    priceMax: parseFloat(document.getElementById('param-prof-casas-price-max').value) || 3000000,
+                    priceStep: parseFloat(document.getElementById('param-prof-casas-price-step').value) || 25000,
+                    qualityCostPerLevel: parseFloat(document.getElementById('param-prof-casas-qcost').value) || 40000,
+                    designCostPerLevel: parseFloat(document.getElementById('param-prof-casas-dcost').value) || 22000,
+                    channelCostPerUnit: parseFloat(document.getElementById('param-prof-casas-ccost').value) || 6500000,
+                    adSpendMax: parseFloat(document.getElementById('param-prof-casas-admax').value) || 120000000,
+                    sensitivity: Object.assign({}, prev.casas?.sensitivity || {}, {
+                        priceDistancePenalty: parseFloat(document.getElementById('param-prof-casas-sens').value) || 1.25,
+                    }),
+                }),
+            };
+
+            const minPrice = Math.min(c.marketProfiles.moda.priceMin, c.marketProfiles.autos.priceMin, c.marketProfiles.casas.priceMin);
+            const maxPrice = Math.max(c.marketProfiles.moda.priceMax, c.marketProfiles.autos.priceMax, c.marketProfiles.casas.priceMax);
+            const maxAd = Math.max(c.marketProfiles.moda.adSpendMax, c.marketProfiles.autos.adSpendMax, c.marketProfiles.casas.adSpendMax);
+            c.decisionLimits.retailPrice.min = minPrice;
+            c.decisionLimits.retailPrice.max = maxPrice;
+            c.decisionLimits.adSpend.max = maxAd;
+
             DataStore.saveConfig(c);
+            renderAdminTeams();
+            refreshProfessorSummary();
             alert('✅ Parámetros guardados correctamente.');
         }
 
@@ -1132,8 +1634,31 @@
             if (confirm('¿Restaurar todos los parámetros a sus valores por defecto?')) {
                 DataStore.resetConfig();
                 loadParams();
+                renderAdminTeams();
+                refreshProfessorSummary();
                 alert('✅ Parámetros restaurados a los defaults.');
             }
+        }
+
+        function generateDemoDataset() {
+            if (!confirm('¿Generar dataset DEMO aleatorio? Solo se reemplazará la data demo, no la real.')) return;
+            const teams = DataStore.generateDemoData(27);
+            renderAdminTeams();
+            loadParams();
+            refreshProfessorSummary();
+            alert(`✅ Demo generada con ${teams.length} equipos. Contraseña demo para equipos: demo1234`);
+        }
+
+        function clearDemoDataset() {
+            if (!confirm('¿Limpiar dataset DEMO? El dataset real no se modifica.')) return;
+            DataStore.clearDataset('demo');
+            if (DataStore.getDatasetMode() === 'demo') {
+                DataStore.setDatasetMode('real');
+            }
+            renderAdminTeams();
+            loadParams();
+            refreshProfessorSummary();
+            alert('✅ Dataset demo limpiado. Los equipos reales siguen intactos.');
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -1160,7 +1685,7 @@
             } else if (action === 'full-reset') {
                 modalIcon.textContent = '🗑️';
                 modalTitle.textContent = 'BORRAR TODO';
-                modalDesc.textContent = '⚠️ Se eliminarán TODOS los equipos, datos y configuraciones del simulador. Esta acción es IRREVERSIBLE.';
+                modalDesc.textContent = '⚠️ Se eliminarán los equipos, datos y configuraciones del DATASET ACTIVO. Esta acción es IRREVERSIBLE.';
                 modalBtn.textContent = '🗑️ Sí, Borrar Todo';
                 modalBtn.className = 'btn btn--danger';
                 modalBtn.style.cssText = 'flex:1;';
@@ -1213,6 +1738,7 @@
             closeModal();
             renderAdminTeams();
             loadParams();
+            refreshProfessorSummary();
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -1222,6 +1748,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderAdminTeams();
             loadParams();
+            refreshProfessorSummary();
         });
     </script>
 </body>

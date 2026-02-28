@@ -417,24 +417,31 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Segmento de Mercado</label>
+                    <label class="form-label">Mercado de la Empresa</label>
                     <div class="segment-cards">
-                        <div class="segment-option" data-seg="economico" onclick="selectSegment(this)">
-                            <span class="seg-icon">🏷️</span>
-                            <div class="seg-name">Económico</div>
-                            <div class="seg-desc">Precio bajo y volumen. Calidad base suficiente.</div>
+                        <div class="segment-option selected" data-market="moda" onclick="selectMarket(this)">
+                            <span class="seg-icon">👗</span>
+                            <div class="seg-name">Moda</div>
+                            <div class="seg-desc">Marcas de indumentaria y accesorios.</div>
                         </div>
-                        <div class="segment-option selected" data-seg="medio" onclick="selectSegment(this)">
-                            <span class="seg-icon">⚡</span>
-                            <div class="seg-name">Medio</div>
-                            <div class="seg-desc">Balance precio-valor. Todas las 4Ps importan.</div>
+                        <div class="segment-option" data-market="autos" onclick="selectMarket(this)">
+                            <span class="seg-icon">🚗</span>
+                            <div class="seg-name">Autos</div>
+                            <div class="seg-desc">Soluciones ligadas a movilidad y vehículos.</div>
                         </div>
-                        <div class="segment-option" data-seg="lujo" onclick="selectSegment(this)">
-                            <span class="seg-icon">💎</span>
-                            <div class="seg-name">Lujo</div>
-                            <div class="seg-desc">Diferenciación por calidad y diseño. Precio secundario.</div>
+                        <div class="segment-option" data-market="casas" onclick="selectMarket(this)">
+                            <span class="seg-icon">🏠</span>
+                            <div class="seg-name">Casas</div>
+                            <div class="seg-desc">Productos para hogar e infraestructura residencial.</div>
                         </div>
                     </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label" for="team-members">Integrantes del Equipo</label>
+                    <textarea id="team-members" class="form-input"
+                        placeholder="Ej:\nMatias Arriagada\nCamila Soto\nDiego Perez"></textarea>
+                    <div class="form-hint">Sin maximo de integrantes. Separa por linea o coma.</div>
                 </div>
 
                 <div class="step-nav">
@@ -511,12 +518,16 @@
                         <span class="summary-row__value" id="sum-name">—</span>
                     </div>
                     <div class="summary-row">
-                        <span class="summary-row__label">Segmento</span>
+                        <span class="summary-row__label">Mercado</span>
                         <span class="summary-row__value" id="sum-segment">—</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-row__label">ID de Equipo</span>
                         <span class="summary-row__value" id="sum-id" style="font-family:var(--font-mono);">—</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-row__label">Integrantes</span>
+                        <span class="summary-row__value" id="sum-members">Sin integrantes</span>
                     </div>
                 </div>
 
@@ -554,12 +565,12 @@
 
     <script src="js/data-store.js"></script>
     <script>
-        let selectedSegment = "medio";
+        let selectedMarket = "moda";
 
-        function selectSegment(el) {
+        function selectMarket(el) {
             document.querySelectorAll(".segment-option").forEach(s => s.classList.remove("selected"));
             el.classList.add("selected");
-            selectedSegment = el.dataset.seg;
+            selectedMarket = el.dataset.market;
         }
 
         function showError(stepNum, msg) {
@@ -571,7 +582,33 @@
             document.querySelectorAll(".form-error").forEach(el => el.classList.remove("visible"));
         }
 
-        const SEG_LABELS = { economico: "🏷️ Económico", medio: "⚡ Medio", lujo: "💎 Lujo" };
+        let MARKET_LABELS = { moda: "👗 Moda", autos: "🚗 Autos", casas: "🏠 Casas" };
+
+        function applyMarketNamesFromConfig() {
+            const markets = DataStore.getConfig()?.mainMarkets || [];
+            const map = {};
+            markets.forEach(m => { map[m.id] = m.name; });
+            const icons = { moda: "👗", autos: "🚗", casas: "🏠" };
+            const occ = DataStore.getMarketOccupancy ? DataStore.getMarketOccupancy() : null;
+
+            document.querySelectorAll('.segment-option').forEach(card => {
+                const id = card.dataset.market;
+                const name = map[id];
+                if (!name) return;
+                const title = card.querySelector('.seg-name');
+                if (title) title.textContent = name;
+                const desc = card.querySelector('.seg-desc');
+                if (desc && occ?.markets?.[id]) {
+                    desc.textContent = `${occ.markets[id].count}/${occ.maxPerMarket} equipos registrados.`;
+                }
+            });
+
+            MARKET_LABELS = {
+                moda: `${icons.moda} ${map.moda || 'Moda'}`,
+                autos: `${icons.autos} ${map.autos || 'Autos'}`,
+                casas: `${icons.casas} ${map.casas || 'Casas'}`,
+            };
+        }
 
         function goToStep(num) {
             hideErrors();
@@ -592,6 +629,12 @@
                 if (existing.some(t => t.name.toLowerCase() === name.toLowerCase())) {
                     showError(1, "Ya existe una empresa con ese nombre. Elige otro."); return;
                 }
+                const occ = DataStore.getMarketOccupancy ? DataStore.getMarketOccupancy() : null;
+                if (occ && occ.markets?.[selectedMarket]?.full) {
+                    const marketLabel = MARKET_LABELS[selectedMarket] || selectedMarket;
+                    showError(1, `El mercado ${marketLabel} ya alcanzó su capacidad (${occ.maxPerMarket} equipos).`);
+                    return;
+                }
             }
 
             if (num === 3) {
@@ -604,8 +647,11 @@
                 // Populate summary
                 const compName = document.getElementById("company-name").value.trim();
                 document.getElementById("sum-name").textContent = compName;
-                document.getElementById("sum-segment").textContent = SEG_LABELS[selectedSegment];
+                document.getElementById("sum-segment").textContent = MARKET_LABELS[selectedMarket];
                 document.getElementById("sum-id").textContent = DataStore.generateId();
+                const membersRaw = document.getElementById("team-members").value || "";
+                const members = membersRaw.split(/[,;\n]/g).map(v => v.trim()).filter(Boolean);
+                document.getElementById("sum-members").textContent = members.length ? members.join(" · ") : "Sin integrantes";
                 document.getElementById("sum-prod-a").textContent = prodA;
                 document.getElementById("sum-prod-b").textContent = prodB;
                 document.getElementById("sum-desc-a").textContent = document.getElementById("prod-a-desc").value.trim() || "Sin descripción";
@@ -631,14 +677,26 @@
             const prodADesc = document.getElementById("prod-a-desc").value.trim();
             const prodBName = document.getElementById("prod-b-name").value.trim();
             const prodBDesc = document.getElementById("prod-b-desc").value.trim();
+            const members = (document.getElementById("team-members").value || "")
+                .split(/[,;\n]/g)
+                .map(v => v.trim())
+                .filter(Boolean);
 
-            const team = DataStore.createTeam(name, selectedSegment,
+            const team = DataStore.createTeam(name, selectedMarket,
                 document.getElementById("team-password").value,
                 { name: prodAName, description: prodADesc },
-                { name: prodBName, description: prodBDesc }
+                { name: prodBName, description: prodBDesc },
+                members
             );
+            if (!team || !team.success) {
+                const msg = team?.error || "No fue posible crear la empresa en este mercado.";
+                alert(`⚠️ ${msg}`);
+                return;
+            }
 
-            DataStore.setCurrentTeam(team.id);
+            DataStore.setCurrentTeam(team.team.id);
+            const authKey = DataStore.getStorageKey ? DataStore.getStorageKey('team_auth', true) : 'ag_team_auth';
+            sessionStorage.setItem(authKey, '1');
 
             // Redirect to dashboard
             window.location.href = "student-dashboard.html";
@@ -657,6 +715,7 @@
                     </div>`;
                 return;
             }
+            applyMarketNamesFromConfig();
             document.getElementById("company-name").focus();
         });
     </script>

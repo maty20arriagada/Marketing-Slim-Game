@@ -231,7 +231,7 @@
     <p class="landing__tagline">Motor de Simulación de Estrategia Marketing B2B</p>
 
     <div class="landing__meta">
-      <span class="landing__meta-pill" id="lp-turn">⚡ Q4 2025 en curso</span>
+      <span class="landing__meta-pill" id="lp-turn">⚡ Q1 2026 en curso</span>
       <span class="landing__meta-pill" id="lp-teams">👥 18 equipos activos</span>
       <span class="landing__meta-pill">💎 3 segmentos</span>
     </div>
@@ -271,7 +271,7 @@
       </div>
       <div class="stats-row__item">
         <span class="stats-row__num" id="stat-submitted">0</span>
-        <span class="stats-row__label">Enviaron Q4</span>
+        <span class="stats-row__label">Enviaron Q1</span>
       </div>
     </div>
 
@@ -279,7 +279,6 @@
   </div>
 
   <script src="js/data-store.js"></script>
-  <script src="js/mock-data.js"></script>
   <script src="js/theme-toggle.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -288,11 +287,10 @@
       const arrow = document.getElementById('student-arrow');
       const currentTeam = DataStore.getCurrentTeam();
 
+      link.href = 'student-login.html';
       if (currentTeam) {
-        link.href = 'student-dashboard.html';
-        arrow.textContent = `Continuar como ${currentTeam.name} →`;
+        arrow.textContent = `🔐 Ingresar como ${currentTeam.name} (pedirá contraseña) →`;
       } else {
-        link.href = 'student-login.html';
         arrow.textContent = '🎓 Acceder al Simulador →';
       }
 
@@ -300,17 +298,14 @@
       const teams = DataStore.getTeams();
       const el = id => document.getElementById(id);
       if (el('stat-teams')) el('stat-teams').textContent = teams.length || '0';
-
-      // Fallback to mock data for other stats
-      const D = window.MOCK;
-      if (D) {
-        if (el('lp-turn')) el('lp-turn').textContent = `⚡ ${D.currentTurnLabel} en curso`;
-        if (teams.length > 0) {
-          if (el('lp-teams')) el('lp-teams').textContent = `👥 ${teams.length} equipos activos`;
-        } else {
-          if (el('lp-teams')) el('lp-teams').textContent = `👥 ${D.professor.totalTeams} equipos activos`;
-        }
-      }
+      const c = DataStore.getConfig();
+      const q = `Q${c.currentTurn || 1}`;
+      if (el('lp-turn')) el('lp-turn').textContent = `⚡ ${c.currentTurnLabel || `${q} 2026`} en curso`;
+      if (el('lp-teams')) el('lp-teams').textContent = `👥 ${teams.length} equipos activos`;
+      const submitted = teams.filter(t => t.submitted && t.submitted[q]).length;
+      if (el('stat-submitted')) el('stat-submitted').textContent = String(submitted);
+      const submittedLbl = document.querySelector('.stats-row__item:last-child .stats-row__label');
+      if (submittedLbl) submittedLbl.textContent = `Enviaron ${q}`;
     });
   </script>
 </body>
