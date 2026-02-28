@@ -274,10 +274,18 @@ app.use((req, res) => {
 });
 
 // ── Arrancar servidor ───────────────────────────────────────────
-app.listen(PORT, () => {
+// '0.0.0.0' es obligatorio en Railway/Heroku/Render para que el
+// reverse proxy pueda alcanzar el proceso dentro del contenedor.
+const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`\n🚀 MKT SLIM GAME B2B Simulator`);
-    console.log(`   Servidor corriendo en: http://localhost:${PORT}`);
+    console.log(`   Puerto: ${PORT}`);
+    console.log(`   Host: 0.0.0.0`);
     console.log(`   Entorno: ${process.env.NODE_ENV || "development"}`);
     console.log(`   Contraseña profesor: ${PROFESSOR_PASSWORD.substring(0, 3)}***`);
     console.log(`   Protección antitrampa: ACTIVA\n`);
+});
+
+server.on("error", (err) => {
+    console.error("❌ Error al arrancar el servidor:", err.message);
+    process.exit(1);
 });
