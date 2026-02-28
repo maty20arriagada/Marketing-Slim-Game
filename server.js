@@ -15,6 +15,10 @@ const path = require("path");
 const crypto = require("crypto");
 
 const app = express();
+
+// ── Trust Railway / Heroku / render.com reverse proxy ───────────
+// Sin esto, req.secure nunca es true y las cookies 'secure' no funcionan
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
 // ── Contraseña del profesor ─────────────────────────────────────
@@ -25,15 +29,17 @@ const PROFESSOR_PASSWORD = process.env.PROFESSOR_PASSWORD || "mktslim2025";
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(session({
     secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString("hex"),
     resave: false,
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Auto-true en Railway/HTTPS
-        maxAge: 4 * 60 * 60 * 1000, // 4 horas
-        sameSite: "lax",
+        secure: isProduction,          // HTTPS en Railway, HTTP en local
+        maxAge: 4 * 60 * 60 * 1000,   // 4 horas
+        sameSite: isProduction ? "none" : "lax", // 'none' necesario en cloud
     },
 }));
 
