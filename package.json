@@ -1,19 +1,17 @@
 ﻿{
   "name": "marketing-slim-game",
   "version": "1.0.0",
-  "description": "Simulador interactivo de Estrategia de Marketing B2B para ayudantías universitarias.",
+  "description": "Simulador interactivo de Estrategia de Marketing B2B para ayudantias universitarias.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "serve": "python -m http.server 8765"
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "marketing",
     "b2b",
     "simulator",
-    "education",
-    "marketing-slim-game"
+    "education"
   ],
   "author": "Matias Arriagada R.",
   "license": "MIT",
